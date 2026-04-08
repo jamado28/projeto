@@ -1,0 +1,108 @@
+openapi: 3.0.0
+info:
+  title: Sistema de Gestão de Eventos
+  version: 1.0.0
+  description: API para gestão de utilizadores, carros, inscrições, bilhetes e pagamentos
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+
+  /users:
+    get:
+      summary: Listar utilizadores
+      responses:
+        '200':
+          description: Lista de utilizadores
+
+    post:
+      summary: Criar utilizador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Utilizador criado
+
+  /login:
+    post:
+      summary: Login do utilizador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login com sucesso
+        '401':
+          description: Credenciais inválidas
+
+  /carros:
+    post:
+      summary: Criar carro
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marca:
+                  type: string
+                modelo:
+                  type: string
+                pessoaId:
+                  type: integer
+      responses:
+        '200':
+          description: Carro criado
+
+  /carros/{pessoaId}:
+    get:
+      summary: Listar carros de uma pessoa
+      parameters:
+        - name: pessoaId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista de carros
+
+  /inscricoes:
+    post:
+      summary: Criar inscrição
+      responses:
+        '200':
+          description: Inscrição criada e bilhete gerado
+
+  /bilhetes:
+    get:
+      summary: Listar bilhetes
+      responses:
+        '200':
+          description: Lista de bilhetes
+
+  /pagamentos:
+    post:
+      summary: Criar pagamento
+      responses:
+        '200':
+          description: Pagamento registado
