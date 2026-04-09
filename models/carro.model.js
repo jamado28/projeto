@@ -1,13 +1,48 @@
-let carros = [];
+const sequelize = require("sequelize");
+const conexao = require("../config/database");
 
-module.exports = {
-  create: (carro) => {
-    carro.id = carros.length + 1;
-    carros.push(carro);
-    return carro;
+const Pessoa = require("./pessoa.model");
+
+const Carro = conexao.define(
+  "carro",
+  {
+    matricula: {
+      type: sequelize.STRING(10),
+      primaryKey: true,
+    },
+    marca: {
+      type: sequelize.STRING(50),
+      allowNull: false,
+    },
+    modelo: {
+      type: sequelize.STRING(50),
+      allowNull: false,
+    },
+    ano: {
+      type: sequelize.SMALLINT,
+    },
+    img_url: {
+      type: sequelize.TEXT,
+    },
+    pessoa_nif: {
+      type: sequelize.INTEGER,
+      allowNull: false,
+    },
   },
-
-  getByPessoa: (pessoaId) => {
-    return carros.filter(c => c.pessoaId == pessoaId);
+  {
+    tableName: "carro",
+    timestamps: true,
+    freezeTableName: true
   }
-};
+);
+
+
+// RELAÇÃO 1:N
+// muitos carros - 1 pessoa
+Carro.belongsTo(Pessoa, {
+  foreignKey: "pessoa_nif", // FK na tabela carro
+  targetKey: "nif",         // PK na tabela pessoa
+  as: "pessoa",             
+});
+
+module.exports = Carro;

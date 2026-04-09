@@ -1,11 +1,49 @@
-let eventos = [];
+const sequelize = require("sequelize");
+const conexao = require("../config/database");
+const Pessoa = require("./pessoa.model");
 
-module.exports = {
-  create: (evento) => {
-    evento.id = eventos.length + 1;
-    eventos.push(evento);
-    return evento;
+const Evento = conexao.define(
+  "evento",
+  {
+    id_evento: {
+      type: sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    nome: {
+      type: sequelize.STRING(150),
+      allowNull: false
+    },
+    data: {
+      type: sequelize.DATEONLY,
+      allowNull: false
+    },
+    local_evento: {
+      type: sequelize.STRING(255),
+      allowNull: false
+    },
+    preco_visitante: {
+      type: sequelize.DECIMAL(8, 2),
+      allowNull: true
+    },
+    preco_participante: {
+      type: sequelize.DECIMAL(8, 2),
+      allowNull: true
+    },
   },
+  {
+    tableName: "evento",
+    timestamps: true,
+    freezeTableName: true
+  }
+);
 
-  getAll: () => eventos
-};
+Evento.belongsToMany(Pessoa, {
+  through: "evento_pessoa",
+  foreignKey: "evento_id_evento",
+  otherKey: "pessoa_nif",
+  as: "pessoas",
+});
+
+module.exports = Evento;
+
