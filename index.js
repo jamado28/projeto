@@ -1,72 +1,36 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const sequelize = require("./config/database");
 
-// Middleware para ler JSON
+const port = 3000;
+
+// CONFIG
+app.set("port", process.env.PORT || port);
 app.use(express.json());
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const sequelize = require('./config/database');
 
+// LIGAÇÃO À BD
 sequelize.authenticate()
-  .then(() => {
-    console.log('Ligado à base de dados!');
-  })
-  .catch(err => {
-    console.error('Erro na ligação:', err);
-  });
+  .then(() => console.log("Ligado à base de dados"))
+  .catch((err) => console.log("Erro na ligação:", err));
 
-/*
-// =========================
-//   IMPORTAR CONTROLLERS
-// =========================
+//sequelize.sync();
 
-const userController = require("./controllers/user.controller");
-const authController = require("./controllers/auth.controller");
-const carroController = require("./controllers/carro.controller"); // 🔥 corrigido
-const inscricaoController = require("./controllers/inscricao.controller");
-const bilheteController = require("./controllers/bilhete.controller");
-const pagamentoController = require("./controllers/pagamento.controller");
 
-// =========================
-//   ROTAS (API)
-// =========================
+// ROUTES
+app.use("/api", require("./routes/evento.routes"));
+app.use("/api", require("./routes/pessoa.routes"));
+app.use("/api", require("./routes/carro.routes"));
+app.use("/api", require("./routes/bilhete.routes"));
+app.use("/api", require("./routes/pagamento.routes"));
+app.use("/api/auth", require("./routes/auth.routes"));
 
-// 👤 USERS
-app.get("/users", userController.getAllUsers);
-app.post("/users", userController.createUser);
 
-// 🔐 LOGIN
-app.post("/login", authController.login);
-
-// 🚗 CARROS (🔥 tudo em português agora)
-app.post("/carros", carroController.createCarro);
-app.get("/carros/:pessoaId", carroController.getCarrosByPessoa);
-
-// 📝 INSCRIÇÕES
-app.post("/inscricoes", inscricaoController.createInscricao);
-
-// 🎟️ BILHETES
-if (bilheteController.getAllBilhetes) {
-  app.get("/bilhetes", bilheteController.getAllBilhetes);
-}
-
-// 💳 PAGAMENTOS
-app.post("/pagamentos", pagamentoController.createPagamento);
-
-// =========================
-//   TESTE RÁPIDO
-// =========================
-
-app.get("/", (req, res) => {
-  res.send("API a funcionar 🚀");
+// SERVER
+app.listen(app.get("port"), () => {
+  console.log("Servidor a correr na porta " + app.get("port"));
 });
-
-// =========================
-//   INICIAR SERVIDOR
-// =========================
-
-const PORT = 3000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor a correr em http://localhost:${PORT}`);
-});
-*/

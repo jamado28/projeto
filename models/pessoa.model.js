@@ -34,11 +34,4 @@ const Pessoa = conexao.define(
   }
 );
 
-Pessoa.belongsToMany(Evento, {
-  through: "evento_pessoa",
-  foreignKey: "pessoa_nif",
-  otherKey: "evento_id_evento",
-  as: "eventos",
-});
-
 module.exports = Pessoa;
