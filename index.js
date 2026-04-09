@@ -4,9 +4,20 @@ const app = express();
 // Middleware para ler JSON
 app.use(express.json());
 
-/* =========================
-   IMPORTAR CONTROLLERS
-========================= */
+const sequelize = require('./config/database');
+
+sequelize.authenticate()
+  .then(() => {
+    console.log('Ligado à base de dados!');
+  })
+  .catch(err => {
+    console.error('Erro na ligação:', err);
+  });
+
+/*
+// =========================
+//   IMPORTAR CONTROLLERS
+// =========================
 
 const userController = require("./controllers/user.controller");
 const authController = require("./controllers/auth.controller");
@@ -15,9 +26,9 @@ const inscricaoController = require("./controllers/inscricao.controller");
 const bilheteController = require("./controllers/bilhete.controller");
 const pagamentoController = require("./controllers/pagamento.controller");
 
-/* =========================
-   ROTAS (API)
-========================= */
+// =========================
+//   ROTAS (API)
+// =========================
 
 // 👤 USERS
 app.get("/users", userController.getAllUsers);
@@ -41,20 +52,21 @@ if (bilheteController.getAllBilhetes) {
 // 💳 PAGAMENTOS
 app.post("/pagamentos", pagamentoController.createPagamento);
 
-/* =========================
-   TESTE RÁPIDO
-========================= */
+// =========================
+//   TESTE RÁPIDO
+// =========================
 
 app.get("/", (req, res) => {
   res.send("API a funcionar 🚀");
 });
 
-/* =========================
-   INICIAR SERVIDOR
-========================= */
+// =========================
+//   INICIAR SERVIDOR
+// =========================
 
 const PORT = 3000;
 
 app.listen(PORT, () => {
   console.log(`Servidor a correr em http://localhost:${PORT}`);
 });
+*/
