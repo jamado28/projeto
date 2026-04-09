@@ -1,13 +1,119 @@
-const userModel = require("../models/user.model");
+const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const config = require("../config/config");
 
-exports.login = (req, res) => {
+const endpoints = {};
+
+
+// REGISTER
+endpoints.register = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = userModel.findByEmail(email);
+  const dados = await User.create({ email, password });
 
-  if (!user || user.password !== password) {
-    return res.status(401).json({ error: "Credenciais inválidas" });
-  }
-
-  res.json({ message: "Login com sucesso", user });
+  res.status(200).json({
+    success: true,
+    message: "Utilizador criado com sucesso.",
+    data: dados,
+  });
 };
+
+
+// LOGIN
+endpoints.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        message: "Email ou senha inválidos.",
+      });
+    }
+
+    // comparar password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(403).json({
+        success: false,
+        message: "Email ou senha inválidos.",
+      });
+    }
+
+    // gerar token
+    const token = jwt.sign(
+      { email: user.email },
+      config.secret,
+      { expiresIn: config.timer }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Autenticação realizada com sucesso.",
+      AccessToken: token,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Erro no processo de autenticação.",
+    });
+  }
+};
+
+
+// REFRESH TOKEN
+endpoints.refreshToken = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Token não fornecido.",
+      });
+    }
+
+    jwt.verify(token, config.secret, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({
+          success: false,
+          message: "Token inválido ou expirado.",
+        });
+      }
+
+      const newToken = jwt.sign(
+        { email: decoded.email },
+        config.secret,
+        { expiresIn: config.timer }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Token renovado com sucesso.",
+        AccessToken: newToken,
+      });
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Erro ao renovar token.",
+    });
+  }
+};
+
+
+// LOGOUT
+endpoints.logout = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Logout realizado com sucesso.",
+  });
+};
+
+module.exports = endpoints;
