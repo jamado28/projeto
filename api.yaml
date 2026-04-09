@@ -5,19 +5,15 @@ info:
   description: API para gestão de utilizadores, carros, inscrições, bilhetes e pagamentos
 
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:3000/api
+
 
 paths:
 
-  /users:
-    get:
-      summary: Listar utilizadores
-      responses:
-        '200':
-          description: Lista de utilizadores
-
+  #AUTH
+  /auth/register:
     post:
-      summary: Criar utilizador
+      summary: Registar utilizador
       requestBody:
         required: true
         content:
@@ -33,9 +29,9 @@ paths:
         '200':
           description: Utilizador criado
 
-  /login:
+  /auth/login:
     post:
-      summary: Login do utilizador
+      summary: Login
       requestBody:
         required: true
         content:
@@ -50,12 +46,40 @@ paths:
       responses:
         '200':
           description: Login com sucesso
-        '401':
-          description: Credenciais inválidas
 
-  /carros:
+  /auth/refresh-token:
     post:
-      summary: Criar carro
+      summary: Renovar token
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token renovado
+
+  /auth/logout:
+    post:
+      summary: Logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout realizado
+
+
+  #EVENTOS
+  /eventos:
+    get:
+      summary: Listar eventos
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de eventos
+
+    post:
+      summary: Criar evento
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -63,46 +87,158 @@ paths:
             schema:
               type: object
               properties:
-                marca:
+                nome:
                   type: string
-                modelo:
+                data:
                   type: string
-                pessoaId:
-                  type: integer
+                local_evento:
+                  type: string
+                preco_visitante:
+                  type: number
+                preco_participante:
+                  type: number
       responses:
-        '200':
-          description: Carro criado
+        '201':
+          description: Evento criado
 
-  /carros/{pessoaId}:
+  /eventos/{id}:
     get:
-      summary: Listar carros de uma pessoa
+      summary: Obter evento por ID
+      security:
+        - bearerAuth: []
       parameters:
-        - name: pessoaId
+        - name: id
           in: path
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Lista de carros
+          description: Evento encontrado
 
-  /inscricoes:
-    post:
-      summary: Criar inscrição
+    put:
+      summary: Atualizar evento
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: Inscrição criada e bilhete gerado
+          description: Evento atualizado
 
+    delete:
+      summary: Apagar evento
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Evento apagado
+
+
+  #PESSOAS
+  /pessoas:
+    get:
+      summary: Listar pessoas
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de pessoas
+
+    post:
+      summary: Criar pessoa
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Pessoa criada
+
+  /pessoas/{id}:
+    get:
+      summary: Obter pessoa por NIF
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pessoa encontrada
+
+
+  #CARROS
+  /carros:
+    get:
+      summary: Listar carros
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de carros
+
+    post:
+      summary: Criar carro
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Carro criado
+
+
+  #BILHETES
   /bilhetes:
     get:
       summary: Listar bilhetes
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Lista de bilhetes
 
-  /pagamentos:
     post:
-      summary: Criar pagamento
+      summary: Criar bilhete
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Bilhete criado
+
+
+  #PAGAMENTOS
+  /pagamentos:
+    get:
+      summary: Listar pagamentos
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Pagamento registado
+          description: Lista de pagamentos
+
+    post:
+      summary: Criar pagamento
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Pagamento criado
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
