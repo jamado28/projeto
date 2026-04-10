@@ -34,7 +34,7 @@ endpoints.createBilhete = async (req, res) => {
       id_evento,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       status: "success",
       message: "Bilhete criado com sucesso.",
       data: dados,

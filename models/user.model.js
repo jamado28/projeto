@@ -22,6 +22,11 @@ const User = db.define(
       type: sequelize.STRING,
       allowNull: false,
     },
+    role: {
+      type: sequelize.STRING,
+      allowNull: false,
+      defaultValue: "cliente"
+    }
   },
   {
     tableName: "user",

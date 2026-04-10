@@ -12,7 +12,7 @@ endpoints.register = async (req, res) => {
 
   const dados = await User.create({ email, password });
 
-  res.status(200).json({
+  res.status(201).json({
     success: true,
     message: "Utilizador criado com sucesso.",
     data: dados,
@@ -46,7 +46,7 @@ endpoints.login = async (req, res) => {
 
     // gerar token
     const token = jwt.sign(
-      { email: user.email },
+      { email: user.email, role: user.role },
       config.secret,
       { expiresIn: config.timer }
     );
@@ -87,7 +87,7 @@ endpoints.refreshToken = async (req, res) => {
       }
 
       const newToken = jwt.sign(
-        { email: decoded.email },
+        { email: decoded.email, role: decoded.role },
         config.secret,
         { expiresIn: config.timer }
       );

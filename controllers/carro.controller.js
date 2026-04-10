@@ -28,7 +28,7 @@ endpoints.createCarro = async (req, res) => {
       pessoa_nif,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       status: "success",
       message: "Carro criado com sucesso.",
       data: dados,

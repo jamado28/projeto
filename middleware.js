@@ -31,6 +31,28 @@ const checkToken = (req, res, next) => {
   }
 };
 
+const checkAdmin = (req, res, next) => {
+  if (req.decoded.role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Acesso negado (admin apenas)"
+    });
+  }
+  next();
+};
+
+const checkEmpresa = (req, res, next) => {
+  if (req.decoded.role !== "empresa") {
+    return res.status(403).json({
+      success: false,
+      message: "Acesso negado (empresa apenas)"
+    });
+  }
+  next();
+};
+
 module.exports = {
   checkToken,
+  checkAdmin,
+  checkEmpresa
 };

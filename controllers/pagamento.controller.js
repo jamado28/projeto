@@ -26,7 +26,7 @@ endpoints.createPagamento = async (req, res) => {
       id_bilhete,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       status: "success",
       message: "Pagamento criado com sucesso.",
       data: dados,

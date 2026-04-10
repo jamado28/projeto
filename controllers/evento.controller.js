@@ -15,7 +15,7 @@ endpoints.createEvento = async (req, res) => {
       preco_participante,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       status: "success",
       message: "Evento criado com sucesso.",
       data: dados,

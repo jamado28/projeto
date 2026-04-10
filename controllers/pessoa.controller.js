@@ -15,7 +15,7 @@ endpoints.createPessoa = async (req, res) => {
       data_nascimento,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       status: "success",
       message: "Pessoa criada com sucesso.",
       data: dados,

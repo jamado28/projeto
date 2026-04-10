@@ -23,6 +23,10 @@ const Bilhete = conexao.define(
       type: sequelize.INTEGER,
       allowNull: false,
     },
+    tipo: {
+      type: sequelize.STRING,
+      allowNull: false // visitante | participante
+    }
   },
   {
     tableName: "bilhete",
