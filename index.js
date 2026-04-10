@@ -18,7 +18,7 @@ sequelize.authenticate()
   .then(() => console.log("Ligado à base de dados"))
   .catch((err) => console.log("Erro na ligação:", err));
 
-//sequelize.sync();
+sequelize.sync({ force: true });
 
 
 // ROUTES
