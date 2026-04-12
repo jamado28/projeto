@@ -4,17 +4,15 @@ const router = express.Router();
 const controller = require("../controllers/evento.controller");
 const middlewareAuth = require("../middleware");
 
-// TODOS autenticados podem ver
-router.get("/", middlewareAuth.checkToken, controller.getAllEventos);
-router.get("/:id", middlewareAuth.checkToken, controller.getEventoById);
+router.get("/", controller.getAllEventos); // público
+router.get("/:id",  middlewareAuth.checkToken, controller.getEventoById);
 
-// SÓ ADMIN pode criar
-router.post("/", middlewareAuth.checkToken, middlewareAuth.checkAdmin, controller.createEvento);
+router.get("/user/:id", middlewareAuth.checkToken, controller.getEventosByUser); //Para cada organizador ver os seus de todos os anos
 
-// SÓ ADMIN pode editar
-router.put("/:id", middlewareAuth.checkToken, middlewareAuth.checkAdmin, controller.updateEvento);
+router.post("/", middlewareAuth.checkToken, controller.createEvento);
 
-// SÓ ADMIN pode apagar
-router.delete("/:id", middlewareAuth.checkToken, middlewareAuth.checkAdmin, controller.deleteEvento);
+router.put("/:id", middlewareAuth.checkToken, controller.updateEvento);
+
+router.delete("/:id", middlewareAuth.checkToken, controller.deleteEvento);
 
 module.exports = router;

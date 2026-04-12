@@ -1,17 +1,24 @@
 const sequelize = require("sequelize");
 const conexao = require("../config/database");
 const Evento = require("./evento.model");
+const User = require("./user.model");
 
 const Pessoa = conexao.define(
   "pessoa",
   {
+    id_pessoa: {
+      type: sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     nif: {
       type: sequelize.INTEGER,
-      primaryKey: true
+      allowNull: true,
+      unique: true
     },
     nome: {
       type: sequelize.STRING(100),
-      allowNull: false
+      allowNull: true
     },
     email: {
       type: sequelize.STRING(100),
@@ -20,12 +27,17 @@ const Pessoa = conexao.define(
     },
     telemovel: {
       type: sequelize.STRING(15),
-      allowNull: false
+      allowNull: true
     },
     data_nascimento: {
       type: sequelize.DATEONLY,
-      allowNull: false
+      allowNull: true
     },
+    user_id: {
+      type: sequelize.INTEGER,
+      allowNull: false,
+      unique: true
+    }
   },
   {
     tableName: "pessoa",
@@ -33,5 +45,8 @@ const Pessoa = conexao.define(
     freezeTableName: true
   }
 );
+
+User.hasOne(Pessoa, { foreignKey: "user_id" });
+Pessoa.belongsTo(User, { foreignKey: "user_id" });
 
 module.exports = Pessoa;

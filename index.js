@@ -18,15 +18,15 @@ sequelize.authenticate()
   .then(() => console.log("Ligado à base de dados"))
   .catch((err) => console.log("Erro na ligação:", err));
 
-sequelize.sync({ force: true });
+sequelize.sync();
 
 
 // ROUTES
-app.use("/api", require("./routes/evento.routes"));
-app.use("/api", require("./routes/pessoa.routes"));
-app.use("/api", require("./routes/carro.routes"));
-app.use("/api", require("./routes/bilhete.routes"));
-app.use("/api", require("./routes/pagamento.routes"));
+app.use("/api/pessoas", require("./routes/pessoa.routes"));
+app.use("/api/carros", require("./routes/carro.routes"));
+app.use("/api/eventos", require("./routes/evento.routes"));
+app.use("/api/bilhetes", require("./routes/bilhete.routes"));
+app.use("/api/pagamentos", require("./routes/pagamento.routes"));
 app.use("/api/auth", require("./routes/auth.routes"));
 
 
