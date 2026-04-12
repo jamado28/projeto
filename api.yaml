@@ -128,20 +128,97 @@ paths:
         '500':
           description: Erro no servidor
 
-  #EVENTOS
+  # EVENTOS
+
   /eventos:
     get:
-      summary: Listar eventos
-      security:
-        - bearerAuth: []
+      summary: Listar todos os eventos (público)
+      tags: [Eventos]
       responses:
         '200':
           description: Lista de eventos
+        '500':
+          description: Erro no servidor
 
     post:
-      summary: Criar evento
+      summary: Criar evento (admin ou organizador)
+      tags: [Eventos]
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome, data, local_evento, limite_participantes]
+              properties:
+                nome:
+                  type: string
+                  example: Car Meet Porto
+                data:
+                  type: string
+                  format: date
+                  example: 2026-10-10
+                local_evento:
+                  type: string
+                  example: Porto
+                preco_visitante:
+                  type: number
+                  example: 20
+                preco_participante:
+                  type: number
+                  example: 10
+                limite_participantes:
+                  type: integer
+                  example: 50
+      responses:
+        '201':
+          description: Evento criado com sucesso
+        '400':
+          description: Evento já existe ou dados inválidos
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Sem permissão
+        '500':
+          description: Erro no servidor
+
+  /eventos/{id}:
+    get:
+      summary: Obter evento por ID
+      tags: [Eventos]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Evento encontrado
+        '401':
+          description: Token não fornecido
+        '404':
+          description: Evento não encontrado
+        '500':
+          description: Erro no servidor
+
+    put:
+      summary: Atualizar evento (admin ou organizador dono)
+      tags: [Eventos]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
       requestBody:
         required: true
         content:
@@ -153,149 +230,554 @@ paths:
                   type: string
                 data:
                   type: string
+                  format: date
                 local_evento:
                   type: string
                 preco_visitante:
                   type: number
+                  minimum: 0
                 preco_participante:
                   type: number
-      responses:
-        '201':
-          description: Evento criado
-
-  /eventos/{id}:
-    get:
-      summary: Obter evento por ID
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+                  minimum: 0
       responses:
         '200':
-          description: Evento encontrado
-
-    put:
-      summary: Atualizar evento
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Evento atualizado
+          description: Evento atualizado com sucesso
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Evento não encontrado
+        '500':
+          description: Erro no servidor
 
     delete:
-      summary: Apagar evento
+      summary: Apagar evento (admin ou organizador dono)
+      tags: [Eventos]
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
           schema:
             type: integer
+          example: 1
       responses:
-        '204':
-          description: Evento apagado
+        '200':
+          description: Evento apagado com sucesso
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Evento não encontrado
+        '500':
+          description: Erro no servidor
 
+    # PESSOAS
 
-  #PESSOAS
   /pessoas:
     get:
       summary: Listar pessoas
+      description: |
+        - Admin: vê todas as pessoas  
+        - Organizador: vê pessoas dos seus eventos  
+        - Cliente: vê apenas o seu perfil
+      tags: [Pessoas]
       security:
         - bearerAuth: []
       responses:
         '200':
           description: Lista de pessoas
-
-    post:
-      summary: Criar pessoa
-      security:
-        - bearerAuth: []
-      responses:
-        '201':
-          description: Pessoa criada
+        '401':
+          description: Token não fornecido
+        '500':
+          description: Erro no servidor
 
   /pessoas/{id}:
     get:
-      summary: Obter pessoa por NIF
+      summary: Obter pessoa por ID
+      description: |
+        - Admin: pode ver qualquer pessoa  
+        - Cliente: só pode ver a sua  
+        - Organizador: só pessoas dos seus eventos
+      tags: [Pessoas]
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
           schema:
             type: integer
+          example: 1
       responses:
         '200':
           description: Pessoa encontrada
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Pessoa não encontrada
+        '500':
+          description: Erro no servidor
+
+    put:
+      summary: Atualizar pessoa
+      description: |
+        - Admin: pode editar qualquer pessoa  
+        - Cliente: só pode editar o seu perfil
+      tags: [Pessoas]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  example: João Silva
+                email:
+                  type: string
+                  example: joao@gmail.com
+                telemovel:
+                  type: string
+                  example: 911111111
+                data_nascimento:
+                  type: string
+                  format: date
+                  example: 2000-01-01
+      responses:
+        '200':
+          description: Pessoa atualizada com sucesso
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Pessoa não encontrada
+        '500':
+          description: Erro no servidor
 
 
-  #CARROS
+  # CARROS
   /carros:
     get:
       summary: Listar carros
+      description: |
+        - Admin: vê todos os carros  
+        - Cliente: vê apenas os seus carros  
+        - Organizador: vê carros associados aos seus eventos
+      tags: [Carros]
       security:
         - bearerAuth: []
       responses:
         '200':
           description: Lista de carros
+        '401':
+          description: Token não fornecido
+        '500':
+          description: Erro no servidor
 
     post:
-      summary: Criar carro
+      summary: Criar carro (apenas cliente)
+      tags: [Carros]
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [matricula, marca, modelo]
+              properties:
+                matricula:
+                  type: string
+                  example: AA-11-BB
+                marca:
+                  type: string
+                  example: BMW
+                modelo:
+                  type: string
+                  example: M3
+                ano:
+                  type: integer
+                  example: 2020
+                img_url:
+                  type: string
+                  example: img.jpg
       responses:
         '201':
-          description: Carro criado
+          description: Carro criado com sucesso
+        '400':
+          description: Matrícula já existe
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Apenas clientes podem criar carros
+        '404':
+          description: Pessoa não encontrada
+        '500':
+          description: Erro no servidor
+
+  /carros/{id}:
+    get:
+      summary: Obter carro por matrícula
+      description: |
+        - Admin: pode ver qualquer carro  
+        - Cliente: só os seus  
+        - Organizador: carros dos seus eventos
+      tags: [Carros]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: AA-11-BB
+      responses:
+        '200':
+          description: Carro encontrado
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Carro não encontrado
+        '500':
+          description: Erro no servidor
+
+    put:
+      summary: Atualizar carro
+      description: |
+        - Admin: pode atualizar qualquer carro  
+        - Cliente: apenas os seus carros
+      tags: [Carros]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: AA-11-BB
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marca:
+                  type: string
+                  example: Audi
+                modelo:
+                  type: string
+                  example: RS3
+                ano:
+                  type: integer
+                  example: 2021
+                img_url:
+                  type: string
+                  example: nova.jpg
+      responses:
+        '200':
+          description: Carro atualizado com sucesso
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Carro não encontrado
+        '500':
+          description: Erro no servidor
+
+    delete:
+      summary: Apagar carro
+      description: |
+        - Admin: pode apagar qualquer carro  
+        - Cliente: apenas os seus carros
+      tags: [Carros]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: AA-11-BB
+      responses:
+        '200':
+          description: Carro apagado com sucesso
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Carro não encontrado
+        '500':
+          description: Erro no servidor
 
 
   #BILHETES
   /bilhetes:
     get:
       summary: Listar bilhetes
+      description: |
+        - Admin: vê todos os bilhetes  
+        - Cliente: vê apenas os seus  
+        - Organizador: vê bilhetes dos seus eventos
+      tags: [Bilhetes]
       security:
         - bearerAuth: []
       responses:
         '200':
           description: Lista de bilhetes
+        '401':
+          description: Token não fornecido
+        '500':
+          description: Erro no servidor
 
     post:
-      summary: Criar bilhete
+      summary: Criar bilhete (apenas cliente)
+      description: |
+        - Cliente pode criar bilhete visitante ou participante  
+        - Participante exige carro associado  
+        - Não pode repetir bilhete no mesmo evento  
+        - Respeita limite de participantes do evento
+      tags: [Bilhetes]
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ano_bilhete, id_evento, tipo]
+              properties:
+                ano_bilhete:
+                  type: integer
+                  example: 2026
+                id_evento:
+                  type: integer
+                  example: 1
+                tipo:
+                  type: string
+                  enum: [visitante, participante]
+                  example: participante
+                matricula_carro:
+                  type: string
+                  example: AA-11-BB
       responses:
         '201':
-          description: Bilhete criado
+          description: Bilhete criado com sucesso
+        '400':
+          description: |
+            - Já existe bilhete para este evento  
+            - Carro inválido  
+            - Limite de participantes atingido  
+            - Dados inválidos
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Apenas clientes podem criar bilhetes
+        '404':
+          description: Evento ou pessoa não encontrada
+        '500':
+          description: Erro no servidor
+
+  /bilhetes/{id}:
+    get:
+      summary: Obter bilhete por ID
+      description: |
+        - Admin: pode ver qualquer bilhete  
+        - Cliente: apenas os seus  
+        - Organizador: bilhetes dos seus eventos
+      tags: [Bilhetes]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Bilhete encontrado
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Bilhete não encontrado
+        '500':
+          description: Erro no servidor
+
+    delete:
+      summary: Apagar bilhete
+      description: |
+        - Admin: pode apagar qualquer bilhete  
+        - Cliente: apenas os seus bilhetes
+      tags: [Bilhetes]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Bilhete apagado com sucesso
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Bilhete não encontrado
+        '500':
+          description: Erro no servidor
 
 
   #PAGAMENTOS
   /pagamentos:
     get:
       summary: Listar pagamentos
+      description: |
+        - Admin: vê todos os pagamentos  
+        - Cliente: vê apenas os seus pagamentos  
+        - Organizador: vê pagamentos dos seus eventos
+      tags: [Pagamentos]
       security:
         - bearerAuth: []
       responses:
         '200':
           description: Lista de pagamentos
+        '401':
+          description: Token não fornecido
+        '500':
+          description: Erro no servidor
 
     post:
-      summary: Criar pagamento
+      summary: Criar pagamento (apenas cliente)
+      description: |
+        - Apenas clientes podem pagar  
+        - IBAN deve ser válido (PT50...)  
+        - Preço é calculado automaticamente pelo sistema  
+        - Um bilhete só pode ter um pagamento
+      tags: [Pagamentos]
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [iban, estado, id_bilhete]
+              properties:
+                iban:
+                  type: string
+                  example: PT50000000000000000000000
+                estado:
+                  type: boolean
+                  example: true
+                id_bilhete:
+                  type: integer
+                  example: 1
       responses:
         '201':
-          description: Pagamento criado
+          description: Pagamento criado com sucesso
+        '400':
+          description: |
+            - IBAN inválido  
+            - Bilhete já pago  
+            - Dados inválidos
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Apenas clientes podem fazer pagamentos
+        '404':
+          description: Bilhete ou pessoa não encontrada
+        '500':
+          description: Erro no servidor
+
+  /pagamentos/{id}:
+    get:
+      summary: Obter pagamento por ID
+      description: |
+        - Admin: pode ver qualquer pagamento  
+        - Cliente: apenas os seus pagamentos  
+        - Organizador: pagamentos dos seus eventos
+      tags: [Pagamentos]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Pagamento encontrado
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Não autorizado
+        '404':
+          description: Pagamento não encontrado
+        '500':
+          description: Erro no servidor
+
+    delete:
+      summary: Apagar pagamento (apenas admin)
+      description: |
+        - Apenas admin pode apagar pagamentos
+      tags: [Pagamentos]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Pagamento apagado com sucesso
+        '401':
+          description: Token não fornecido
+        '403':
+          description: Apenas admin pode apagar pagamentos
+        '404':
+          description: Pagamento não encontrado
+        '500':
+          description: Erro no servidor
 
 
 components:

@@ -217,7 +217,14 @@ endpoints.getBilheteById = async (req, res) => {
     }
 
     // organizador
-    if (bilhete) {
+    const evento = await Evento.findOne({
+      where: {
+        id_evento: bilhete.id_evento,
+        user_id: decoded.id
+      }
+    });
+
+    if (evento) {
       return res.status(200).json(bilhete);
     }
 
