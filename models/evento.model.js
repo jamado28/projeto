@@ -24,12 +24,22 @@ const Evento = conexao.define(
     },
     preco_visitante: {
       type: sequelize.DECIMAL(8, 2),
+      validate: { min: 0 },
       allowNull: true
     },
     preco_participante: {
       type: sequelize.DECIMAL(8, 2),
+      validate: { min: 0 },
       allowNull: true
     },
+    limite_participantes: {
+      type: sequelize.INTEGER,
+      allowNull: false
+    },
+    user_id: {
+      type: sequelize.INTEGER,
+      allowNull: false
+    }
   },
   {
     tableName: "evento",

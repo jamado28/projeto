@@ -3,6 +3,7 @@ const conexao = require("../config/database");
 const Pessoa = require("./pessoa.model");
 const Evento = require("./evento.model");
 
+
 const Bilhete = conexao.define(
   "bilhete",
   {
@@ -15,7 +16,7 @@ const Bilhete = conexao.define(
       type: sequelize.INTEGER,
       allowNull: false,
     },
-    pessoa_nif: {
+    id_pessoa: {
       type: sequelize.INTEGER,
       allowNull: false,
     },
@@ -25,7 +26,14 @@ const Bilhete = conexao.define(
     },
     tipo: {
       type: sequelize.STRING,
-      allowNull: false // visitante | participante
+      allowNull: false,
+      validate: {
+        isIn: [["visitante", "participante"]]
+      }
+    },
+    matricula_carro: {
+      type: sequelize.STRING(10),
+      allowNull: true
     }
   },
   {
@@ -38,8 +46,8 @@ const Bilhete = conexao.define(
 
 // muitos bilhetes - 1 pessoa
 Bilhete.belongsTo(Pessoa, {
-  foreignKey: "pessoa_nif",
-  targetKey: "nif",
+  foreignKey: "id_pessoa",
+  targetKey: "id_pessoa",
   as: "pessoa",
 });
 
@@ -48,6 +56,16 @@ Bilhete.belongsTo(Evento, {
   foreignKey: "id_evento",
   targetKey: "id_evento",
   as: "evento",
+  onDelete: "CASCADE"
 });
 
+
 module.exports = Bilhete;
+
+const Carro = require("./carro.model");
+
+Bilhete.belongsTo(Carro, {
+  foreignKey: "matricula_carro",
+  targetKey: "matricula",
+  as: "carro"
+});

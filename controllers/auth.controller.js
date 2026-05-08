@@ -2,21 +2,67 @@ const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const config = require("../config/config");
+const Pessoa = require("../models/pessoa.model");
 
 const endpoints = {};
 
-
 // REGISTER
 endpoints.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
-  const dados = await User.create({ email, password });
+  try {
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email e password são obrigatórios."
+      });
+    }
 
-  res.status(201).json({
-    success: true,
-    message: "Utilizador criado com sucesso.",
-    data: dados,
-  });
+    const existente = await User.findOne({ where: { email } });
+
+    if (existente) {
+      return res.status(400).json({
+        success: false,
+        message: "Email já existe."
+      });
+    }
+    
+    // criar user
+    const user = await User.create({
+      email,
+      password,
+      role: role || "cliente",
+    });
+
+    // se for cliente - criar pessoa automaticamente
+    if (user.role === "cliente") {
+      await Pessoa.create({
+        nif: null,
+        nome: null,
+        email: user.email,
+        telemovel: null,
+        data_nascimento: null,
+        user_id: user.id,
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Utilizador criado com sucesso.",
+      data: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Erro ao criar utilizador.",
+    });
+  }
 };
 
 
@@ -34,7 +80,6 @@ endpoints.login = async (req, res) => {
       });
     }
 
-    // comparar password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -44,9 +89,13 @@ endpoints.login = async (req, res) => {
       });
     }
 
-    // gerar token
+    // TOKEN COM ID
     const token = jwt.sign(
-      { email: user.email, role: user.role },
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
       config.secret,
       { expiresIn: config.timer }
     );
@@ -59,7 +108,7 @@ endpoints.login = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({
-      status: "error",
+      success: false,
       message: "Erro no processo de autenticação.",
     });
   }
@@ -87,7 +136,11 @@ endpoints.refreshToken = async (req, res) => {
       }
 
       const newToken = jwt.sign(
-        { email: decoded.email, role: decoded.role },
+        {
+          id: decoded.id,
+          email: decoded.email,
+          role: decoded.role,
+        },
         config.secret,
         { expiresIn: config.timer }
       );
@@ -101,7 +154,7 @@ endpoints.refreshToken = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({
-      status: "error",
+      success: false,
       message: "Erro ao renovar token.",
     });
   }
@@ -114,6 +167,44 @@ endpoints.logout = async (req, res) => {
     success: true,
     message: "Logout realizado com sucesso.",
   });
+};
+
+//DELETE
+endpoints.deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+
+    // não existe
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "Utilizador não encontrado.",
+      });
+    }
+
+    // impedir apagar a si próprio
+    if (req.decoded.email === user.email) {
+      return res.status(400).json({
+        status: "error",
+        message: "Não pode eliminar o próprio utilizador.",
+      });
+    }
+
+    await user.destroy();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Utilizador eliminado com sucesso.",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "Erro ao eliminar utilizador."
+    });
+  }
 };
 
 module.exports = endpoints;

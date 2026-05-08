@@ -12,4 +12,6 @@ router.post("/login", authController.login);
 router.post("/refresh-token", middleware.checkToken, authController.refreshToken);
 router.post("/logout", middleware.checkToken, authController.logout);
 
+router.delete("/:id", middleware.checkToken, middleware.checkAdmin, authController.deleteUser);
+
 module.exports = router;
