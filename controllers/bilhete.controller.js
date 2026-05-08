@@ -194,6 +194,7 @@ endpoints.getBilheteById = async (req, res) => {
     });
 
     if (!bilhete) {
+    if (!bilhete) {
       return res.status(404).json({
         message: "Bilhete não encontrado."
       });
