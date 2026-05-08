@@ -21,18 +21,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [email, password]
-              properties:
-                email:
-                  type: string
-                  example: joao@gmail.com
-                password:
-                  type: string
-                  example: 123456
-                role:
-                  type: string
-                  example: cliente
+              $ref: '#/components/schemas/Register'
       responses:
         '201':
           description: Utilizador criado com sucesso
@@ -50,15 +39,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [email, password]
-              properties:
-                email:
-                  type: string
-                  example: joao@gmail.com
-                password:
-                  type: string
-                  example: 123456
+              $ref: '#/components/schemas/Login'
       responses:
         '200':
           description: Login com sucesso (retorna token)
@@ -137,6 +118,12 @@ paths:
       responses:
         '200':
           description: Lista de eventos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Evento'
         '500':
           description: Erro no servidor
 
@@ -150,28 +137,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [nome, data, local_evento, limite_participantes]
-              properties:
-                nome:
-                  type: string
-                  example: Car Meet Porto
-                data:
-                  type: string
-                  format: date
-                  example: 2026-10-10
-                local_evento:
-                  type: string
-                  example: Porto
-                preco_visitante:
-                  type: number
-                  example: 20
-                preco_participante:
-                  type: number
-                  example: 10
-                limite_participantes:
-                  type: integer
-                  example: 50
+              $ref: '#/components/schemas/Evento'
       responses:
         '201':
           description: Evento criado com sucesso
@@ -200,10 +166,17 @@ paths:
       responses:
         '200':
           description: Evento encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Evento'
+
         '401':
           description: Token não fornecido
+
         '404':
           description: Evento não encontrado
+
         '500':
           description: Erro no servidor
 
@@ -224,21 +197,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                nome:
-                  type: string
-                data:
-                  type: string
-                  format: date
-                local_evento:
-                  type: string
-                preco_visitante:
-                  type: number
-                  minimum: 0
-                preco_participante:
-                  type: number
-                  minimum: 0
+              $ref: '#/components/schemas/Evento'
       responses:
         '200':
           description: Evento atualizado com sucesso
@@ -315,6 +274,10 @@ paths:
       responses:
         '200':
           description: Pessoa encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pessoa'
         '401':
           description: Token não fornecido
         '403':
@@ -344,21 +307,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                nome:
-                  type: string
-                  example: João Silva
-                email:
-                  type: string
-                  example: joao@gmail.com
-                telemovel:
-                  type: string
-                  example: 911111111
-                data_nascimento:
-                  type: string
-                  format: date
-                  example: 2000-01-01
+              $ref: '#/components/schemas/Pessoa'
       responses:
         '200':
           description: Pessoa atualizada com sucesso
@@ -386,6 +335,12 @@ paths:
       responses:
         '200':
           description: Lista de carros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carro'
         '401':
           description: Token não fornecido
         '500':
@@ -401,24 +356,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [matricula, marca, modelo]
-              properties:
-                matricula:
-                  type: string
-                  example: AA-11-BB
-                marca:
-                  type: string
-                  example: BMW
-                modelo:
-                  type: string
-                  example: M3
-                ano:
-                  type: integer
-                  example: 2020
-                img_url:
-                  type: string
-                  example: img.jpg
+              $ref: '#/components/schemas/Carro'
       responses:
         '201':
           description: Carro criado com sucesso
@@ -433,7 +371,7 @@ paths:
         '500':
           description: Erro no servidor
 
-  /carros/{id}:
+  /carros/{matricula}:
     get:
       summary: Obter carro por matrícula
       description: |
@@ -445,7 +383,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: id
+          name: matricula
           required: true
           schema:
             type: string
@@ -453,6 +391,10 @@ paths:
       responses:
         '200':
           description: Carro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carro'
         '401':
           description: Token não fornecido
         '403':
@@ -472,7 +414,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: id
+          name: matricula
           required: true
           schema:
             type: string
@@ -482,20 +424,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                marca:
-                  type: string
-                  example: Audi
-                modelo:
-                  type: string
-                  example: RS3
-                ano:
-                  type: integer
-                  example: 2021
-                img_url:
-                  type: string
-                  example: nova.jpg
+              $ref: '#/components/schemas/Carro'
       responses:
         '200':
           description: Carro atualizado com sucesso
@@ -518,7 +447,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: path
-          name: id
+          name: matricula
           required: true
           schema:
             type: string
@@ -550,6 +479,12 @@ paths:
       responses:
         '200':
           description: Lista de bilhetes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bilhete'
         '401':
           description: Token não fornecido
         '500':
@@ -570,22 +505,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [ano_bilhete, id_evento, tipo]
-              properties:
-                ano_bilhete:
-                  type: integer
-                  example: 2026
-                id_evento:
-                  type: integer
-                  example: 1
-                tipo:
-                  type: string
-                  enum: [visitante, participante]
-                  example: participante
-                matricula_carro:
-                  type: string
-                  example: AA-11-BB
+              $ref: '#/components/schemas/Bilhete'
       responses:
         '201':
           description: Bilhete criado com sucesso
@@ -624,6 +544,10 @@ paths:
       responses:
         '200':
           description: Bilhete encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bilhete'
         '401':
           description: Token não fornecido
         '403':
@@ -675,6 +599,12 @@ paths:
       responses:
         '200':
           description: Lista de pagamentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pagamento'
         '401':
           description: Token não fornecido
         '500':
@@ -695,18 +625,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [iban, estado, id_bilhete]
-              properties:
-                iban:
-                  type: string
-                  example: PT50000000000000000000000
-                estado:
-                  type: boolean
-                  example: true
-                id_bilhete:
-                  type: integer
-                  example: 1
+              $ref: '#/components/schemas/Pagamento'
       responses:
         '201':
           description: Pagamento criado com sucesso
@@ -744,6 +663,10 @@ paths:
       responses:
         '200':
           description: Pagamento encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pagamento'
         '401':
           description: Token não fornecido
         '403':
@@ -781,8 +704,203 @@ paths:
 
 
 components:
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  schemas:
+
+    Evento:
+      type: object
+
+      required:
+        - nome
+        - data
+        - local_evento
+        - limite_participantes
+
+      properties:
+        id_evento:
+          type: integer
+          example: 1
+
+        nome:
+          type: string
+          example: Car Meet Porto
+
+        data:
+          type: string
+          format: date
+          example: 2026-10-10
+
+        local_evento:
+          type: string
+          example: Porto
+
+        preco_visitante:
+          type: number
+          example: 20
+
+        preco_participante:
+          type: number
+          example: 10
+
+        limite_participantes:
+          type: integer
+          example: 50
+  
+        user_id:
+          type: integer
+          example: 2
+        
+    Pessoa:
+      type: object
+
+      properties:
+        id_pessoa:
+          type: integer
+          example: 1
+
+        nif:
+          type: integer
+          example: 123456789
+
+        nome:
+          type: string
+          example: João Silva
+
+        email:
+          type: string
+          example: joao@gmail.com
+
+        telemovel:
+          type: string
+          example: 911111111
+
+        data_nascimento:
+          type: string
+          format: date
+          example: 2000-01-01
+        
+    Carro:
+      type: object
+
+      properties:
+        matricula:
+          type: string
+          example: AA-11-BB
+
+        marca:
+          type: string
+          example: BMW
+
+        modelo:
+          type: string
+          example: M3
+
+        ano:
+          type: integer
+          example: 2020
+
+        img_url:
+          type: string
+          example: img.jpg
+        
+        id_pessoa:
+          type: integer
+          example: 1
+    
+    Bilhete:
+      type: object
+
+      properties:
+        id_bilhete:
+          type: integer
+          example: 1
+
+        ano_bilhete:
+          type: integer
+          example: 2026
+
+        id_evento:
+          type: integer
+          example: 1
+
+        tipo:
+          type: string
+          example: participante
+
+        matricula_carro:
+          type: string
+          example: AA-11-BB
+        
+        id_pessoa:
+          type: integer
+          example: 1
+        
+    Pagamento:
+      type: object
+
+      properties:
+        id_pagamento:
+          type: integer
+          example: 1
+
+        iban:
+          type: string
+          example: PT50000000000000000000000
+
+        estado:
+          type: boolean
+          example: true
+
+        preco:
+          type: number
+          example: 20
+          
+        id_bilhete:
+          type: integer
+          example: 1
+        
+        id_pessoa:
+          type: integer
+          example: 1
+        
+    Login:
+      type: object
+
+      required:
+        - email
+        - password
+
+      properties:
+        email:
+          type: string
+          example: joao@gmail.com
+
+        password:
+          type: string
+          example: 123456
+        
+    Register:
+      type: object
+
+      required:
+        - email
+        - password
+
+      properties:
+        email:
+          type: string
+          example: joao@gmail.com
+
+        password:
+          type: string
+          example: 123456
+
+        role:
+          type: string
+          example: cliente
