@@ -5,9 +5,134 @@
 }
 
 body {
-  background-color: #f5f5f5;
+  background-color: #0f172a;
+  color: #f9fafb;
+  font-family: "Poppins", sans-serif;
 }
+
+/* LINKS */
 
 a {
   text-decoration: none;
+  color: inherit;
+}
+
+/* CARDS */
+
+.card {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* BOTÕES */
+
+.btn {
+  border-radius: 12px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.btn-danger {
+  background-color: #d9ff00;
+  border: none;
+  color: #000;
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background-color: #c4ea00;
+  color: #000;
+  transform: translateY(-1px);
+}
+
+.btn-dark {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+}
+
+.btn-dark:hover {
+  background-color: #374151;
+}
+
+/* INPUTS */
+
+.form-control,
+.form-select {
+  background-color: #111827;
+  border: 1px solid #374151;
+  color: #f9fafb;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: #111827;
+  color: #fff;
+  border-color: #d9ff00;
+  box-shadow: none;
+}
+
+/* PLACEHOLDERS */
+
+::placeholder {
+  color: #6b7280 !important;
+}
+
+/* TEXTOS */
+
+.text-muted {
+  color: #9ca3af !important;
+}
+
+/* TABELAS */
+
+.table {
+  color: #f9fafb;
+}
+
+.table thead {
+  border-color: #374151;
+}
+
+.table td,
+.table th {
+  border-color: #1f2937;
+  vertical-align: middle;
+}
+
+/* BADGES */
+
+.badge {
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 500;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
 }

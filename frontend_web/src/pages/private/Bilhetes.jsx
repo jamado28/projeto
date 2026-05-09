@@ -28,6 +28,19 @@ function Bilhetes({ setSection }) {
 
     loadCarros();
 
+    const eventoGuardado = localStorage.getItem("eventoBilhete");
+
+    if (eventoGuardado) {
+
+      setIdEvento(eventoGuardado);
+
+      setShowForm(true);
+
+      localStorage.removeItem(
+        "eventoBilhete"
+      );
+
+    }
   }, []);
 
   const loadBilhetes = async () => {
@@ -425,78 +438,134 @@ function Bilhetes({ setSection }) {
 
         <div>
 
-          <h2 className="mb-4">
-            Todos os bilhetes
-          </h2>
+          {/* TOPO */}
 
-          <table className="table table-dark table-striped">
+          <div className="d-flex justify-content-between align-items-center mb-4">
 
-            <thead>
+            <div>
 
-              <tr>
+              <h2>
+                Todos os bilhetes
+              </h2>
 
-                <th>ID</th>
+              <p className="text-muted">
+                Gerir todos os bilhetes da plataforma
+              </p>
 
-                <th>Evento</th>
+            </div>
 
-                <th>Tipo</th>
+          </div>
 
-                <th>Carro</th>
+          {/* TABELA */}
 
-                <th>Estado</th>
+          <div className="card shadow-sm border-0 p-4">
 
-                <th>Ações</th>
+            <div className="table-responsive">
 
-              </tr>
+              <table className="table align-middle">
 
-            </thead>
+                <thead>
 
-            <tbody>
+                  <tr>
 
-              {bilhetes.map((bilhete) => (
+                    <th>ID</th>
 
-                <tr key={bilhete.id_bilhete}>
+                    <th>Evento</th>
 
-                  <td>{bilhete.id_bilhete}</td>
+                    <th>Tipo</th>
 
-                  <td>
-                    {bilhete.evento?.nome}
-                  </td>
+                    <th>Carro</th>
 
-                  <td>{bilhete.tipo}</td>
+                    <th>Estado</th>
 
-                  <td>
-                    {bilhete.matricula_carro || "-"}
-                  </td>
+                    <th>Ações</th>
 
-                  <td>
-                    {bilhete.pagamento
-                      ? "Pago"
-                      : "Não pago"}
-                  </td>
+                  </tr>
 
-                  <td>
+                </thead>
 
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        handleDelete(
-                          bilhete.id_bilhete
-                        )
-                      }
-                    >
-                      Apagar
-                    </button>
+                <tbody>
 
-                  </td>
+                  {bilhetes.map((bilhete) => (
 
-                </tr>
+                    <tr key={bilhete.id_bilhete}>
 
-              ))}
+                      <td>
+                        #{bilhete.id_bilhete}
+                      </td>
 
-            </tbody>
+                      <td>
+                        {bilhete.evento?.nome}
+                      </td>
 
-          </table>
+                      <td>
+
+                        <span
+                          className={`badge ${
+                            bilhete.tipo === "participante"
+                              ? "bg-primary"
+                              : "bg-secondary"
+                          }`}
+                        >
+
+                          {bilhete.tipo}
+
+                        </span>
+
+                      </td>
+
+                      <td>
+                        {bilhete.matricula_carro || "-"}
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`badge ${
+                            bilhete.pagamento
+                              ? "bg-success"
+                              : "bg-danger"
+                          }`}
+                        >
+
+                          {bilhete.pagamento
+                            ? "Pago"
+                            : "Não pago"}
+
+                        </span>
+
+                      </td>
+
+                      <td>
+
+                        <div className="d-flex gap-2">
+
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() =>
+                              handleDelete(
+                                bilhete.id_bilhete
+                              )
+                            }
+                          >
+                            🗑️
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
 
         </div>
 
@@ -508,61 +577,113 @@ function Bilhetes({ setSection }) {
 
         <div>
 
-          <h2 className="mb-4">
-            Bilhetes dos seus eventos
-          </h2>
+          {/* TOPO */}
 
-          <table className="table table-dark table-striped">
+          <div className="d-flex justify-content-between align-items-center mb-4">
 
-            <thead>
+            <div>
 
-              <tr>
+              <h2>
+                Bilhetes dos seus eventos
+              </h2>
 
-                <th>ID</th>
+              <p className="text-muted">
+                Consultar bilhetes associados aos seus eventos
+              </p>
 
-                <th>Evento</th>
+            </div>
 
-                <th>Tipo</th>
+          </div>
 
-                <th>Carro</th>
+          {/* TABELA */}
 
-                <th>Estado</th>
+          <div className="card shadow-sm border-0 p-4">
 
-              </tr>
+            <div className="table-responsive">
 
-            </thead>
+              <table className="table align-middle">
 
-            <tbody>
+                <thead>
 
-              {bilhetes.map((bilhete) => (
+                  <tr>
 
-                <tr key={bilhete.id_bilhete}>
+                    <th>ID</th>
 
-                  <td>{bilhete.id_bilhete}</td>
+                    <th>Evento</th>
 
-                  <td>
-                    {bilhete.evento?.nome}
-                  </td>
+                    <th>Tipo</th>
 
-                  <td>{bilhete.tipo}</td>
+                    <th>Carro</th>
 
-                  <td>
-                    {bilhete.matricula_carro || "-"}
-                  </td>
+                    <th>Estado</th>
 
-                  <td>
-                    {bilhete.pagamento
-                      ? "Pago"
-                      : "Não pago"}
-                  </td>
+                  </tr>
 
-                </tr>
+                </thead>
 
-              ))}
+                <tbody>
 
-            </tbody>
+                  {bilhetes.map((bilhete) => (
 
-          </table>
+                    <tr key={bilhete.id_bilhete}>
+
+                      <td>
+                        #{bilhete.id_bilhete}
+                      </td>
+
+                      <td>
+                        {bilhete.evento?.nome}
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`badge ${
+                            bilhete.tipo === "participante"
+                              ? "bg-primary"
+                              : "bg-secondary"
+                          }`}
+                        >
+
+                          {bilhete.tipo}
+
+                        </span>
+
+                      </td>
+
+                      <td>
+                        {bilhete.matricula_carro || "-"}
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`badge ${
+                            bilhete.pagamento
+                              ? "bg-success"
+                              : "bg-danger"
+                          }`}
+                        >
+
+                          {bilhete.pagamento
+                            ? "Pago"
+                            : "Não pago"}
+
+                        </span>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
 
         </div>
 

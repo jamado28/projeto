@@ -231,28 +231,47 @@ function Pessoas() {
 
         <div>
 
-          <h1 className="mb-4">
-            Pessoas
-          </h1>
+          {/* TOPO */}
+
+          <div className="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+              <h2>
+                Pessoas
+              </h2>
+
+              <p className="text-muted">
+                Gerir utilizadores da plataforma
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* FORM */}
 
           {editingId && (
 
             <form
               onSubmit={handleSubmit}
-              className="card p-4 mb-4"
+              className="card shadow-sm border-0 p-4 mb-4"
             >
 
-              <h4 className="mb-3">
-                Editar Pessoa
-              </h4>
+              <h5 className="mb-4">
+                Editar pessoa
+              </h5>
 
               <div className="row">
 
                 <div className="col-md-6 mb-3">
 
+                  <label className="form-label">
+                    Nome
+                  </label>
+
                   <input
                     type="text"
-                    placeholder="Nome"
                     className="form-control"
                     value={nome}
                     onChange={(e) =>
@@ -264,9 +283,12 @@ function Pessoas() {
 
                 <div className="col-md-6 mb-3">
 
+                  <label className="form-label">
+                    Email
+                  </label>
+
                   <input
                     type="email"
-                    placeholder="Email"
                     className="form-control"
                     value={email}
                     onChange={(e) =>
@@ -278,9 +300,12 @@ function Pessoas() {
 
                 <div className="col-md-6 mb-3">
 
+                  <label className="form-label">
+                    Telemóvel
+                  </label>
+
                   <input
                     type="text"
-                    placeholder="Telemóvel"
                     className="form-control"
                     value={telemovel}
                     onChange={(e) =>
@@ -291,6 +316,10 @@ function Pessoas() {
                 </div>
 
                 <div className="col-md-6 mb-3">
+
+                  <label className="form-label">
+                    Data nascimento
+                  </label>
 
                   <input
                     type="date"
@@ -309,73 +338,101 @@ function Pessoas() {
                 type="submit"
                 className="btn btn-dark"
               >
-                Atualizar
+                Atualizar pessoa
               </button>
 
             </form>
 
           )}
 
-          <table className="table table-dark table-striped">
+          {/* TABELA */}
 
-            <thead>
+          <div className="card shadow-sm border-0 p-4">
 
-              <tr>
+            <div className="table-responsive">
 
-                <th>ID</th>
+              <table className="table align-middle">
 
-                <th>Nome</th>
+                <thead>
 
-                <th>Email</th>
+                  <tr>
 
-                <th>Telemóvel</th>
+                    {user.role === "admin" && (
+                      <th>ID</th>
+                    )}
 
-                <th>Data Nascimento</th>
+                    <th>Nome</th>
 
-                <th>Ações</th>
+                    <th>Email</th>
 
-              </tr>
+                    <th>Telemóvel</th>
 
-            </thead>
+                    <th>Data Nascimento</th>
 
-            <tbody>
+                    <th>Ações</th>
 
-              {pessoas.map((pessoa) => (
+                  </tr>
 
-                <tr key={pessoa.id_pessoa}>
+                </thead>
 
-                  <td>{pessoa.id_pessoa}</td>
+                <tbody>
 
-                  <td>{pessoa.nome}</td>
+                  {pessoas.map((pessoa) => (
 
-                  <td>{pessoa.email}</td>
+                    <tr key={pessoa.id_pessoa}>
 
-                  <td>{pessoa.telemovel}</td>
+                      {user.role === "admin" && (
 
-                  <td>
-                    {pessoa.data_nascimento}
-                  </td>
+                        <td>
+                          #{pessoa.id_pessoa}
+                        </td>
 
-                  <td>
+                      )}
 
-                    <button
-                      className="btn btn-warning btn-sm"
-                      onClick={() =>
-                        handleEdit(pessoa)
-                      }
-                    >
-                      Editar
-                    </button>
+                      <td>
+                        {pessoa.nome}
+                      </td>
 
-                  </td>
+                      <td>
+                        {pessoa.email}
+                      </td>
 
-                </tr>
+                      <td>
+                        {pessoa.telemovel}
+                      </td>
 
-              ))}
+                      <td>
+                        {pessoa.data_nascimento}
+                      </td>
 
-            </tbody>
+                      <td>
 
-          </table>
+                        <div className="d-flex gap-2">
+
+                          <button
+                            className="btn btn-warning btn-sm"
+                            onClick={() =>
+                              handleEdit(pessoa)
+                            }
+                          >
+                            ✏️
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
 
         </div>
 

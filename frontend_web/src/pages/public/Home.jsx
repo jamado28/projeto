@@ -80,8 +80,9 @@ function Home() {
 
                 <img
                   src={
-                    evento.imagem ||
-                    "https://placehold.co/600x400"
+                    evento.imagem
+                      ? `http://localhost:3000${evento.imagem}`
+                      : "https://placehold.co/600x400"
                   }
                   className="card-img-top"
                   alt={evento.nome}

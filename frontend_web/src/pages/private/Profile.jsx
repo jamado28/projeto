@@ -52,22 +52,25 @@ function Profile() {
 
         }
 
-        // ORGANIZADOR
+         // ORGANIZADOR
 
         if (user.role === "organizador") {
 
-        switch (section) {
+            switch (section) {
 
-            case "eventos":
-            return <Eventos />;
+                case "eventos":
+                return <Eventos />;
 
-            case "pagamentos":
-            return <Pagamentos />;
+                case "carros":
+                return <Carros />;
 
-            default:
-            return <Eventos />;
+                case "pagamentos":
+                return <Pagamentos />;
 
-        }
+                default:
+                return <Eventos />;
+
+            }
 
         }
 
@@ -241,6 +244,17 @@ function Profile() {
                         onClick={() => setSection("eventos")}
                         >
                         Eventos
+                        </button>
+
+                        <button
+                        className={`btn text-start ${
+                            section === "carros"
+                            ? "btn-danger"
+                            : "btn-outline-light"
+                        }`}
+                        onClick={() => setSection("carros")}
+                        >
+                        Carros
                         </button>
 
                         <button

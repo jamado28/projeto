@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const config = require("./config/config.js");
+const config = require("./backend/config/config.js");
 
 // cada pedido valida token
 const checkToken = (req, res, next) => {
@@ -51,8 +51,33 @@ const checkEmpresa = (req, res, next) => {
   next();
 };
 
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+
+  destination: (req, file, cb) => {
+
+    cb(null, "backend/uploads/images");
+
+  },
+
+  filename: (req, file, cb) => {
+
+    const uniqueName =
+      Date.now() + "-" + file.originalname;
+
+    cb(null, uniqueName);
+
+  },
+
+});
+
+const upload = multer({ storage });
+
 module.exports = {
   checkToken,
   checkAdmin,
-  checkEmpresa
+  checkEmpresa,
+  upload
 };
+

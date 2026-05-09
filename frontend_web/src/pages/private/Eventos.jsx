@@ -14,6 +14,8 @@ function Eventos() {
   const [limiteParticipantes, setLimiteParticipantes] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [imagem, setImagem] = useState(null);
+  const [descricao, setDescricao] = useState("");
   useEffect(() => {
 
     loadEventos();
@@ -43,18 +45,51 @@ function Eventos() {
 
     try {
 
-      const dados = {
-        nome,
-        data,
-        local_evento: localEvento,
-        preco_visitante: precoVisitante,
-        preco_participante: precoParticipante,
-        limite_participantes: limiteParticipantes,
-      };
+      const dados = new FormData();
+
+      dados.append("nome", nome);
+      dados.append("data", data);
+
+      dados.append(
+        "local_evento",
+        localEvento
+      );
+
+      dados.append(
+        "preco_visitante",
+        precoVisitante
+      );
+
+      dados.append(
+        "preco_participante",
+        precoParticipante
+      );
+
+      dados.append(
+        "limite_participantes",
+        limiteParticipantes
+      );
+
+      dados.append(
+        "descricao",
+        descricao
+      );
+
+      if (imagem) {
+
+        dados.append(
+          "imagem",
+          imagem
+        );
+
+      }
 
       if (editingId) {
 
-        await updateEvento(editingId, dados);
+        await updateEvento(
+          editingId,
+          dados
+        );
 
         alert("Evento atualizado");
 
@@ -66,16 +101,23 @@ function Eventos() {
 
       }
 
-      alert("Evento criado com sucesso");
-
       loadEventos();
+
       setEditingId(null);
+
       setNome("");
       setData("");
       setLocalEvento("");
+
       setPrecoVisitante("");
       setPrecoParticipante("");
+
       setLimiteParticipantes("");
+
+      setDescricao("");
+
+      setImagem(null);
+
       setShowForm(false);
 
     } catch (error) {
@@ -121,6 +163,8 @@ function Eventos() {
     setPrecoVisitante(evento.preco_visitante);
     setPrecoParticipante(evento.preco_participante);
     setLimiteParticipantes(evento.limite_participantes);
+    setDescricao(evento.descricao || "");
+    setImagem(null);
     setShowForm(true);
   };
 
@@ -146,9 +190,31 @@ function Eventos() {
 
         <button
           className="btn btn-danger"
-          onClick={() =>
-            setShowForm(!showForm)
-          }
+          onClick={() => {
+
+            setShowForm(!showForm);
+
+            if (!showForm) {
+
+              setEditingId(null);
+
+              setNome("");
+              setData("");
+
+              setLocalEvento("");
+
+              setPrecoVisitante("");
+              setPrecoParticipante("");
+
+              setLimiteParticipantes("");
+
+              setDescricao("");
+
+              setImagem(null);
+
+            }
+
+          }}
         >
 
           + Criar evento
@@ -289,7 +355,38 @@ function Eventos() {
             </div>
 
           </div>
+          <div className="col-md-12 mb-3">
 
+            <label className="form-label">
+              Descrição
+            </label>
+
+            <textarea
+              className="form-control"
+              rows="4"
+              value={descricao}
+              onChange={(e) =>
+                setDescricao(e.target.value)
+              }
+            />
+
+          </div>
+          <div className="col-md-12 mb-3">
+
+            <label className="form-label">
+              Imagem do evento
+            </label>
+
+            <input
+              type="file"
+              className="form-control"
+              accept="image/*"
+              onChange={(e) =>
+                setImagem(e.target.files[0])
+              }
+            />
+
+          </div>
           <button
             type="submit"
             className="btn btn-dark w-100"
@@ -334,6 +431,7 @@ function Eventos() {
                 <th>Limite de Participantes</th>
 
                 <th>Participantes Confirmados</th>
+                <th>Descrição</th>
                 <th>Ações</th>
 
               </tr>
@@ -352,8 +450,9 @@ function Eventos() {
 
                       <img
                         src={
-                          evento.imagem ||
-                          "https://placehold.co/60x60"
+                          evento.imagem
+                            ? `http://localhost:3000${evento.imagem}`
+                            : "https://placehold.co/60x60"
                         }
                         alt={evento.nome}
                         style={{
@@ -395,7 +494,27 @@ function Eventos() {
                   <td>
                     {evento.limite_participantes}
                   </td>
-                  <td>{evento.total_participantes}</td>      
+                  <td>{evento.total_participantes}</td>    
+                  <td
+                    style={{
+                      maxWidth: "250px"
+                    }}
+                  >
+
+                    <span
+                      className="text-muted"
+                    >
+
+                      {evento.descricao
+                        ?.slice(0, 80)}
+
+                      {evento.descricao?.length > 80
+                        ? "..."
+                        : ""}
+
+                    </span>
+
+                  </td>  
                   <td>
 
                     {(user.role === "admin" ||

@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const sequelize = require("./config/database");
+const sequelize = require("./backend/config/database");
 
 const port = 3000;
 
@@ -22,13 +22,13 @@ sequelize.authenticate()
 
 
 // ROUTES
-app.use("/api/pessoas", require("./routes/pessoa.routes"));
-app.use("/api/carros", require("./routes/carro.routes"));
-app.use("/api/eventos", require("./routes/evento.routes"));
-app.use("/api/bilhetes", require("./routes/bilhete.routes"));
-app.use("/api/pagamentos", require("./routes/pagamento.routes"));
-app.use("/api/auth", require("./routes/auth.routes"));
-
+app.use("/api/pessoas", require("./backend/routes/pessoa.routes"));
+app.use("/api/carros", require("./backend/routes/carro.routes"));
+app.use("/api/eventos", require("./backend/routes/evento.routes"));
+app.use("/api/bilhetes", require("./backend/routes/bilhete.routes"));
+app.use("/api/pagamentos", require("./backend/routes/pagamento.routes"));
+app.use("/api/auth", require("./backend/routes/auth.routes"));
+app.use("/uploads",express.static("backend/uploads"));
 
 // SERVER
 app.listen(app.get("port"), () => {

@@ -320,78 +320,122 @@ function Pagamentos() {
 
         <div>
 
-          <h2 className="mb-4">
-            Todos os pagamentos
-          </h2>
+          {/* TOPO */}
 
-          <table className="table table-dark table-striped">
+          <div className="d-flex justify-content-between align-items-center mb-4">
 
-            <thead>
+            <div>
 
-              <tr>
+              <h2>
+                Todos os pagamentos
+              </h2>
 
-                <th>ID</th>
+              <p className="text-muted">
+                Gerir todos os pagamentos da plataforma
+              </p>
 
-                <th>Bilhete</th>
+            </div>
 
-                <th>Preço</th>
+          </div>
 
-                <th>Estado</th>
+          {/* TABELA */}
 
-                <th>Ações</th>
+          <div className="card shadow-sm border-0 p-4">
 
-              </tr>
+            <div className="table-responsive">
 
-            </thead>
+              <table className="table align-middle">
 
-            <tbody>
+                <thead>
 
-              {pagamentos.map((pagamento) => (
+                  <tr>
 
-                <tr key={pagamento.id_pagamento}>
+                    <th>ID</th>
 
-                  <td>
-                    {pagamento.id_pagamento}
-                  </td>
+                    <th>Bilhete</th>
 
-                  <td>
-                    #{pagamento.id_bilhete}
-                  </td>
+                    <th>Evento</th>
 
-                  <td>
-                    {pagamento.preco}€
-                  </td>
+                    <th>Preço</th>
 
-                  <td>
+                    <th>Estado</th>
 
-                    {pagamento.estado
-                      ? "Pago"
-                      : "Pendente"}
+                    <th>Ações</th>
 
-                  </td>
+                  </tr>
 
-                  <td>
+                </thead>
 
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        handleDelete(
-                          pagamento.id_pagamento
-                        )
-                      }
-                    >
-                      Apagar
-                    </button>
+                <tbody>
 
-                  </td>
+                  {pagamentos.map((pagamento) => (
 
-                </tr>
+                    <tr key={pagamento.id_pagamento}>
 
-              ))}
+                      <td>
+                        #{pagamento.id_pagamento}
+                      </td>
 
-            </tbody>
+                      <td>
+                        #{pagamento.id_bilhete}
+                      </td>
 
-          </table>
+                      <td>
+                        {pagamento.bilhete?.evento?.nome}
+                      </td>
+
+                      <td>
+                        {pagamento.preco}€
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`badge ${
+                            pagamento.estado
+                              ? "bg-success"
+                              : "bg-warning text-dark"
+                          }`}
+                        >
+
+                          {pagamento.estado
+                            ? "Pago"
+                            : "Pendente"}
+
+                        </span>
+
+                      </td>
+
+                      <td>
+
+                        <div className="d-flex gap-2">
+
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() =>
+                              handleDelete(
+                                pagamento.id_pagamento
+                              )
+                            }
+                          >
+                            🗑️
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
 
         </div>
 
@@ -403,61 +447,101 @@ function Pagamentos() {
 
         <div>
 
-          <h2 className="mb-4">
-            Pagamentos dos seus eventos
-          </h2>
+          {/* TOPO */}
 
-          <table className="table table-dark table-striped">
+          <div className="d-flex justify-content-between align-items-center mb-4">
 
-            <thead>
+            <div>
 
-              <tr>
+              <h2>
+                Pagamentos dos seus eventos
+              </h2>
 
-                <th>ID</th>
+              <p className="text-muted">
+                Consultar pagamentos associados aos seus eventos
+              </p>
 
-                <th>Bilhete</th>
+            </div>
 
-                <th>Preço</th>
+          </div>
 
-                <th>Estado</th>
+          {/* TABELA */}
 
-              </tr>
+          <div className="card shadow-sm border-0 p-4">
 
-            </thead>
+            <div className="table-responsive">
 
-            <tbody>
+              <table className="table align-middle">
 
-              {pagamentos.map((pagamento) => (
+                <thead>
 
-                <tr key={pagamento.id_pagamento}>
+                  <tr>
 
-                  <td>
-                    {pagamento.id_pagamento}
-                  </td>
+                    <th>ID</th>
 
-                  <td>
-                    #{pagamento.id_bilhete}
-                  </td>
+                    <th>Bilhete</th>
 
-                  <td>
-                    {pagamento.preco}€
-                  </td>
+                    <th>Evento</th>
 
-                  <td>
+                    <th>Preço</th>
 
-                    {pagamento.estado
-                      ? "Pago"
-                      : "Pendente"}
+                    <th>Estado</th>
 
-                  </td>
+                  </tr>
 
-                </tr>
+                </thead>
 
-              ))}
+                <tbody>
 
-            </tbody>
+                  {pagamentos.map((pagamento) => (
 
-          </table>
+                    <tr key={pagamento.id_pagamento}>
+
+                      <td>
+                        #{pagamento.id_pagamento}
+                      </td>
+
+                      <td>
+                        #{pagamento.id_bilhete}
+                      </td>
+
+                      <td>
+                        {pagamento.bilhete?.evento?.nome}
+                      </td>
+
+                      <td>
+                        {pagamento.preco}€
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`badge ${
+                            pagamento.estado
+                              ? "bg-success"
+                              : "bg-warning text-dark"
+                          }`}
+                        >
+
+                          {pagamento.estado
+                            ? "Pago"
+                            : "Pendente"}
+
+                        </span>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
 
         </div>
 

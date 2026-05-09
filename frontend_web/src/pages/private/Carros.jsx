@@ -21,6 +21,7 @@ function Carros() {
 
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [imagem, setImagem] = useState(null);
   useEffect(() => {
 
     loadCarros();
@@ -51,13 +52,18 @@ function Carros() {
 
     try {
 
-      const dados = {
-        matricula,
-        marca,
-        modelo,
-        ano,
-        img_url: imgUrl
-      };
+      const dados = new FormData();
+
+      dados.append("matricula", matricula);
+      dados.append("marca", marca);
+      dados.append("modelo", modelo);
+      dados.append("ano", ano);
+
+      if (imagem) {
+
+        dados.append("imagem", imagem);
+
+      }
 
       if (editingId) {
 
@@ -80,7 +86,7 @@ function Carros() {
       setModelo("");
       setAno("");
       setImgUrl("");
-
+      setImagem(null);
       setEditingId(null);
 
     } catch (error) {
@@ -137,6 +143,25 @@ function Carros() {
 
   };
 
+  const carrosPorEvento = {};
+
+  carros.forEach((carro) => {
+
+    carro.bilhetes?.forEach((bilhete) => {
+
+      const evento = bilhete.evento;
+
+      if (!evento) return;
+
+      if (!carrosPorEvento[evento.nome]) {
+        carrosPorEvento[evento.nome] = [];
+      }
+
+      carrosPorEvento[evento.nome].push(carro);
+
+    });
+
+  });
   return (
 
   <div>
@@ -278,11 +303,11 @@ function Carros() {
                 </label>
 
                 <input
-                  type="text"
+                  type="file"
                   className="form-control"
-                  value={imgUrl}
+                  accept="image/*"
                   onChange={(e) =>
-                    setImgUrl(e.target.value)
+                    setImagem(e.target.files[0])
                   }
                 />
 
@@ -318,8 +343,9 @@ function Carros() {
 
                 <img
                   src={
-                    carro.img_url ||
-                    "https://placehold.co/600x400"
+                    carro.img_url
+                      ? `http://localhost:3000${carro.img_url}`
+                      : "https://placehold.co/600x400"
                   }
                   className="card-img-top"
                   alt={carro.modelo}
@@ -555,8 +581,9 @@ function Carros() {
 
                       <img
                         src={
-                          carro.img_url ||
-                          "https://placehold.co/60x60"
+                          carro.img_url
+                            ? `http://localhost:3000${carro.img_url}`
+                            : "https://placehold.co/600x400"
                         }
                         alt={carro.modelo}
                         style={{
@@ -633,62 +660,133 @@ function Carros() {
 
       <div>
 
-        <h2 className="mb-4">
-          Carros dos seus eventos
-        </h2>
+        {/* TOPO */}
 
-        <div className="row">
+        <div className="d-flex justify-content-between align-items-center mb-4">
 
-          {carros.map((carro) => (
+          <div>
+
+            <h2>
+              Carros dos seus eventos
+            </h2>
+
+            <p className="text-muted">
+              Consultar veículos inscritos nos seus eventos
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* LISTA */}
+
+        {Object.entries(carrosPorEvento).map(
+          ([nomeEvento, carrosEvento]) => (
 
             <div
-              key={carro.matricula}
-              className="col-md-4 mb-4"
+              key={nomeEvento}
+              className="mb-5"
             >
 
-              <div className="card h-100 shadow-sm">
+              {/* EVENTO */}
 
-                <img
-                  src={
-                    carro.img_url ||
-                    "https://placehold.co/600x400"
-                  }
-                  className="card-img-top"
-                  alt={carro.modelo}
-                  style={{
-                    height: "200px",
-                    objectFit: "cover"
-                  }}
-                />
+              <div className="mb-4">
 
-                <div className="card-body">
+                <h3>
+                  {nomeEvento}
+                </h3>
 
-                  <h5>
-                    {carro.marca} {carro.modelo}
-                  </h5>
+                <p className="text-muted">
+                  Carros inscritos neste evento
+                </p>
 
-                  <p>
-                    {carro.matricula}
-                  </p>
+              </div>
 
-                  <p>
-                    {carro.ano}
-                  </p>
+              {/* CARROS */}
 
-                </div>
+              <div className="row">
+
+                {carrosEvento.map((carro) => (
+
+                  <div
+                    key={`${nomeEvento}-${carro.matricula}`}
+                    className="col-lg-4 col-md-6 mb-4"
+                  >
+
+                    <div className="card border-0 shadow-sm h-100 overflow-hidden">
+
+                      {/* IMAGEM */}
+
+                      <div
+                        style={{
+                          height: "220px",
+                          overflow: "hidden"
+                        }}
+                      >
+
+                        <img
+                          src={
+                            carro.img_url
+                              ? `http://localhost:3000${carro.img_url}`
+                              : "https://placehold.co/600x400"
+                          }
+                          alt={carro.modelo}
+                          className="w-100 h-100"
+                          style={{
+                            objectFit: "cover"
+                          }}
+                        />
+
+                      </div>
+
+                      {/* CONTEÚDO */}
+
+                      <div className="card-body d-flex flex-column">
+
+                        <div className="mb-3">
+
+                          <h5 className="mb-1">
+
+                            {carro.marca} {carro.modelo}
+
+                          </h5>
+
+                          <p className="text-muted mb-0">
+
+                            {carro.ano}
+
+                          </p>
+
+                        </div>
+
+                        <div className="mt-auto">
+
+                          <span className="badge bg-dark fs-6">
+
+                            {carro.matricula}
+
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                ))}
 
               </div>
 
             </div>
 
-          ))}
+          )
 
-        </div>
-
+        )}
       </div>
 
     )}
-
   </div>
 
 )
