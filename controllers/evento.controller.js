@@ -64,8 +64,29 @@ endpoints.createEvento = async (req, res) => {
 // GET ALL
 endpoints.getAllEventos = async (req, res) => {
   try {
-    const dados = await Evento.findAll();
+    const eventos = await Evento.findAll();
 
+    const dados = await Promise.all(
+
+      eventos.map(async (evento) => {
+
+        const totalParticipantes =
+          await Bilhete.count({
+            where: {
+              id_evento: evento.id_evento,
+              tipo: "participante"
+            }
+          });
+
+        return {
+          ...evento.toJSON(),
+          total_participantes:
+            totalParticipantes
+        };
+
+      })
+
+    );
     res.status(200).json({
       status: "success",
       message: "Lista de eventos.",

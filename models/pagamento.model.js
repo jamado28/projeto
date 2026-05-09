@@ -42,5 +42,10 @@ Pagamento.belongsTo(Bilhete, {
   as: "bilhete",
   onDelete: "CASCADE"
 });
+Bilhete.hasOne(Pagamento, {
+  foreignKey: "id_bilhete",
+  sourceKey: "id_bilhete",
+  as: "pagamento"
+});
 
 module.exports = Pagamento;

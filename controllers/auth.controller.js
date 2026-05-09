@@ -207,4 +207,94 @@ endpoints.deleteUser = async (req, res) => {
   }
 };
 
+//GET ALL USERS
+endpoints.getAllUsers = async (req, res) => {
+
+  try {
+
+    const users = await User.findAll({
+      attributes: [
+        "id",
+        "email",
+        "role",
+        "createdAt"
+      ]
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: users
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      status: "error",
+      message: "Erro ao listar utilizadores."
+    });
+
+  }
+
+};
+
+//UPDTATE USER
+endpoints.updateUser = async (req, res) => {
+
+  const { id } = req.params;
+
+  const {
+    email,
+    password,
+    role
+  } = req.body;
+
+  try {
+
+    const user = await User.findByPk(id);
+
+    if (!user) {
+
+      return res.status(404).json({
+        message: "Utilizador não encontrado."
+      });
+
+    }
+
+    // atualizar email
+    if (email) {
+      user.email = email;
+    }
+
+    // atualizar role
+    if (role) {
+      user.role = role;
+    }
+
+    // atualizar password
+    if (password) {
+
+      const hashed =
+        await bcrypt.hash(password, 10);
+
+      user.password = hashed;
+
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Utilizador atualizado."
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message: "Erro ao atualizar utilizador."
+    });
+
+  }
+
+};
 module.exports = endpoints;

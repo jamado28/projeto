@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-
-import AdminLayout from "../../layouts/AdminLayout";
-
 import { getUser } from "../../services/authUtils";
-
 import {
   getCarros,
   createCarro,
@@ -24,7 +20,7 @@ function Carros() {
   const [imgUrl, setImgUrl] = useState("");
 
   const [editingId, setEditingId] = useState(null);
-
+  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
 
     loadCarros();
@@ -99,8 +95,12 @@ function Carros() {
 
   const handleEdit = (carro) => {
 
+    setShowForm(true);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
     setEditingId(carro.matricula);
-
     setMatricula(carro.matricula);
     setMarca(carro.marca);
     setModelo(carro.modelo);
@@ -139,172 +139,559 @@ function Carros() {
 
   return (
 
-    <AdminLayout>
+  <div>
 
-      <h1 className="mb-4">
-        Carros
-      </h1>
+    {/* CLIENTE */}
 
-      {user.role === "cliente" && (
+    {user.role === "cliente" && (
 
-        <form
-          onSubmit={handleSubmit}
-          className="card p-4 mb-4"
-        >
+      <div>
 
-          <h4 className="mb-3">
+        {/* TOPO */}
 
-            {editingId
-              ? "Editar Carro"
-              : "Criar Carro"}
+        <div className="d-flex justify-content-between align-items-center mb-4">
 
-          </h4>
+          <div>
 
-          <div className="row">
+            <h2>
+              Carros
+            </h2>
 
-            <div className="col-md-4 mb-3">
-
-              <input
-                type="text"
-                placeholder="Matrícula"
-                className="form-control"
-                value={matricula}
-                onChange={(e) => setMatricula(e.target.value)}
-                disabled={editingId}
-              />
-
-            </div>
-
-            <div className="col-md-4 mb-3">
-
-              <input
-                type="text"
-                placeholder="Marca"
-                className="form-control"
-                value={marca}
-                onChange={(e) => setMarca(e.target.value)}
-              />
-
-            </div>
-
-            <div className="col-md-4 mb-3">
-
-              <input
-                type="text"
-                placeholder="Modelo"
-                className="form-control"
-                value={modelo}
-                onChange={(e) => setModelo(e.target.value)}
-              />
-
-            </div>
-
-            <div className="col-md-4 mb-3">
-
-              <input
-                type="number"
-                placeholder="Ano"
-                className="form-control"
-                value={ano}
-                onChange={(e) => setAno(e.target.value)}
-              />
-
-            </div>
-
-            <div className="col-md-4 mb-3">
-
-              <input
-                type="text"
-                placeholder="Imagem URL"
-                className="form-control"
-                value={imgUrl}
-                onChange={(e) => setImgUrl(e.target.value)}
-              />
-
-            </div>
+            <p className="text-muted">
+              Gerir os seus veículos
+            </p>
 
           </div>
 
           <button
-            type="submit"
-            className="btn btn-dark"
+            className="btn btn-danger"
+            onClick={() => {
+
+              setShowForm(true);
+
+              setEditingId(null);
+
+              setMatricula("");
+              setMarca("");
+              setModelo("");
+              setAno("");
+              setImgUrl("");
+
+            }}
           >
-            {editingId
-              ? "Atualizar"
-              : "Criar"}
+            + Adicionar carro
           </button>
 
-        </form>
+        </div>
 
-      )}
+        {/* FORM */}
+        {showForm && (
 
-      <table className="table table-dark table-striped">
+          <form
+            onSubmit={handleSubmit}
+            className="card p-4 mb-4 shadow-sm"
+          >
 
-        <thead>
+            <h5 className="mb-4">
 
-          <tr>
-            <th>Matrícula</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Ano</th>
+              {editingId
+                ? "Editar veículo"
+                : "Adicionar novo veículo"}
 
-            {(user.role === "cliente" ||
-              user.role === "admin") && (
-              <th>Ações</th>
-            )}
+            </h5>
 
-          </tr>
+            <div className="row">
 
-        </thead>
+              <div className="col-md-3 mb-3">
 
-        <tbody>
+                <label className="form-label">
+                  Matrícula
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={matricula}
+                  onChange={(e) =>
+                    setMatricula(e.target.value)
+                  }
+                  disabled={editingId}
+                />
+
+              </div>
+
+              <div className="col-md-3 mb-3">
+
+                <label className="form-label">
+                  Marca
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={marca}
+                  onChange={(e) =>
+                    setMarca(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-3 mb-3">
+
+                <label className="form-label">
+                  Modelo
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={modelo}
+                  onChange={(e) =>
+                    setModelo(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-3 mb-3">
+
+                <label className="form-label">
+                  Ano
+                </label>
+
+                <input
+                  type="number"
+                  className="form-control"
+                  value={ano}
+                  onChange={(e) =>
+                    setAno(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-12 mb-3">
+
+                <label className="form-label">
+                  Imagem URL
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={imgUrl}
+                  onChange={(e) =>
+                    setImgUrl(e.target.value)
+                  }
+                />
+
+              </div>
+
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-danger"
+            >
+
+              {editingId
+                ? "Atualizar veículo"
+                : "Adicionar veículo"}
+
+            </button>
+
+          </form>
+        )}
+        {/* LISTA */}
+
+        <div className="row">
 
           {carros.map((carro) => (
 
-            <tr key={carro.matricula}>
+            <div
+              key={carro.matricula}
+              className="col-md-3 mb-4"
+            >
 
-              <td>{carro.matricula}</td>
+              <div className="card h-100 shadow-sm">
 
-              <td>{carro.marca}</td>
+                <img
+                  src={
+                    carro.img_url ||
+                    "https://placehold.co/600x400"
+                  }
+                  className="card-img-top"
+                  alt={carro.modelo}
+                  style={{
+                    height: "180px",
+                    objectFit: "cover"
+                  }}
+                />
 
-              <td>{carro.modelo}</td>
+                <div className="card-body">
 
-              <td>{carro.ano}</td>
+                  <h5>
+                    {carro.matricula}
+                  </h5>
 
-              {(user.role === "cliente" ||
-                user.role === "admin") && (
+                  <p className="mb-1">
+                    {carro.marca}
+                  </p>
 
-                <td>
+                  <p className="mb-1">
+                    {carro.modelo}
+                  </p>
+
+                  <p className="text-muted">
+                    {carro.ano}
+                  </p>
+
+                </div>
+
+                <div className="card-footer d-flex gap-2">
 
                   <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() => handleEdit(carro)}
+                    className="btn btn-outline-secondary btn-sm w-100"
+                    onClick={() =>
+                      handleEdit(carro)
+                    }
                   >
                     Editar
                   </button>
 
                   <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(carro.matricula)}
+                    className="btn btn-outline-danger btn-sm w-100"
+                    onClick={() =>
+                      handleDelete(carro.matricula)
+                    }
                   >
                     Apagar
                   </button>
 
-                </td>
+                </div>
 
-              )}
+              </div>
 
-            </tr>
+            </div>
 
           ))}
 
-        </tbody>
+        </div>
 
-      </table>
+      </div>
 
-    </AdminLayout>
+    )}
 
-  )
+    {/* ADMIN */}
+    {user.role === "admin" && (
+
+      <div>
+
+        {/* TOPO */}
+
+        <div className="d-flex justify-content-between align-items-center mb-4">
+
+          <div>
+
+            <h2>
+              Carros
+            </h2>
+
+            <p className="text-muted">
+              Gerir todos os veículos
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* FORM */}
+
+        {showForm && (
+
+          <form
+            onSubmit={handleSubmit}
+            className="card shadow-sm border-0 p-4 mb-4"
+          >
+
+            <h5 className="mb-4">
+              Editar veículo
+            </h5>
+
+            <div className="row">
+
+              <div className="col-md-3 mb-3">
+
+                <label className="form-label">
+                  Matrícula
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={matricula}
+                  disabled
+                />
+
+              </div>
+
+              <div className="col-md-3 mb-3">
+
+                <label className="form-label">
+                  Marca
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={marca}
+                  onChange={(e) =>
+                    setMarca(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-3 mb-3">
+
+                <label className="form-label">
+                  Modelo
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={modelo}
+                  onChange={(e) =>
+                    setModelo(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-3 mb-3">
+
+                <label className="form-label">
+                  Ano
+                </label>
+
+                <input
+                  type="number"
+                  className="form-control"
+                  value={ano}
+                  onChange={(e) =>
+                    setAno(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-12 mb-3">
+
+                <label className="form-label">
+                  Imagem URL
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={imgUrl}
+                  onChange={(e) =>
+                    setImgUrl(e.target.value)
+                  }
+                />
+
+              </div>
+
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-dark"
+            >
+              Atualizar veículo
+            </button>
+
+          </form>
+
+        )}
+
+        {/* TABELA */}
+
+        <div className="card shadow-sm border-0 p-4">
+
+          <div className="table-responsive">
+
+            <table className="table align-middle">
+
+              <thead>
+
+                <tr>
+
+                  <th>Veículo</th>
+
+                  <th>Matrícula</th>
+
+                  <th>Marca</th>
+
+                  <th>Modelo</th>
+
+                  <th>Ano</th>
+
+                  <th>Ações</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {carros.map((carro) => (
+
+                  <tr key={carro.matricula}>
+
+                    <td>
+
+                      <img
+                        src={
+                          carro.img_url ||
+                          "https://placehold.co/60x60"
+                        }
+                        alt={carro.modelo}
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          objectFit: "cover",
+                          borderRadius: "10px"
+                        }}
+                      />
+
+                    </td>
+
+                    <td>
+                      {carro.matricula}
+                    </td>
+
+                    <td>
+                      {carro.marca}
+                    </td>
+
+                    <td>
+                      {carro.modelo}
+                    </td>
+
+                    <td>
+                      {carro.ano}
+                    </td>
+
+                    <td>
+
+                      <div className="d-flex gap-2">
+
+                        <button
+                          className="btn btn-warning btn-sm"
+                          onClick={() =>
+                            handleEdit(carro)
+                          }
+                        >
+                          ✏️
+                        </button>
+
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() =>
+                            handleDelete(carro.matricula)
+                          }
+                        >
+                          🗑️
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    )}
+
+    {/* ORGANIZADOR */}
+
+    {user.role === "organizador" && (
+
+      <div>
+
+        <h2 className="mb-4">
+          Carros dos seus eventos
+        </h2>
+
+        <div className="row">
+
+          {carros.map((carro) => (
+
+            <div
+              key={carro.matricula}
+              className="col-md-4 mb-4"
+            >
+
+              <div className="card h-100 shadow-sm">
+
+                <img
+                  src={
+                    carro.img_url ||
+                    "https://placehold.co/600x400"
+                  }
+                  className="card-img-top"
+                  alt={carro.modelo}
+                  style={{
+                    height: "200px",
+                    objectFit: "cover"
+                  }}
+                />
+
+                <div className="card-body">
+
+                  <h5>
+                    {carro.marca} {carro.modelo}
+                  </h5>
+
+                  <p>
+                    {carro.matricula}
+                  </p>
+
+                  <p>
+                    {carro.ano}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </div>
+
+    )}
+
+  </div>
+
+)
 
 }
 

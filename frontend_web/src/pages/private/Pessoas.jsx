@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-import AdminLayout from "../../layouts/AdminLayout";
-
 import { getUser } from "../../services/authUtils";
 
 import {
@@ -41,6 +39,18 @@ function Pessoas() {
       if (user.role === "cliente") {
 
         setPessoas([response.data]);
+        
+        setEditingId(response.data.id_pessoa);
+
+        setNome(response.data.nome || "");
+
+        setEmail(response.data.email || "");
+
+        setTelemovel(response.data.telemovel || "");
+
+        setDataNascimento(
+          response.data.data_nascimento || ""
+        );
 
       } else {
 
@@ -107,166 +117,273 @@ function Pessoas() {
   };
 
   return (
+    <div>
 
-    <AdminLayout>
+      {/* CLIENTE */}
 
-      <h1 className="mb-4">
-        Pessoas
-      </h1>
+      {user.role === "cliente" && pessoas.length > 0 && (
 
-      {editingId && (
+        <div className="card shadow p-4">
 
-        <form
-          onSubmit={handleSubmit}
-          className="card p-4 mb-4"
-        >
+          <div className="mb-4">
 
-          <h4 className="mb-3">
-            Editar Pessoa
-          </h4>
+            <h2>
+              Olá, {pessoas[0].nome} 👋
+            </h2>
 
-          <div className="row">
-
-            <div className="col-md-6 mb-3">
-
-              <input
-                type="text"
-                placeholder="Nome"
-                className="form-control"
-                value={nome}
-                onChange={(e) =>
-                  setNome(e.target.value)
-                }
-              />
-
-            </div>
-
-            <div className="col-md-6 mb-3">
-
-              <input
-                type="email"
-                placeholder="Email"
-                className="form-control"
-                value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
-              />
-
-            </div>
-
-            <div className="col-md-6 mb-3">
-
-              <input
-                type="text"
-                placeholder="Telemóvel"
-                className="form-control"
-                value={telemovel}
-                onChange={(e) =>
-                  setTelemovel(e.target.value)
-                }
-              />
-
-            </div>
-
-            <div className="col-md-6 mb-3">
-
-              <input
-                type="date"
-                className="form-control"
-                value={dataNascimento}
-                onChange={(e) =>
-                  setDataNascimento(e.target.value)
-                }
-              />
-
-            </div>
+            <p className="text-muted">
+              Gerir os seus dados pessoais
+            </p>
 
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-dark"
-          >
-            Atualizar
-          </button>
+          <form onSubmit={handleSubmit}>
 
-        </form>
+            <div className="row">
+
+              <div className="col-md-6 mb-3">
+
+                <label className="form-label">
+                  Nome
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={nome}
+                  onChange={(e) =>
+                    setNome(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-6 mb-3">
+
+                <label className="form-label">
+                  Email
+                </label>
+
+                <input
+                  type="email"
+                  className="form-control"
+                  value={email}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-6 mb-3">
+
+                <label className="form-label">
+                  Telemóvel
+                </label>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  value={telemovel}
+                  onChange={(e) =>
+                    setTelemovel(e.target.value)
+                  }
+                />
+
+              </div>
+
+              <div className="col-md-6 mb-3">
+
+                <label className="form-label">
+                  Data nascimento
+                </label>
+
+                <input
+                  type="date"
+                  className="form-control"
+                  value={dataNascimento}
+                  onChange={(e) =>
+                    setDataNascimento(e.target.value)
+                  }
+                />
+
+              </div>
+
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-dark"
+            >
+              Guardar alterações
+            </button>
+
+          </form>
+
+        </div>
 
       )}
 
-      <table className="table table-dark table-striped">
+      {/* ADMIN / ORGANIZADOR */}
 
-        <thead>
+      {(user.role === "admin" ||
+        user.role === "organizador") && (
 
-          <tr>
+        <div>
 
-            <th>ID</th>
+          <h1 className="mb-4">
+            Pessoas
+          </h1>
 
-            <th>Nome</th>
+          {editingId && (
 
-            <th>Email</th>
+            <form
+              onSubmit={handleSubmit}
+              className="card p-4 mb-4"
+            >
 
-            <th>Telemóvel</th>
+              <h4 className="mb-3">
+                Editar Pessoa
+              </h4>
 
-            <th>Data Nascimento</th>
+              <div className="row">
 
-            {(user.role === "admin" ||
-              user.role === "cliente") && (
-              <th>Ações</th>
-            )}
+                <div className="col-md-6 mb-3">
 
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {pessoas.map((pessoa) => (
-
-            <tr key={pessoa.id_pessoa}>
-
-              <td>{pessoa.id_pessoa}</td>
-
-              <td>{pessoa.nome}</td>
-
-              <td>{pessoa.email}</td>
-
-              <td>{pessoa.telemovel}</td>
-
-              <td>
-                {pessoa.data_nascimento}
-              </td>
-
-              {(user.role === "admin" ||
-                user.role === "cliente") && (
-
-                <td>
-
-                  <button
-                    className="btn btn-warning btn-sm"
-                    onClick={() =>
-                      handleEdit(pessoa)
+                  <input
+                    type="text"
+                    placeholder="Nome"
+                    className="form-control"
+                    value={nome}
+                    onChange={(e) =>
+                      setNome(e.target.value)
                     }
-                  >
-                    Editar
-                  </button>
+                  />
 
-                </td>
+                </div>
 
-              )}
+                <div className="col-md-6 mb-3">
 
-            </tr>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="form-control"
+                    value={email}
+                    onChange={(e) =>
+                      setEmail(e.target.value)
+                    }
+                  />
 
-          ))}
+                </div>
 
-        </tbody>
+                <div className="col-md-6 mb-3">
 
-      </table>
+                  <input
+                    type="text"
+                    placeholder="Telemóvel"
+                    className="form-control"
+                    value={telemovel}
+                    onChange={(e) =>
+                      setTelemovel(e.target.value)
+                    }
+                  />
 
-    </AdminLayout>
+                </div>
 
-  )
+                <div className="col-md-6 mb-3">
+
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={dataNascimento}
+                    onChange={(e) =>
+                      setDataNascimento(e.target.value)
+                    }
+                  />
+
+                </div>
+
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-dark"
+              >
+                Atualizar
+              </button>
+
+            </form>
+
+          )}
+
+          <table className="table table-dark table-striped">
+
+            <thead>
+
+              <tr>
+
+                <th>ID</th>
+
+                <th>Nome</th>
+
+                <th>Email</th>
+
+                <th>Telemóvel</th>
+
+                <th>Data Nascimento</th>
+
+                <th>Ações</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {pessoas.map((pessoa) => (
+
+                <tr key={pessoa.id_pessoa}>
+
+                  <td>{pessoa.id_pessoa}</td>
+
+                  <td>{pessoa.nome}</td>
+
+                  <td>{pessoa.email}</td>
+
+                  <td>{pessoa.telemovel}</td>
+
+                  <td>
+                    {pessoa.data_nascimento}
+                  </td>
+
+                  <td>
+
+                    <button
+                      className="btn btn-warning btn-sm"
+                      onClick={() =>
+                        handleEdit(pessoa)
+                      }
+                    >
+                      Editar
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      )}
+
+    </div>
+
+)
 
 }
 

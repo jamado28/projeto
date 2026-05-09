@@ -8,9 +8,13 @@ import PublicNavbar from "../../components/public/PublicNavbar";
 
 import Footer from "../../components/public/Footer";
 
-function Home() {
+function PublicEventos() {
 
   const [eventos, setEventos] = useState([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const eventosPerPage = 9;
 
   useEffect(() => {
 
@@ -34,42 +38,35 @@ function Home() {
 
   };
 
+  // paginação
+
+  const lastIndex =
+    currentPage * eventosPerPage;
+
+  const firstIndex =
+    lastIndex - eventosPerPage;
+
+  const currentEventos =
+    eventos.slice(firstIndex, lastIndex);
+
+  const totalPages =
+    Math.ceil(eventos.length / eventosPerPage);
+
   return (
+
     <div>
+
       <PublicNavbar />
-
-      {/* HERO */}
-
-      <div className="bg-dark text-white text-center py-5">
-
-        <div className="container">
-
-          <h1 className="display-3 mb-4">
-            Sistema de Gestão de Eventos
-          </h1>
-
-          <p className="lead mb-4">
-
-            Descubra eventos automóveis,
-            compre bilhetes e participe.
-
-          </p>
-
-        </div>
-
-      </div>
-
-      {/* EVENTOS */}
 
       <div className="container py-5">
 
-        <h2 className="mb-5 text-center">
-          Eventos Disponíveis
-        </h2>
+        <h1 className="mb-5 text-center">
+          Todos os Eventos
+        </h1>
 
         <div className="row">
 
-          {eventos.slice(0, 6).map((evento) => (
+          {currentEventos.map((evento) => (
 
             <div
               key={evento.id_evento}
@@ -93,15 +90,15 @@ function Home() {
 
                 <div className="card-body d-flex flex-column">
 
-                  <h4 className="card-title">
+                  <h4>
                     {evento.nome}
                   </h4>
 
-                  <p className="mb-2">
+                  <p>
                     📍 {evento.local_evento}
                   </p>
 
-                  <p className="mb-3">
+                  <p>
                     📅 {evento.data}
                   </p>
 
@@ -125,52 +122,41 @@ function Home() {
           ))}
 
         </div>
-        <div className="text-center mt-4">
 
-        <Link
-          to="/eventos-publicos"
-          className="btn btn-outline-dark btn-lg"
-        >
-          Ver Mais Eventos
-        </Link>
+        {/* PAGINAÇÃO */}
 
-      </div>
+        <div className="d-flex justify-content-center mt-4 gap-2">
 
-      </div>
+          {[...Array(totalPages)].map((_, index) => (
 
-      {/* CTA */}
+            <button
+              key={index}
+              className={`btn ${
+                currentPage === index + 1
+                  ? "btn-dark"
+                  : "btn-outline-dark"
+              }`}
+              onClick={() =>
+                setCurrentPage(index + 1)
+              }
+            >
 
-      <div className="bg-light py-5">
+              {index + 1}
 
-        <div className="container text-center">
+            </button>
 
-          <h2 className="mb-3">
-
-            Quer ajuda a gerir o seu evento?
-
-          </h2>
-
-          <p className="mb-4">
-
-            Organizamos e gerimos eventos
-            automóveis consigo.
-
-          </p>
-
-          <button className="btn btn-dark btn-lg">
-
-            Contacte-nos
-
-          </button>
+          ))}
 
         </div>
 
       </div>
+
       <Footer />
+
     </div>
 
   )
 
 }
 
-export default Home;
+export default PublicEventos;

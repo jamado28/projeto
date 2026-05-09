@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-
-import AdminLayout from "../../layouts/AdminLayout";
 import { getUser } from "../../services/authUtils";
 import { getEventos, createEvento, deleteEvento, updateEvento } from "../../services/eventService";
 
@@ -15,6 +13,7 @@ function Eventos() {
   const [precoParticipante, setPrecoParticipante] = useState("");
   const [limiteParticipantes, setLimiteParticipantes] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
 
     loadEventos();
@@ -77,6 +76,7 @@ function Eventos() {
       setPrecoVisitante("");
       setPrecoParticipante("");
       setLimiteParticipantes("");
+      setShowForm(false);
 
     } catch (error) {
 
@@ -115,177 +115,332 @@ function Eventos() {
   const handleEdit = (evento) => {
 
     setEditingId(evento.id_evento);
-
     setNome(evento.nome);
     setData(evento.data);
     setLocalEvento(evento.local_evento);
     setPrecoVisitante(evento.preco_visitante);
     setPrecoParticipante(evento.preco_participante);
     setLimiteParticipantes(evento.limite_participantes);
-
+    setShowForm(true);
   };
+
   return (
 
-    <AdminLayout>
+    <div>
 
-      <h1 className="mb-4">
-        Eventos
-      </h1>
-      <form
-        onSubmit={handleCreate}
-        className="card p-4 mb-4"
-      >
+      {/* TOPO */}
 
-        <h4 className="mb-3">
-          Criar Evento
-        </h4>
+      <div className="d-flex justify-content-between align-items-center mb-4">
 
-        <div className="row">
+        <div>
 
-          <div className="col-md-4 mb-3">
+          <h2>
+            Eventos
+          </h2>
 
-            <input
-              type="text"
-              placeholder="Nome"
-              className="form-control"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-            />
-
-          </div>
-
-          <div className="col-md-4 mb-3">
-
-            <input
-              type="date"
-              className="form-control"
-              value={data}
-              onChange={(e) => setData(e.target.value)}
-            />
-
-          </div>
-
-          <div className="col-md-4 mb-3">
-
-            <input
-              type="text"
-              placeholder="Local"
-              className="form-control"
-              value={localEvento}
-              onChange={(e) => setLocalEvento(e.target.value)}
-            />
-
-          </div>
-
-          <div className="col-md-4 mb-3">
-
-            <input
-              type="number"
-              placeholder="Preço visitante"
-              className="form-control"
-              value={precoVisitante}
-              onChange={(e) => setPrecoVisitante(e.target.value)}
-            />
-
-          </div>
-
-          <div className="col-md-4 mb-3">
-
-            <input
-              type="number"
-              placeholder="Preço participante"
-              className="form-control"
-              value={precoParticipante}
-              onChange={(e) => setPrecoParticipante(e.target.value)}
-            />
-
-          </div>
-
-          <div className="col-md-4 mb-3">
-
-            <input
-              type="number"
-              placeholder="Limite participantes"
-              className="form-control"
-              value={limiteParticipantes}
-              onChange={(e) => setLimiteParticipantes(e.target.value)}
-            />
-
-          </div>
+          <p className="text-muted">
+            Gerir todos os eventos
+          </p>
 
         </div>
 
         <button
-          type="submit"
-          className="btn btn-dark"
+          className="btn btn-danger"
+          onClick={() =>
+            setShowForm(!showForm)
+          }
         >
-          Criar Evento
+
+          + Criar evento
+
         </button>
 
-      </form>
-      <table className="table table-dark table-striped">
+      </div>
 
-        <thead>
+      {/* FORM */}
 
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Data</th>
-            <th>Local</th>
-            <th>Ações</th>
-          </tr>
+      {showForm && (
 
-        </thead>
+        <form
+          onSubmit={handleCreate}
+          className="card shadow-sm border-0 p-4 mb-4"
+        >
 
-        <tbody>
+          <h5 className="mb-1">
+            {editingId
+              ? "Editar evento"
+              : "Criar novo evento"}
+          </h5>
 
-          {eventos.map((evento) => (
+          <p className="text-muted mb-4">
 
-            <tr key={evento.id_evento}>
+            Preencha os dados para criar
+            um novo evento.
 
-              <td>{evento.id_evento}</td>
+          </p>
 
-              <td>{evento.nome}</td>
+          <div className="row">
 
-              <td>{evento.data}</td>
+            <div className="col-md-4 mb-3">
 
-              <td>{evento.local_evento}</td>
+              <label className="form-label">
+                Nome do evento
+              </label>
 
-              <td>
+              <input
+                type="text"
+                placeholder="Ex: Drift Night Lisboa"
+                className="form-control"
+                value={nome}
+                onChange={(e) =>
+                  setNome(e.target.value)
+                }
+              />
 
-                {(user.role === "admin" ||
-                  (user.role === "organizador" &&
-                    evento.user_id === user.id)) && (
+            </div>
 
-                  <>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => handleEdit(evento)}
-                    >
-                      Editar
-                    </button>
+            <div className="col-md-4 mb-3">
 
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(evento.id_evento)}
-                    >
-                      Apagar
-                    </button>
-                  </>
+              <label className="form-label">
+                Data
+              </label>
 
-                )}
+              <input
+                type="date"
+                className="form-control"
+                value={data}
+                onChange={(e) =>
+                  setData(e.target.value)
+                }
+              />
 
-              </td>
+            </div>
 
-            </tr>
+            <div className="col-md-4 mb-3">
 
-          ))}
+              <label className="form-label">
+                Local
+              </label>
 
-        </tbody>
+              <input
+                type="text"
+                placeholder="Ex: Lisboa"
+                className="form-control"
+                value={localEvento}
+                onChange={(e) =>
+                  setLocalEvento(e.target.value)
+                }
+              />
 
-      </table>
+            </div>
 
-    </AdminLayout>
+            <div className="col-md-4 mb-3">
+
+              <label className="form-label">
+                Preço visitante
+              </label>
+
+              <input
+                type="number"
+                placeholder="Ex: 20.00"
+                className="form-control"
+                value={precoVisitante}
+                onChange={(e) =>
+                  setPrecoVisitante(e.target.value)
+                }
+              />
+
+            </div>
+
+            <div className="col-md-4 mb-3">
+
+              <label className="form-label">
+                Preço participante
+              </label>
+
+              <input
+                type="number"
+                placeholder="Ex: 15.00"
+                className="form-control"
+                value={precoParticipante}
+                onChange={(e) =>
+                  setPrecoParticipante(e.target.value)
+                }
+              />
+
+            </div>
+
+            <div className="col-md-4 mb-3">
+
+              <label className="form-label">
+                Limite de participantes
+              </label>
+
+              <input
+                type="number"
+                placeholder="Ex: 100"
+                className="form-control"
+                value={limiteParticipantes}
+                onChange={(e) =>
+                  setLimiteParticipantes(e.target.value)
+                }
+              />
+
+            </div>
+
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-dark w-100"
+          >
+
+            {editingId
+              ? "Atualizar evento"
+              : "Criar evento"}
+
+          </button>
+
+        </form>
+
+      )}
+
+      {/* TABELA */}
+
+      <div className="card shadow-sm border-0 p-4">
+
+        <h5 className="mb-4">
+          Lista de eventos
+        </h5>
+
+        <div className="table-responsive">
+
+          <table className="table align-middle">
+
+            <thead>
+
+              <tr>
+
+                <th>Evento</th>
+
+                <th>Data</th>
+
+                <th>Local</th>
+
+                <th>Preço Visitante</th>
+
+                <th>Preço Participante</th>
+
+                <th>Limite de Participantes</th>
+
+                <th>Participantes Confirmados</th>
+                <th>Ações</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {eventos.map((evento) => (
+
+                <tr key={evento.id_evento}>
+
+                  <td>
+
+                    <div className="d-flex align-items-center gap-3">
+
+                      <img
+                        src={
+                          evento.imagem ||
+                          "https://placehold.co/60x60"
+                        }
+                        alt={evento.nome}
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          objectFit: "cover",
+                          borderRadius: "10px"
+                        }}
+                      />
+
+                      <div>
+
+                        <strong>
+                          {evento.nome}
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+                  </td>
+
+                  <td>
+                    {evento.data}
+                  </td>
+
+                  <td>
+                    {evento.local_evento}
+                  </td>
+
+                  <td>
+                    {evento.preco_visitante}€
+                  </td>
+
+                  <td>
+                    {evento.preco_participante}€
+                  </td>
+
+                  <td>
+                    {evento.limite_participantes}
+                  </td>
+                  <td>{evento.total_participantes}</td>      
+                  <td>
+
+                    {(user.role === "admin" ||
+                      (user.role === "organizador" &&
+                        evento.user_id === user.id)) && (
+
+                      <div className="d-flex gap-2">
+
+                        <button
+                          className="btn btn-warning btn-sm"
+                          onClick={() =>
+                            handleEdit(evento)
+                          }
+                        >
+                          ✏️
+                        </button>
+
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() =>
+                            handleDelete(evento.id_evento)
+                          }
+                        >
+                          🗑️
+                        </button>
+
+                      </div>
+
+                    )}
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
 
   )
 

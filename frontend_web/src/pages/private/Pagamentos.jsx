@@ -1,37 +1,32 @@
 import { useEffect, useState } from "react";
-
-import AdminLayout from "../../layouts/AdminLayout";
-
 import { getUser } from "../../services/authUtils";
-
 import {
   getPagamentos,
   createPagamento,
   deletePagamento
 } from "../../services/pagamentoService";
-
 import { getBilhetes } from "../../services/bilheteService";
 
 function Pagamentos() {
 
   const user = getUser();
-
   const [pagamentos, setPagamentos] = useState([]);
-
   const [bilhetes, setBilhetes] = useState([]);
-
   const [iban, setIban] = useState("");
-
   const [estado, setEstado] = useState(true);
-
   const [idBilhete, setIdBilhete] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
 
     loadPagamentos();
 
     loadBilhetes();
-
+    const bilheteGuardado = localStorage.getItem("bilhetePagamento");
+    if (bilheteGuardado) {
+      setIdBilhete(bilheteGuardado);
+      setShowForm(true);
+    }
   }, []);
 
   const loadPagamentos = async () => {
@@ -71,21 +66,20 @@ function Pagamentos() {
     e.preventDefault();
 
     try {
-
       await createPagamento({
         iban,
-        estado,
+        estado: true,
         id_bilhete: idBilhete
       });
-
       alert("Pagamento criado");
-
       loadPagamentos();
-
       setIban("");
-
       setIdBilhete("");
+      localStorage.removeItem(
+        "bilhetePagamento"
+      );
 
+      setShowForm(false);
     } catch (error) {
 
       console.log(error);
@@ -127,162 +121,349 @@ function Pagamentos() {
   };
 
   return (
-
-    <AdminLayout>
-
-      <h1 className="mb-4">
-        Pagamentos
-      </h1>
-
+    <div>
+      {/* CLIENTE */}
       {user.role === "cliente" && (
-
-        <form
-          onSubmit={handleSubmit}
-          className="card p-4 mb-4"
-        >
-
-          <h4 className="mb-3">
-            Criar Pagamento
-          </h4>
-
-          <div className="row">
-
-            <div className="col-md-6 mb-3">
-
-              <input
-                type="text"
-                placeholder="IBAN"
-                className="form-control"
-                value={iban}
-                onChange={(e) =>
-                  setIban(e.target.value)
-                }
-              />
-
+        <div>
+          {/* TOPO */}
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h2>
+                Pagamentos
+              </h2>
+              <p className="text-muted">
+                Gerir os seus pagamentos
+              </p>
             </div>
 
-            <div className="col-md-6 mb-3">
-
-              <select
-                className="form-control"
-                value={idBilhete}
-                onChange={(e) =>
-                  setIdBilhete(e.target.value)
-                }
-              >
-
-                <option value="">
-                  Escolher Bilhete
-                </option>
-
-                {bilhetes.map((bilhete) => (
-
-                  <option
-                    key={bilhete.id_bilhete}
-                    value={bilhete.id_bilhete}
-                  >
-                    Bilhete #{bilhete.id_bilhete}
-                  </option>
-
-                ))}
-
-              </select>
-
-            </div>
+            <button
+              className="btn btn-danger"
+              onClick={() =>
+                setShowForm(!showForm)
+              }
+            >
+              + Criar pagamento
+            </button>
 
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-dark"
-          >
-            Criar Pagamento
-          </button>
+          {/* FORM */}
 
-        </form>
+          {showForm && (
+
+            <form
+              onSubmit={handleSubmit}
+              className="card p-4 mb-4 shadow-sm"
+            >
+
+              <h5 className="mb-4">
+                Criar novo pagamento
+              </h5>
+
+              <div className="row">
+
+                <div className="col-md-6 mb-3">
+
+                  <label className="form-label">
+                    IBAN
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="PT50..."
+                    className="form-control"
+                    value={iban}
+                    onChange={(e) =>
+                      setIban(e.target.value)
+                    }
+                  />
+
+                </div>
+
+                <div className="col-md-6 mb-3">
+
+                  <label className="form-label">
+                    Bilhete
+                  </label>
+
+                  <select
+                    className="form-control"
+                    value={idBilhete}
+                    onChange={(e) =>
+                      setIdBilhete(e.target.value)
+                    }
+                  >
+
+                    <option value="">
+                      Escolher bilhete
+                    </option>
+
+                    {bilhetes.map((bilhete) => (
+
+                      <option
+                        key={bilhete.id_bilhete}
+                        value={bilhete.id_bilhete}
+                      >
+                        #{bilhete.id_bilhete}
+                        {" - "}
+                        {bilhete.evento?.nome}
+                      </option>
+
+                    ))}
+
+                  </select>
+
+                </div>
+
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-danger"
+              >
+                Criar pagamento
+              </button>
+
+            </form>
+
+          )}
+
+          {/* LISTA */}
+
+          <div className="row">
+
+            {pagamentos.map((pagamento) => (
+
+              <div
+                key={pagamento.id_pagamento}
+                className="col-md-6 mb-4"
+              >
+
+                <div className="card shadow-sm h-100">
+
+                  <div className="card-body">
+
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+
+                      <div>
+
+                        <h5>
+                          {pagamento.bilhete?.evento?.nome}
+                        </h5>
+
+                        <p className="text-muted">
+                          {pagamento.bilhete?.evento?.nome}
+                        </p>
+
+                      </div>
+
+                      <span
+                        className={`badge ${
+                          pagamento.estado
+                            ? "bg-success"
+                            : "bg-warning text-dark"
+                        }`}
+                      >
+
+                        {pagamento.estado
+                          ? "Pago"
+                          : "Pendente"}
+
+                      </span>
+
+                    </div>
+
+                    <p>
+
+                      <strong>IBAN:</strong>
+                      {" "}
+                      {pagamento.iban}
+
+                    </p>
+
+                    <p>
+
+                      <strong>Preço:</strong>
+                      {" "}
+                      {pagamento.preco}€
+
+                    </p>
+
+                    <p>
+
+                      <strong>Data pagamento:</strong>
+                      {" "}
+
+                      {new Date(
+                        pagamento.createdAt
+                      ).toLocaleDateString()}
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </div>
 
       )}
 
-      <table className="table table-dark table-striped">
+      {/* ADMIN */}
 
-        <thead>
+      {user.role === "admin" && (
 
-          <tr>
+        <div>
 
-            <th>ID</th>
+          <h2 className="mb-4">
+            Todos os pagamentos
+          </h2>
 
-            <th>IBAN</th>
+          <table className="table table-dark table-striped">
 
-            <th>Preço</th>
+            <thead>
 
-            <th>Estado</th>
+              <tr>
 
-            <th>Bilhete</th>
+                <th>ID</th>
 
-            {user.role === "admin" && (
-              <th>Ações</th>
-            )}
+                <th>Bilhete</th>
 
-          </tr>
+                <th>Preço</th>
 
-        </thead>
+                <th>Estado</th>
 
-        <tbody>
+                <th>Ações</th>
 
-          {pagamentos.map((pagamento) => (
+              </tr>
 
-            <tr key={pagamento.id_pagamento}>
+            </thead>
 
-              <td>
-                {pagamento.id_pagamento}
-              </td>
+            <tbody>
 
-              <td>
-                {pagamento.iban}
-              </td>
+              {pagamentos.map((pagamento) => (
 
-              <td>
-                {pagamento.preco}€
-              </td>
+                <tr key={pagamento.id_pagamento}>
 
-              <td>
-                {pagamento.estado
-                  ? "Pago"
-                  : "Pendente"}
-              </td>
+                  <td>
+                    {pagamento.id_pagamento}
+                  </td>
 
-              <td>
-                #{pagamento.id_bilhete}
-              </td>
+                  <td>
+                    #{pagamento.id_bilhete}
+                  </td>
 
-              {user.role === "admin" && (
+                  <td>
+                    {pagamento.preco}€
+                  </td>
 
-                <td>
+                  <td>
 
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() =>
-                      handleDelete(
-                        pagamento.id_pagamento
-                      )
-                    }
-                  >
-                    Apagar
-                  </button>
+                    {pagamento.estado
+                      ? "Pago"
+                      : "Pendente"}
 
-                </td>
+                  </td>
 
-              )}
+                  <td>
 
-            </tr>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() =>
+                        handleDelete(
+                          pagamento.id_pagamento
+                        )
+                      }
+                    >
+                      Apagar
+                    </button>
 
-          ))}
+                  </td>
 
-        </tbody>
+                </tr>
 
-      </table>
+              ))}
 
-    </AdminLayout>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      )}
+
+      {/* ORGANIZADOR */}
+
+      {user.role === "organizador" && (
+
+        <div>
+
+          <h2 className="mb-4">
+            Pagamentos dos seus eventos
+          </h2>
+
+          <table className="table table-dark table-striped">
+
+            <thead>
+
+              <tr>
+
+                <th>ID</th>
+
+                <th>Bilhete</th>
+
+                <th>Preço</th>
+
+                <th>Estado</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {pagamentos.map((pagamento) => (
+
+                <tr key={pagamento.id_pagamento}>
+
+                  <td>
+                    {pagamento.id_pagamento}
+                  </td>
+
+                  <td>
+                    #{pagamento.id_bilhete}
+                  </td>
+
+                  <td>
+                    {pagamento.preco}€
+                  </td>
+
+                  <td>
+
+                    {pagamento.estado
+                      ? "Pago"
+                      : "Pendente"}
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      )}
+
+    </div>
 
   )
 

@@ -3,7 +3,6 @@ const conexao = require("../config/database");
 const Pessoa = require("./pessoa.model");
 const Evento = require("./evento.model");
 
-
 const Bilhete = conexao.define(
   "bilhete",
   {

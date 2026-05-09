@@ -21,3 +21,26 @@ export const register = async (dados) => {
   return response.data;
 
 }
+
+export const getUsers = () => {
+
+  return api.get("/auth/users");
+
+};
+
+export const updateUser = (id, dados) => {
+
+  return api.put(
+    `/auth/users/${id}`,
+    dados
+  );
+
+};
+
+export const deleteUser = (id) => {
+
+  return api.delete(
+    `/auth/${id}`
+  );
+
+};

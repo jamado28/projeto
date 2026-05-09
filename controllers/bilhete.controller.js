@@ -4,8 +4,8 @@ const Evento = require("../models/evento.model");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 const Carro = require("../models/carro.model");
+const Pagamento = require("../models/pagamento.model");
 const endpoints = {};
-
 
 // CREATE
 endpoints.createBilhete = async (req, res) => {
@@ -139,7 +139,15 @@ endpoints.getAllBilhetes = async (req, res) => {
     // ADMIN
     if (decoded.role === "admin") {
       dados = await Bilhete.findAll({
-        include: ["pessoa", "evento", "carro"],
+        include: [
+          "pessoa",
+          "evento",
+          "carro",
+          {
+            model: Pagamento,
+            as: "pagamento"
+          }
+        ],
       });
     }
 
@@ -152,18 +160,32 @@ endpoints.getAllBilhetes = async (req, res) => {
 
       dados = await Bilhete.findAll({
         where: { id_pessoa: pessoa.id_pessoa },
-        include: ["pessoa", "evento", "carro"],
+        include: [
+          "pessoa",
+          "evento",
+          "carro",
+          {
+            model: Pagamento,
+            as: "pagamento"
+          }
+        ],
       });
     }
 
     // ORGANIZADOR
     else {
       dados = await Bilhete.findAll({
-        include: {
-          model: Evento,
-          as: "evento",
-          where: { user_id: decoded.id }
-        }
+        include: [
+          {
+            model: Evento,
+            as: "evento",
+            where: { user_id: decoded.id }
+          },
+          {
+            model: Pagamento,
+            as: "pagamento"
+          }
+        ]
       });
     }
 
@@ -190,7 +212,15 @@ endpoints.getBilheteById = async (req, res) => {
 
     const bilhete = await Bilhete.findOne({
       where: { id_bilhete: id },
-      include: ["pessoa", "evento", "carro"],
+      include: [
+        "pessoa",
+        "evento",
+        "carro",
+        {
+          model: Pagamento,
+          as: "pagamento"
+        }
+      ],
     });
 
     if (!bilhete) {

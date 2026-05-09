@@ -1,37 +1,25 @@
 import { useEffect, useState } from "react";
-
-import AdminLayout from "../../layouts/AdminLayout";
-
 import { getUser } from "../../services/authUtils";
-
 import {
   getBilhetes,
   createBilhete,
   deleteBilhete
 } from "../../services/bilheteService";
-
 import { getEventos } from "../../services/eventService";
-
 import { getCarros } from "../../services/carroService";
+import { useNavigate } from "react-router-dom";
 
-function Bilhetes() {
+function Bilhetes({ setSection }) {
 
   const user = getUser();
-
+  const navigate = useNavigate();
   const [bilhetes, setBilhetes] = useState([]);
-
   const [eventos, setEventos] = useState([]);
-
   const [carros, setCarros] = useState([]);
-
-  const [anoBilhete, setAnoBilhete] = useState("");
-
   const [idEvento, setIdEvento] = useState("");
-
   const [tipo, setTipo] = useState("visitante");
-
   const [matriculaCarro, setMatriculaCarro] = useState("");
-
+  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
 
     loadBilhetes();
@@ -97,7 +85,6 @@ function Bilhetes() {
     try {
 
       await createBilhete({
-        ano_bilhete: anoBilhete,
         id_evento: idEvento,
         tipo,
         matricula_carro:
@@ -109,8 +96,6 @@ function Bilhetes() {
       alert("Bilhete criado");
 
       loadBilhetes();
-
-      setAnoBilhete("");
       setIdEvento("");
       setTipo("visitante");
       setMatriculaCarro("");
@@ -155,206 +140,435 @@ function Bilhetes() {
 
   };
 
+  const handlePagar = (idBilhete) => {
+
+    localStorage.setItem(
+      "bilhetePagamento",
+      idBilhete
+    );
+
+    setSection("pagamentos");
+
+  };
+
   return (
 
-    <AdminLayout>
+    <div>
 
-      <h1 className="mb-4">
-        Bilhetes
-      </h1>
+      {/* CLIENTE */}
 
       {user.role === "cliente" && (
 
-        <form
-          onSubmit={handleSubmit}
-          className="card p-4 mb-4"
-        >
+        <div>
 
-          <h4 className="mb-3">
-            Criar Bilhete
-          </h4>
+          {/* TOPO */}
 
-          <div className="row">
+          <div className="d-flex justify-content-between align-items-center mb-4">
 
-            <div className="col-md-3 mb-3">
+            <div>
 
-              <input
-                type="number"
-                placeholder="Ano"
-                className="form-control"
-                value={anoBilhete}
-                onChange={(e) =>
-                  setAnoBilhete(e.target.value)
-                }
-              />
+              <h2>
+                Bilhetes
+              </h2>
+
+              <p className="text-muted">
+                Gerir os seus bilhetes
+              </p>
 
             </div>
 
-            <div className="col-md-3 mb-3">
-
-              <select
-                className="form-control"
-                value={idEvento}
-                onChange={(e) =>
-                  setIdEvento(e.target.value)
-                }
-              >
-
-                <option value="">
-                  Escolher Evento
-                </option>
-
-                {eventos.map((evento) => (
-
-                  <option
-                    key={evento.id_evento}
-                    value={evento.id_evento}
-                  >
-                    {evento.nome}
-                  </option>
-
-                ))}
-
-              </select>
-
-            </div>
-
-            <div className="col-md-3 mb-3">
-
-              <select
-                className="form-control"
-                value={tipo}
-                onChange={(e) =>
-                  setTipo(e.target.value)
-                }
-              >
-
-                <option value="visitante">
-                  Visitante
-                </option>
-
-                <option value="participante">
-                  Participante
-                </option>
-
-              </select>
-
-            </div>
-
-            {tipo === "participante" && (
-
-              <div className="col-md-3 mb-3">
-
-                <select
-                  className="form-control"
-                  value={matriculaCarro}
-                  onChange={(e) =>
-                    setMatriculaCarro(e.target.value)
-                  }
-                >
-
-                  <option value="">
-                    Escolher Carro
-                  </option>
-
-                  {carros.map((carro) => (
-
-                    <option
-                      key={carro.matricula}
-                      value={carro.matricula}
-                    >
-                      {carro.matricula}
-                    </option>
-
-                  ))}
-
-                </select>
-
-              </div>
-
-            )}
+            <button
+              className="btn btn-danger"
+              onClick={() =>
+                setShowForm(!showForm)
+              }
+            >
+              + Comprar bilhete
+            </button>
 
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-dark"
-          >
-            Criar Bilhete
-          </button>
+          {/* FORM */}
 
-        </form>
+          {showForm && (
+
+            <form
+              onSubmit={handleSubmit}
+              className="card p-4 mb-4 shadow-sm"
+            >
+
+              <h5 className="mb-4">
+                Comprar bilhete
+              </h5>
+
+              <div className="row">
+
+                <div className="col-md-6 mb-3">
+
+                  <label className="form-label">
+                    Evento
+                  </label>
+
+                  <select
+                    className="form-control"
+                    value={idEvento}
+                    onChange={(e) =>
+                      setIdEvento(e.target.value)
+                    }
+                  >
+
+                    <option value="">
+                      Escolher evento
+                    </option>
+
+                    {eventos.map((evento) => (
+
+                      <option
+                        key={evento.id_evento}
+                        value={evento.id_evento}
+                      >
+                        {evento.nome}
+                      </option>
+
+                    ))}
+
+                  </select>
+
+                </div>
+
+                <div className="col-md-6 mb-3">
+
+                  <label className="form-label">
+                    Tipo
+                  </label>
+
+                  <select
+                    className="form-control"
+                    value={tipo}
+                    onChange={(e) =>
+                      setTipo(e.target.value)
+                    }
+                  >
+
+                    <option value="visitante">
+                      Visitante
+                    </option>
+
+                    <option value="participante">
+                      Participante
+                    </option>
+
+                  </select>
+
+                </div>
+
+                {tipo === "participante" && (
+
+                  <div className="col-md-12 mb-3">
+
+                    <label className="form-label">
+                      Carro
+                    </label>
+
+                    <select
+                      className="form-control"
+                      value={matriculaCarro}
+                      onChange={(e) =>
+                        setMatriculaCarro(e.target.value)
+                      }
+                    >
+
+                      <option value="">
+                        Escolher carro
+                      </option>
+
+                      {carros.map((carro) => (
+
+                        <option
+                          key={carro.matricula}
+                          value={carro.matricula}
+                        >
+                          {carro.matricula}
+                        </option>
+
+                      ))}
+
+                    </select>
+
+                  </div>
+
+                )}
+
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-danger"
+              >
+                Comprar bilhete
+              </button>
+
+            </form>
+
+          )}
+
+          {/* LISTA */}
+
+          <div className="row">
+
+            {bilhetes.map((bilhete) => (
+
+              <div
+                key={bilhete.id_bilhete}
+                className="col-md-6 mb-4"
+              >
+
+                <div className="card shadow-sm h-100">
+
+                  <div className="card-body">
+
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+
+                      <div>
+
+                        <h5>
+                          {bilhete.evento?.nome}
+                        </h5>
+
+                        <p className="text-muted mb-1">
+                          📍 {bilhete.evento?.local_evento}
+                        </p>
+
+                        <p className="text-muted">
+                          📅 {bilhete.evento?.data}
+                        </p>
+
+                      </div>
+
+                      <span
+                        className={`badge ${
+                          bilhete.tipo === "participante"
+                            ? "bg-primary"
+                            : "bg-secondary"
+                        }`}
+                      >
+
+                        {bilhete.tipo}
+
+                      </span>
+
+                    </div>
+
+                    <p>
+
+                      <strong>Carro:</strong>{" "}
+
+                      {bilhete.matricula_carro || "-"}
+
+                    </p>
+
+                    <p>
+
+                      <strong>Estado:</strong>{" "}
+
+                      {bilhete.pagamento
+                        ? "Pago"
+                        : "Não pago"}
+
+                    </p>
+
+                    <div className="d-flex gap-2 mt-3">
+
+                      {!bilhete.pagamento && (
+
+                        <button
+                          className="btn btn-success btn-sm"
+                          onClick={() =>
+                            handlePagar(bilhete.id_bilhete)
+                          }
+                        >
+                          Pagar
+                        </button>
+
+                      )}
+
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() =>
+                          handleDelete(
+                            bilhete.id_bilhete
+                          )
+                        }
+                      >
+                        Apagar
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </div>
 
       )}
 
-      <table className="table table-dark table-striped">
+      {/* ADMIN */}
 
-        <thead>
+      {user.role === "admin" && (
 
-          <tr>
+        <div>
 
-            <th>ID</th>
+          <h2 className="mb-4">
+            Todos os bilhetes
+          </h2>
 
-            <th>Evento</th>
+          <table className="table table-dark table-striped">
 
-            <th>Tipo</th>
+            <thead>
 
-            <th>Carro</th>
+              <tr>
 
-            {(user.role === "cliente" ||
-              user.role === "admin") && (
-              <th>Ações</th>
-            )}
+                <th>ID</th>
 
-          </tr>
+                <th>Evento</th>
 
-        </thead>
+                <th>Tipo</th>
 
-        <tbody>
+                <th>Carro</th>
 
-          {bilhetes.map((bilhete) => (
+                <th>Estado</th>
 
-            <tr key={bilhete.id_bilhete}>
+                <th>Ações</th>
 
-              <td>{bilhete.id_bilhete}</td>
+              </tr>
 
-              <td>
-                {bilhete.evento?.nome}
-              </td>
+            </thead>
 
-              <td>{bilhete.tipo}</td>
+            <tbody>
 
-              <td>
-                {bilhete.matricula_carro || "-"}
-              </td>
+              {bilhetes.map((bilhete) => (
 
-              {(user.role === "cliente" ||
-                user.role === "admin") && (
+                <tr key={bilhete.id_bilhete}>
 
-                <td>
+                  <td>{bilhete.id_bilhete}</td>
 
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() =>
-                      handleDelete(bilhete.id_bilhete)
-                    }
-                  >
-                    Apagar
-                  </button>
+                  <td>
+                    {bilhete.evento?.nome}
+                  </td>
 
-                </td>
+                  <td>{bilhete.tipo}</td>
 
-              )}
+                  <td>
+                    {bilhete.matricula_carro || "-"}
+                  </td>
 
-            </tr>
+                  <td>
+                    {bilhete.pagamento
+                      ? "Pago"
+                      : "Não pago"}
+                  </td>
 
-          ))}
+                  <td>
 
-        </tbody>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() =>
+                        handleDelete(
+                          bilhete.id_bilhete
+                        )
+                      }
+                    >
+                      Apagar
+                    </button>
 
-      </table>
+                  </td>
 
-    </AdminLayout>
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      )}
+
+      {/* ORGANIZADOR */}
+
+      {user.role === "organizador" && (
+
+        <div>
+
+          <h2 className="mb-4">
+            Bilhetes dos seus eventos
+          </h2>
+
+          <table className="table table-dark table-striped">
+
+            <thead>
+
+              <tr>
+
+                <th>ID</th>
+
+                <th>Evento</th>
+
+                <th>Tipo</th>
+
+                <th>Carro</th>
+
+                <th>Estado</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {bilhetes.map((bilhete) => (
+
+                <tr key={bilhete.id_bilhete}>
+
+                  <td>{bilhete.id_bilhete}</td>
+
+                  <td>
+                    {bilhete.evento?.nome}
+                  </td>
+
+                  <td>{bilhete.tipo}</td>
+
+                  <td>
+                    {bilhete.matricula_carro || "-"}
+                  </td>
+
+                  <td>
+                    {bilhete.pagamento
+                      ? "Pago"
+                      : "Não pago"}
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      )}
+
+    </div>
 
   )
 
