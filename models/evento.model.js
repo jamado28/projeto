@@ -32,6 +32,12 @@ const Evento = conexao.define(
       validate: { min: 0 },
       allowNull: true
     },
+    descricao: {
+      type: sequelize.TEXT,
+    },
+    imagem: {
+      type: sequelize.STRING,
+    },
     limite_participantes: {
       type: sequelize.INTEGER,
       allowNull: false

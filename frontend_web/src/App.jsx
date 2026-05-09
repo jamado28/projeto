@@ -4,14 +4,14 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+import AppRoutes from "./routes/AppRoutes";
+
 function App() {
 
   return (
-    <>
-      <h1>Projeto Gestão de Eventos</h1>
-    </>
+    <AppRoutes />
   )
 
 }
 
-export default App
+export default App;

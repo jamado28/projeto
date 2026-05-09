@@ -8,7 +8,7 @@ const endpoints = {};
 
 // CREATE
 endpoints.createEvento = async (req, res) => {
-  const { nome, data, local_evento, preco_visitante, preco_participante, limite_participantes } = req.body;
+  const { nome, data, local_evento, preco_visitante, preco_participante, descricao, imagem, limite_participantes } = req.body;
 
   try {
     const authHeader = req.headers.authorization;
@@ -41,6 +41,8 @@ endpoints.createEvento = async (req, res) => {
       local_evento,
       preco_visitante,
       preco_participante,
+      descricao, 
+      imagem,
       limite_participantes,
       user_id: decoded.id
     });
@@ -134,7 +136,7 @@ endpoints.getEventosByUser = async (req, res) => {
 // UPDATE
 endpoints.updateEvento = async (req, res) => {
   const { id } = req.params;
-  const { nome, data, local_evento, preco_visitante, preco_participante } = req.body;
+  const { nome, data, local_evento, preco_visitante, preco_participante, descricao, imagem, limite_participantes } = req.body;
 
   try {
     const authHeader = req.headers.authorization;
@@ -171,7 +173,7 @@ endpoints.updateEvento = async (req, res) => {
     }
 
     await Evento.update(
-      { nome, data, local_evento, preco_visitante, preco_participante },
+      { nome, data, local_evento, preco_visitante, preco_participante, descricao, imagem, limite_participantes },
       { where: { id_evento: id } }
     );
 

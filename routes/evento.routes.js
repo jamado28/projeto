@@ -5,7 +5,7 @@ const controller = require("../controllers/evento.controller");
 const middlewareAuth = require("../middleware");
 
 router.get("/", controller.getAllEventos); // público
-router.get("/:id",  middlewareAuth.checkToken, controller.getEventoById);
+router.get("/:id", controller.getEventoById); // público
 
 router.get("/user/:id", middlewareAuth.checkToken, controller.getEventosByUser); //Para cada organizador ver os seus de todos os anos
 
