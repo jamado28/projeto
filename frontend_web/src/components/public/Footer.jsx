@@ -11,7 +11,7 @@ function Footer() {
           <div className="col-md-4">
 
             <h4>
-              Gestão Eventos
+              AutoEventos
             </h4>
 
             <p>
@@ -27,11 +27,7 @@ function Footer() {
             </h5>
 
             <p>
-              geral@gestaoeventos.pt
-            </p>
-
-            <p>
-              +351 912 345 678
+              geral@autoeventos.pt
             </p>
 
           </div>
@@ -43,7 +39,7 @@ function Footer() {
             </h5>
 
             <p>
-              Lisboa, Portugal
+              Coimbra, Portugal
             </p>
 
           </div>
@@ -54,7 +50,7 @@ function Footer() {
 
         <p className="text-center mb-0">
 
-          © 2026 Gestão Eventos.
+          © 2026 AutoEventos.
           Todos os direitos reservados.
 
         </p>

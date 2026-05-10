@@ -18,7 +18,7 @@ function PublicNavbar() {
           className="navbar-brand fw-bold"
           to="/"
         >
-          Gestão Eventos
+          AutoEventos
         </Link>
 
         {/* MENU */}
