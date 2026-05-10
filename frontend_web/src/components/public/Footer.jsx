@@ -1,66 +1,136 @@
+// ÍCONES
+import {
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaInstagram,
+  FaFacebookF,
+  FaCarSide,
+} from "react-icons/fa";
+
 function Footer() {
-
   return (
+    <footer
+      className="text-white"
+      style={{
+        background: "linear-gradient(180deg, #111827 0%, #0f172a 100%)",
+      }}
+    >
+      <div className="container py-5">
+        <div className="row gy-5">
+          {/* LOGO */}
 
-    <footer className="bg-dark text-white py-5 mt-5">
+          <div className="col-lg-4">
+            <div className="d-flex align-items-center gap-3 mb-3">
+              <h3 className="fw-bold mb-0">AutoEventos</h3>
+            </div>
 
-      <div className="container">
-
-        <div className="row">
-
-          <div className="col-md-4">
-
-            <h4>
-              AutoEventos
-            </h4>
-
-            <p>
-              Plataforma de gestão de eventos automóveis.
+            <p
+              className="text-light"
+              style={{
+                lineHeight: "1.8",
+              }}
+            >
+              Plataforma moderna de gestão de eventos automóveis, inscrições,
+              bilhetes e pagamentos.
             </p>
-
           </div>
 
-          <div className="col-md-4">
+          {/* CONTACTOS */}
 
-            <h5>
-              Contactos
-            </h5>
+          <div className="col-lg-4">
+            <h5 className="fw-bold mb-4">Contactos</h5>
 
-            <p>
-              geral@autoeventos.pt
-            </p>
+            <div className="d-flex flex-column gap-3">
+              <div className="d-flex align-items-center gap-3">
+                <div
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "42px",
+                    height: "42px",
+                    borderRadius: "12px",
+                    backgroundColor: "rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <FaEnvelope color="#df9425" />
+                </div>
 
+                <span>geral@autoeventos.pt</span>
+              </div>
+
+              <div className="d-flex align-items-center gap-3">
+                <div
+                  className="d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "42px",
+                    height: "42px",
+                    borderRadius: "12px",
+                    backgroundColor: "rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <FaMapMarkerAlt color="#df9425" />
+                </div>
+
+                <span>Coimbra, Portugal</span>
+              </div>
+            </div>
           </div>
 
-          <div className="col-md-4">
+          {/* REDES */}
 
-            <h5>
-              Localização
-            </h5>
+          <div className="col-lg-4">
+            <h5 className="fw-bold mb-4">Redes Sociais</h5>
 
-            <p>
-              Coimbra, Portugal
-            </p>
+            <div className="d-flex gap-3">
+              <button
+                className="btn"
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "14px",
+                  backgroundColor: "rgba(255,255,255,0.08)",
+                  color: "#fff",
+                  border: "none",
+                }}
+              >
+                <FaInstagram />
+              </button>
 
+              <button
+                className="btn"
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "14px",
+                  backgroundColor: "rgba(255,255,255,0.08)",
+                  color: "#fff",
+                  border: "none",
+                }}
+              >
+                <FaFacebookF />
+              </button>
+            </div>
           </div>
-
         </div>
 
-        <hr />
+        {/* LINHA */}
 
-        <p className="text-center mb-0">
+        <hr
+          className="my-5"
+          style={{
+            borderColor: "rgba(255,255,255,0.1)",
+          }}
+        />
 
-          © 2026 AutoEventos.
-          Todos os direitos reservados.
+        {/* COPYRIGHT */}
 
-        </p>
-
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+          <p className="mb-0 text-light">
+            © 2026 AutoEventos. Todos os direitos reservados.
+          </p>
+        </div>
       </div>
-
     </footer>
-
-  )
-
+  );
 }
 
 export default Footer;

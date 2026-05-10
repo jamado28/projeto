@@ -25,16 +25,15 @@ const User = db.define(
     role: {
       type: sequelize.STRING,
       allowNull: false,
-      defaultValue: "cliente"
-    }
+      defaultValue: "cliente",
+    },
   },
   {
     tableName: "user",
     timestamps: true,
     freezeTableName: true,
-  }
+  },
 );
-
 
 // HASH AUTOMÁTICO
 User.beforeCreate((user, options) => {

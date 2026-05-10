@@ -6,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from "react-native";
 
 import { router } from "expo-router";
@@ -18,79 +18,55 @@ import { login } from "../services/authUtils";
 import { COLORS } from "../styles/colors";
 
 export default function LoginScreen() {
-
   const [email, setEmail] = useState("");
 
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-
     try {
+      const response = await login(email, password);
 
-      const response =
-        await login(email, password);
-
-      await AsyncStorage.setItem(
-        "token",
-        response.AccessToken
-      );
+      await AsyncStorage.setItem("token", response.AccessToken);
 
       router.push("/perfil");
-
     } catch (error) {
-
       console.log(error);
 
       console.log(error.response?.data);
 
-      alert(
-        error.response?.data?.message ||
-        "Erro no login"
-      );
-
+      alert(error.response?.data?.message || "Erro no login");
     }
-
   };
 
   return (
-
     <KeyboardAvoidingView
-      behavior={
-        Platform.OS === "ios"
-          ? "padding"
-          : undefined
-      }
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={{
         flex: 1,
         backgroundColor: COLORS.background,
         justifyContent: "center",
-        padding: 24
+        padding: 24,
       }}
     >
-
       <Text
         style={{
           color: COLORS.text,
           fontSize: 38,
           fontWeight: "900",
-          marginBottom: 10
+          marginBottom: 10,
         }}
       >
-
         Bem-vindo
-
       </Text>
 
       <Text
         style={{
           color: COLORS.muted,
           fontSize: 16,
-          marginBottom: 40
+          marginBottom: 40,
         }}
       >
-
         Entre na sua conta para continuar
-
       </Text>
 
       {/* EMAIL */}
@@ -106,7 +82,7 @@ export default function LoginScreen() {
           padding: 18,
           borderRadius: 18,
           marginBottom: 16,
-          fontSize: 16
+          fontSize: 16,
         }}
       />
 
@@ -124,7 +100,7 @@ export default function LoginScreen() {
           padding: 18,
           borderRadius: 18,
           marginBottom: 30,
-          fontSize: 16
+          fontSize: 16,
         }}
       />
 
@@ -136,62 +112,45 @@ export default function LoginScreen() {
           backgroundColor: COLORS.primary,
           paddingVertical: 18,
           borderRadius: 18,
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
-
         <Text
           style={{
             color: "black",
             fontWeight: "800",
-            fontSize: 16
+            fontSize: 16,
           }}
         >
-
           Entrar
-
         </Text>
-
       </TouchableOpacity>
 
       {/* REGISTO */}
 
       <TouchableOpacity
-        onPress={() =>
-          router.push("/register")
-        }
+        onPress={() => router.push("/register")}
         style={{
           marginTop: 24,
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
-
         <Text
           style={{
-            color: COLORS.muted
+            color: COLORS.muted,
           }}
         >
-
-          Não tem conta?
-          {" "}
-
+          Não tem conta?{" "}
           <Text
             style={{
               color: COLORS.primary,
-              fontWeight: "700"
+              fontWeight: "700",
             }}
           >
-
             Registar
-
           </Text>
-
         </Text>
-
       </TouchableOpacity>
-
     </KeyboardAvoidingView>
-
   );
-
 }

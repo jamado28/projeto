@@ -7,9 +7,7 @@ info:
 servers:
   - url: http://localhost:3000/api
 
-
 paths:
-
   # AUTH
 
   /auth/register:
@@ -21,14 +19,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Register'
+              $ref: "#/components/schemas/Register"
       responses:
-        '201':
+        "201":
           description: Utilizador criado com sucesso
-        '400':
+        "400":
           description: Email já existe ou dados inválidos
-        '500':
+        "500":
           description: Erro no servidor
+    description: |
+      - Regista um novo utilizador.
+       - Se o role for "cliente", é criada automaticamente uma pessoa associada.
+       - Se o role não for enviado, assume "cliente".
 
   /auth/login:
     post:
@@ -39,13 +41,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: "#/components/schemas/Login"
       responses:
-        '200':
+        "200":
           description: Login com sucesso (retorna token)
-        '403':
+        "403":
           description: Credenciais inválidas
-        '500':
+        "500":
           description: Erro no servidor
 
   /auth/refresh-token:
@@ -65,13 +67,13 @@ paths:
                   type: string
                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       responses:
-        '200':
+        "200":
           description: Token renovado com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Token inválido ou expirado
-        '500':
+        "500":
           description: Erro no servidor
 
   /auth/logout:
@@ -81,10 +83,40 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Logout realizado com sucesso
 
   /auth/{id}:
+    put:
+      summary: Atualizar utilizador
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUser"
+
+      responses:
+        "200":
+          description: Utilizador atualizado com sucesso
+
+        "404":
+          description: Utilizador não encontrado
+
+        "500":
+          description: Erro ao atualizar utilizador
+
     delete:
       summary: Eliminar utilizador (apenas admin)
       tags: [Auth]
@@ -98,15 +130,37 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Utilizador eliminado com sucesso
-        '400':
+        "400":
           description: Não pode eliminar o próprio utilizador
-        '403':
+        "403":
           description: Acesso negado (não admin)
-        '404':
+        "404":
           description: Utilizador não encontrado
-        '500':
+        "500":
+          description: Erro no servidor
+
+  /auth:
+    get:
+      summary: Listar utilizadores (apenas admin)
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de utilizadores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: Token não fornecido
+        "403":
+          description: Apenas admin pode listar utilizadores
+        "500":
           description: Erro no servidor
 
   # EVENTOS
@@ -116,15 +170,15 @@ paths:
       summary: Listar todos os eventos (público)
       tags: [Eventos]
       responses:
-        '200':
+        "200":
           description: Lista de eventos
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Evento'
-        '500':
+                  $ref: "#/components/schemas/EventoDetalhado"
+        "500":
           description: Erro no servidor
 
     post:
@@ -137,17 +191,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Evento'
+              $ref: "#/components/schemas/CreateEvento"
       responses:
-        '201':
+        "201":
           description: Evento criado com sucesso
-        '400':
+        "400":
           description: Evento já existe ou dados inválidos
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Sem permissão
-        '500':
+        "500":
           description: Erro no servidor
 
   /eventos/{id}:
@@ -164,21 +218,41 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Evento encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Evento'
+                $ref: "#/components/schemas/Evento"
 
-        '401':
+        "401":
           description: Token não fornecido
 
-        '404':
+        "404":
           description: Evento não encontrado
 
-        '500':
+        "500":
           description: Erro no servidor
+
+  /eventos/organizador/{id}:
+    get:
+      summary: Listar eventos de um organizador
+      tags: [Eventos]
+
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 2
+
+      responses:
+        "200":
+          description: Lista de eventos do organizador
+
+        "500":
+          description: Erro ao listar eventos do organizador
 
     put:
       summary: Atualizar evento (admin ou organizador dono)
@@ -197,17 +271,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Evento'
+              $ref: "#/components/schemas/Evento"
       responses:
-        '200':
+        "200":
           description: Evento atualizado com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Evento não encontrado
-        '500':
+        "500":
           description: Erro no servidor
 
     delete:
@@ -223,17 +297,34 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Evento apagado com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Evento não encontrado
-        '500':
+        "500":
           description: Erro no servidor
 
+  /eventos/publicos:
+    get:
+      summary: Listar todos os eventos públicos
+      tags: [Eventos]
+
+      responses:
+        "200":
+          description: Lista pública de eventos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventoDetalhado"
+
+        "500":
+          description: Erro ao listar eventos
   # PESSOAS
 
   /pessoas:
@@ -247,11 +338,11 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de pessoas
-        '401':
+        "401":
           description: Token não fornecido
-        '500':
+        "500":
           description: Erro no servidor
 
   /pessoas/{id}:
@@ -272,19 +363,19 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Pessoa encontrada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pessoa'
-        '401':
+                $ref: "#/components/schemas/Pessoa"
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Pessoa não encontrada
-        '500':
+        "500":
           description: Erro no servidor
 
     put:
@@ -307,19 +398,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Pessoa'
+              $ref: "#/components/schemas/Pessoa"
       responses:
-        '200':
+        "200":
           description: Pessoa atualizada com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Pessoa não encontrada
-        '500':
+        "500":
           description: Erro no servidor
-
 
   # CARROS
   /carros:
@@ -333,17 +423,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de carros
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Carro'
-        '401':
+                  $ref: "#/components/schemas/Carro"
+        "401":
           description: Token não fornecido
-        '500':
+        "500":
           description: Erro no servidor
 
     post:
@@ -356,19 +446,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Carro'
+              $ref: "#/components/schemas/CreateCarro"
       responses:
-        '201':
+        "201":
           description: Carro criado com sucesso
-        '400':
+        "400":
           description: Matrícula já existe
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Apenas clientes podem criar carros
-        '404':
+        "404":
           description: Pessoa não encontrada
-        '500':
+        "500":
           description: Erro no servidor
 
   /carros/{matricula}:
@@ -389,19 +479,19 @@ paths:
             type: string
           example: AA-11-BB
       responses:
-        '200':
+        "200":
           description: Carro encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Carro'
-        '401':
+                $ref: "#/components/schemas/Carro"
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Carro não encontrado
-        '500':
+        "500":
           description: Erro no servidor
 
     put:
@@ -424,17 +514,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Carro'
+              $ref: "#/components/schemas/Carro"
       responses:
-        '200':
+        "200":
           description: Carro atualizado com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Carro não encontrado
-        '500':
+        "500":
           description: Erro no servidor
 
     delete:
@@ -453,17 +543,22 @@ paths:
             type: string
           example: AA-11-BB
       responses:
-        '200':
+        "200":
           description: Carro apagado com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Carro não encontrado
-        '500':
+        "500":
           description: Erro no servidor
-
+    Description: |
+      - Carros só podem ser criados por clientes e devem estar associados a uma pessoa.
+      - Carros só podem ser editados ou apagados por quem os criou ou por admin.
+      - Carros são usados para bilhetes de tipo participante.
+      - A imagem é opcional
+      - A imagem é enviada por upload separado e o URL é salvo no campo img_url do carro.
 
   #BILHETES
   /bilhetes:
@@ -477,17 +572,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de bilhetes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Bilhete'
-        '401':
+                  $ref: "#/components/schemas/BilheteDetalhado"
+        "401":
           description: Token não fornecido
-        '500':
+        "500":
           description: Erro no servidor
 
     post:
@@ -505,23 +600,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Bilhete'
+              $ref: "#/components/schemas/Bilhete"
       responses:
-        '201':
+        "201":
           description: Bilhete criado com sucesso
-        '400':
+        "400":
           description: |
             - Já existe bilhete para este evento  
             - Carro inválido  
             - Limite de participantes atingido  
             - Dados inválidos
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Apenas clientes podem criar bilhetes
-        '404':
+        "404":
           description: Evento ou pessoa não encontrada
-        '500':
+        "500":
           description: Erro no servidor
 
   /bilhetes/{id}:
@@ -542,19 +637,19 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Bilhete encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Bilhete'
-        '401':
+                $ref: "#/components/schemas/Bilhete"
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Bilhete não encontrado
-        '500':
+        "500":
           description: Erro no servidor
 
     delete:
@@ -573,17 +668,16 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Bilhete apagado com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Bilhete não encontrado
-        '500':
+        "500":
           description: Erro no servidor
-
 
   #PAGAMENTOS
   /pagamentos:
@@ -597,17 +691,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de pagamentos
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Pagamento'
-        '401':
+                  $ref: "#/components/schemas/PagamentoDetalhado"
+        "401":
           description: Token não fornecido
-        '500':
+        "500":
           description: Erro no servidor
 
     post:
@@ -625,22 +719,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Pagamento'
+              $ref: "#/components/schemas/Pagamento"
       responses:
-        '201':
+        "201":
           description: Pagamento criado com sucesso
-        '400':
+        "400":
           description: |
             - IBAN inválido  
             - Bilhete já pago  
             - Dados inválidos
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Apenas clientes podem fazer pagamentos
-        '404':
+        "404":
           description: Bilhete ou pessoa não encontrada
-        '500':
+        "500":
           description: Erro no servidor
 
   /pagamentos/{id}:
@@ -661,19 +755,19 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Pagamento encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pagamento'
-        '401':
+                $ref: "#/components/schemas/Pagamento"
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Não autorizado
-        '404':
+        "404":
           description: Pagamento não encontrado
-        '500':
+        "500":
           description: Erro no servidor
 
     delete:
@@ -691,20 +785,18 @@ paths:
             type: integer
           example: 1
       responses:
-        '200':
+        "200":
           description: Pagamento apagado com sucesso
-        '401':
+        "401":
           description: Token não fornecido
-        '403':
+        "403":
           description: Apenas admin pode apagar pagamentos
-        '404':
+        "404":
           description: Pagamento não encontrado
-        '500':
+        "500":
           description: Erro no servidor
 
-
 components:
-
   securitySchemes:
     bearerAuth:
       type: http
@@ -712,7 +804,6 @@ components:
       bearerFormat: JWT
 
   schemas:
-
     Evento:
       type: object
 
@@ -751,11 +842,76 @@ components:
         limite_participantes:
           type: integer
           example: 50
-  
+
         user_id:
           type: integer
           example: 2
-        
+
+        descricao:
+          type: string
+          example: Grande evento automóvel no Porto
+
+        imagem:
+          type: string
+          example: /uploads/images/evento.jpg
+
+        createdAt:
+          type: string
+          format: date-time
+
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateEvento:
+      type: object
+
+      required:
+        - nome
+        - data
+        - local_evento
+        - limite_participantes
+
+      properties:
+        nome:
+          type: string
+          example: Car Meet Porto
+
+        data:
+          type: string
+          format: date
+          example: 2026-10-10
+
+        local_evento:
+          type: string
+          example: Porto
+
+        preco_visitante:
+          type: number
+          example: 20
+
+        preco_participante:
+          type: number
+          example: 10
+
+        descricao:
+          type: string
+          example: Evento tuning no norte
+
+        limite_participantes:
+          type: integer
+          example: 50
+
+    EventoDetalhado:
+      allOf:
+        - $ref: "#/components/schemas/Evento"
+
+        - type: object
+          properties:
+            total_participantes:
+              type: integer
+              example: 35
+
     Pessoa:
       type: object
 
@@ -784,7 +940,11 @@ components:
           type: string
           format: date
           example: 2000-01-01
-        
+
+        user_id:
+          type: integer
+          example: 3
+
     Carro:
       type: object
 
@@ -808,11 +968,11 @@ components:
         img_url:
           type: string
           example: img.jpg
-        
+
         id_pessoa:
           type: integer
           example: 1
-    
+
     Bilhete:
       type: object
 
@@ -821,26 +981,33 @@ components:
           type: integer
           example: 1
 
-        ano_bilhete:
-          type: integer
-          example: 2026
-
         id_evento:
           type: integer
           example: 1
 
         tipo:
           type: string
+          enum:
+            - visitante
+            - participante
           example: participante
 
         matricula_carro:
           type: string
           example: AA-11-BB
-        
+
         id_pessoa:
           type: integer
           example: 1
-        
+
+        createdAt:
+          type: string
+          format: date-time
+
+        updatedAt:
+          type: string
+          format: date-time
+
     Pagamento:
       type: object
 
@@ -860,15 +1027,20 @@ components:
         preco:
           type: number
           example: 20
-          
+
         id_bilhete:
           type: integer
           example: 1
-        
-        id_pessoa:
-          type: integer
-          example: 1
-        
+
+    PagamentoDetalhado:
+      allOf:
+        - $ref: "#/components/schemas/Pagamento"
+
+        - type: object
+          properties:
+            bilhete:
+              $ref: "#/components/schemas/Bilhete"
+
     Login:
       type: object
 
@@ -884,7 +1056,7 @@ components:
         password:
           type: string
           example: 123456
-        
+
     Register:
       type: object
 
@@ -904,3 +1076,82 @@ components:
         role:
           type: string
           example: cliente
+
+    User:
+      type: object
+
+      properties:
+        id:
+          type: integer
+          example: 1
+
+        email:
+          type: string
+          example: admin@gmail.com
+
+        role:
+          type: string
+          example: admin
+
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateUser:
+      type: object
+
+      properties:
+        email:
+          type: string
+          example: novoemail@gmail.com
+
+        password:
+          type: string
+          example: novapassword
+
+        role:
+          type: string
+          example: organizador
+
+    BilheteDetalhado:
+      allOf:
+        - $ref: "#/components/schemas/Bilhete"
+
+        - type: object
+          properties:
+            pessoa:
+              $ref: "#/components/schemas/Pessoa"
+
+            evento:
+              $ref: "#/components/schemas/Evento"
+
+            carro:
+              $ref: "#/components/schemas/Carro"
+
+            pagamento:
+              $ref: "#/components/schemas/Pagamento"
+
+    CreateCarro:
+      type: object
+
+      required:
+        - matricula
+        - marca
+        - modelo
+
+      properties:
+        matricula:
+          type: string
+          example: AA-11-BB
+
+        marca:
+          type: string
+          example: BMW
+
+        modelo:
+          type: string
+          example: M3
+
+        ano:
+          type: integer
+          example: 2020

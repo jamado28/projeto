@@ -31,17 +31,16 @@ const Carro = conexao.define(
   {
     tableName: "carro",
     timestamps: true,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 );
-
 
 // RELAÇÃO 1:N
 // muitos carros - 1 pessoa
 Carro.belongsTo(Pessoa, {
   foreignKey: "id_pessoa", // FK na tabela carro
-  targetKey: "id_pessoa",         // PK na tabela pessoa
-  as: "pessoa",             
+  targetKey: "id_pessoa", // PK na tabela pessoa
+  as: "pessoa",
 });
 
 module.exports = Carro;
@@ -49,5 +48,5 @@ const Bilhete = require("./bilhete.model");
 Carro.hasMany(Bilhete, {
   foreignKey: "matricula_carro",
   sourceKey: "matricula",
-  as: "bilhetes"
+  as: "bilhetes",
 });

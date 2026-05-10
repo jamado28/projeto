@@ -5,65 +5,39 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  TextInput
+  TextInput,
 } from "react-native";
-import {
-  Ionicons
-} from "@expo/vector-icons";
-import {
-  getUsers,
-  updateUser,
-  deleteUser
-} from "../services/authUtils";
+import { Ionicons } from "@expo/vector-icons";
+import { getUsers, updateUser, deleteUser } from "../services/authUtils";
 
 import { COLORS } from "../styles/colors";
 
 export default function UsersScreen() {
+  const [users, setUsers] = useState([]);
 
-  const [users, setUsers] =
-    useState([]);
+  const [editingId, setEditingId] = useState(null);
 
-  const [editingId,
-    setEditingId] =
-    useState(null);
+  const [email, setEmail] = useState("");
 
-  const [email,
-    setEmail] =
-    useState("");
+  const [password, setPassword] = useState("");
 
-  const [password,
-    setPassword] =
-    useState("");
-
-  const [role,
-    setRole] =
-    useState("cliente");
+  const [role, setRole] = useState("cliente");
 
   useEffect(() => {
-
     loadUsers();
-
   }, []);
 
   const loadUsers = async () => {
-
     try {
-
-      const response =
-        await getUsers();
+      const response = await getUsers();
 
       setUsers(response.data);
-
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
   const handleEdit = (user) => {
-
     setEditingId(user.id);
 
     setEmail(user.email);
@@ -71,164 +45,120 @@ export default function UsersScreen() {
     setRole(user.role);
 
     setPassword("");
-
   };
 
   const handleSubmit = async () => {
-
     try {
+      await updateUser(editingId, {
+        email,
+        password,
+        role,
+      });
 
-        await updateUser(
-        editingId,
-        {
-            email,
-            password,
-            role
-        }
-        );
+      alert("Utilizador atualizado");
 
-        alert(
-        "Utilizador atualizado"
-        );
+      setEditingId(null);
 
-        setEditingId(null);
+      setEmail("");
 
-        setEmail("");
+      setPassword("");
 
-        setPassword("");
+      setRole("cliente");
 
-        setRole("cliente");
-
-        loadUsers();
-
+      loadUsers();
     } catch (error) {
+      console.log(error);
 
-        console.log(error);
-
-        alert(
-        "Erro ao atualizar"
-        );
-
+      alert("Erro ao atualizar");
     }
+  };
 
-    };
+  const handleDelete = async (id) => {
+    Alert.alert("Eliminar", "Tem a certeza?", [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteUser(id);
 
-    const handleDelete = async (id) => {
+            alert("Utilizador eliminado");
 
-    Alert.alert(
-        "Eliminar",
-        "Tem a certeza?",
-        [
-        {
-            text: "Cancelar",
-            style: "cancel"
+            loadUsers();
+          } catch (error) {
+            console.log(error);
+
+            alert("Erro ao eliminar");
+          }
         },
-        {
-            text: "Eliminar",
-            style: "destructive",
-            onPress: async () => {
-
-            try {
-
-                await deleteUser(id);
-
-                alert(
-                "Utilizador eliminado"
-                );
-
-                loadUsers();
-
-            } catch (error) {
-
-                console.log(error);
-
-                alert(
-                "Erro ao eliminar"
-                );
-
-            }
-
-            }
-        }
-        ]
-    );
-
-    };
+      },
+    ]);
+  };
 
   return (
-
     <ScrollView
       style={{
         flex: 1,
-        backgroundColor:
-          COLORS.background
+        backgroundColor: COLORS.background,
       }}
       contentContainerStyle={{
-        paddingBottom: 120
+        paddingBottom: 120,
       }}
     >
-
       {/* HEADER */}
 
       <View
         style={{
           paddingTop: 80,
           paddingHorizontal: 24,
-          marginBottom: 30
+          marginBottom: 30,
         }}
       >
-
         <Text
           style={{
             color: COLORS.text,
             fontSize: 34,
             fontWeight: "900",
-            marginBottom: 10
+            marginBottom: 10,
           }}
         >
-
           Utilizadores
-
         </Text>
 
         <Text
           style={{
-            color: COLORS.muted
+            color: COLORS.muted,
           }}
         >
-
           Gerir contas do sistema
-
         </Text>
-
       </View>
 
       {/* FORM */}
 
       {editingId && (
-
         <View
           style={{
             marginHorizontal: 20,
-            backgroundColor:
-              COLORS.card,
+            backgroundColor: COLORS.card,
             borderRadius: 28,
             padding: 24,
-            marginBottom: 30
+            marginBottom: 30,
           }}
         >
-
           <Text
             style={{
               color: COLORS.text,
               fontSize: 24,
               fontWeight: "900",
-              marginBottom: 22
+              marginBottom: 22,
             }}
           >
-
             Editar Utilizador
-
           </Text>
 
           <TextInput
@@ -237,13 +167,12 @@ export default function UsersScreen() {
             value={email}
             onChangeText={setEmail}
             style={{
-              backgroundColor:
-                "#111827",
+              backgroundColor: "#111827",
               color: COLORS.text,
               padding: 18,
               borderRadius: 18,
               marginBottom: 16,
-              fontSize: 16
+              fontSize: 16,
             }}
           />
 
@@ -254,13 +183,12 @@ export default function UsersScreen() {
             value={password}
             onChangeText={setPassword}
             style={{
-              backgroundColor:
-                "#111827",
+              backgroundColor: "#111827",
               color: COLORS.text,
               padding: 18,
               borderRadius: 18,
               marginBottom: 16,
-              fontSize: 16
+              fontSize: 16,
             }}
           />
 
@@ -270,139 +198,108 @@ export default function UsersScreen() {
             value={role}
             onChangeText={setRole}
             style={{
-              backgroundColor:
-                "#111827",
+              backgroundColor: "#111827",
               color: COLORS.text,
               padding: 18,
               borderRadius: 18,
               marginBottom: 26,
-              fontSize: 16
+              fontSize: 16,
             }}
           />
 
           <TouchableOpacity
             onPress={handleSubmit}
             style={{
-              backgroundColor:
-                COLORS.primary,
+              backgroundColor: COLORS.primary,
               paddingVertical: 18,
               borderRadius: 20,
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
-
             <Text
               style={{
                 color: "black",
                 fontWeight: "900",
-                fontSize: 16
+                fontSize: 16,
               }}
             >
-
               Atualizar Utilizador
-
             </Text>
-
           </TouchableOpacity>
-
         </View>
-
       )}
 
       {/* LISTA */}
 
       <View
         style={{
-          paddingHorizontal: 20
+          paddingHorizontal: 20,
         }}
       >
-
         {users?.map((user) => (
-
           <View
             key={user.id}
             style={{
-              backgroundColor:
-                COLORS.card,
+              backgroundColor: COLORS.card,
               borderRadius: 28,
               padding: 24,
-              marginBottom: 20
+              marginBottom: 20,
             }}
           >
-
             {/* TOPO */}
 
             <View
               style={{
                 flexDirection: "row",
-                justifyContent:
-                  "space-between",
-                alignItems:
-                  "flex-start",
-                marginBottom: 22
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 22,
               }}
             >
-
               <View
                 style={{
-                  flex: 1
+                  flex: 1,
                 }}
               >
-
                 <Text
                   style={{
                     color: COLORS.text,
                     fontSize: 22,
                     fontWeight: "900",
-                    marginBottom: 8
+                    marginBottom: 8,
                   }}
                 >
-
                   {user.email}
-
                 </Text>
 
                 <Text
                   style={{
-                    color: COLORS.muted
+                    color: COLORS.muted,
                   }}
                 >
-
-                  Criado em
-                  {" "}
-                  {new Date(
-                    user.createdAt
-                  ).toLocaleDateString()}
-
+                  Criado em {new Date(user.createdAt).toLocaleDateString()}
                 </Text>
-
               </View>
 
               {/* BADGE */}
 
               <View
                 style={{
-                  backgroundColor:
-                    COLORS.primary,
+                  backgroundColor: COLORS.primary,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
-                  borderRadius: 14
+                  borderRadius: 14,
                 }}
               >
-
                 <Text
                   style={{
                     color: "black",
-                    fontWeight: "900"
+                    fontWeight: "900",
                   }}
                 >
-
                   {user.role}
-
                 </Text>
-
               </View>
-
             </View>
 
             {/* BOTÕES */}
@@ -410,72 +307,52 @@ export default function UsersScreen() {
             <View
               style={{
                 flexDirection: "row",
-                gap: 12
+                gap: 12,
               }}
             >
-
               <TouchableOpacity
-                onPress={() =>
-                  handleEdit(user)
-                }
+                onPress={() => handleEdit(user)}
                 style={{
                   flex: 1,
-                  backgroundColor:
-                    "#374151",
+                  backgroundColor: "#374151",
                   paddingVertical: 16,
                   borderRadius: 18,
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
-
                 <Text
                   style={{
                     color: COLORS.text,
-                    fontWeight: "800"
+                    fontWeight: "800",
                   }}
                 >
-
                   Editar
-
                 </Text>
-
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => handleDelete(user.id)}
                 style={{
                   flex: 1,
-                  backgroundColor:
-                    "#7f1d1d",
+                  backgroundColor: "#7f1d1d",
                   paddingVertical: 16,
                   borderRadius: 18,
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
-
                 <Text
                   style={{
                     color: "white",
-                    fontWeight: "800"
+                    fontWeight: "800",
                   }}
                 >
-
                   Apagar
-
                 </Text>
-
               </TouchableOpacity>
-
             </View>
-
           </View>
-
         ))}
-
       </View>
-
     </ScrollView>
-
   );
-
 }

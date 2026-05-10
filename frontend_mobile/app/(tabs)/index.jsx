@@ -1,83 +1,61 @@
 import { useEffect, useState } from "react";
 import { COLORS } from "../../styles/colors";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView
-} from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { getEventos } from "../../services/eventService";
-import {
-  Ionicons
-} from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 export default function HomeScreen() {
-
   const [eventos, setEventos] = useState([]);
 
   useEffect(() => {
-
     loadEventos();
-
   }, []);
 
   const loadEventos = async () => {
-
     try {
-
       const response = await getEventos();
 
       setEventos(response.data);
-
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
   return (
-
     <ScrollView
       style={{
         flex: 1,
-        backgroundColor: COLORS.background
+        backgroundColor: COLORS.background,
       }}
       contentContainerStyle={{
-        paddingBottom: 75
+        paddingBottom: 75,
       }}
       showsVerticalScrollIndicator={false}
     >
-
       {/* HEADER */}
 
       <View
         style={{
           paddingTop: 70,
           paddingHorizontal: 22,
-          marginBottom: 25
+          marginBottom: 25,
         }}
       >
-
         <Text
           style={{
             color: COLORS.text,
             fontSize: 34,
-            fontWeight: "900"
+            fontWeight: "900",
           }}
         >
-
           AutoEventos
-
         </Text>
 
         <Text
           style={{
             color: COLORS.muted,
             marginTop: 6,
-            fontSize: 15
+            fontSize: 15,
           }}
         >
           Descubra os melhores eventos automóveis
@@ -87,7 +65,7 @@ export default function HomeScreen() {
       <View
         style={{
           marginHorizontal: 20,
-          marginBottom: 34
+          marginBottom: 34,
         }}
       >
         <Text
@@ -96,7 +74,7 @@ export default function HomeScreen() {
             fontSize: 13,
             fontWeight: "700",
             marginBottom: 14,
-            letterSpacing: 1
+            letterSpacing: 1,
           }}
         >
           EVENTO EM DESTAQUE
@@ -105,24 +83,23 @@ export default function HomeScreen() {
           style={{
             backgroundColor: COLORS.card,
             borderRadius: 28,
-            overflow: "hidden"
+            overflow: "hidden",
           }}
         >
           <Image
             source={{
-              uri:
-                eventos[0]?.imagem
-                  ? `http://10.192.149.179:3000${eventos[0].imagem}`
-                  : "https://placehold.co/800x500"
+              uri: eventos[0]?.imagem
+                ? `http://10.192.149.179:3000${eventos[0].imagem}`
+                : "https://placehold.co/800x500",
             }}
             style={{
               width: "100%",
-              height: 250
+              height: 250,
             }}
           />
           <View
             style={{
-              padding: 22
+              padding: 22,
             }}
           >
             <Text
@@ -130,7 +107,7 @@ export default function HomeScreen() {
                 color: COLORS.text,
                 fontSize: 28,
                 fontWeight: "800",
-                marginBottom: 10
+                marginBottom: 10,
               }}
             >
               {eventos[0]?.nome || "Evento Automóvel"}
@@ -140,7 +117,7 @@ export default function HomeScreen() {
                 color: COLORS.muted,
                 fontSize: 15,
                 lineHeight: 24,
-                marginBottom: 20
+                marginBottom: 20,
               }}
             >
               {eventos[0]?.descricao ||
@@ -151,18 +128,16 @@ export default function HomeScreen() {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                marginBottom: 24
+                marginBottom: 24,
               }}
             >
-
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  marginRight: 18
+                  marginRight: 18,
                 }}
               >
-
                 <Ionicons
                   name="location-sharp"
                   size={16}
@@ -172,41 +147,29 @@ export default function HomeScreen() {
                 <Text
                   style={{
                     color: COLORS.muted,
-                    marginLeft: 6
+                    marginLeft: 6,
                   }}
                 >
-
                   {eventos[0]?.local_evento}
-
                 </Text>
-
               </View>
               <View
                 style={{
                   flexDirection: "row",
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
-
-                <Ionicons
-                  name="calendar"
-                  size={16}
-                  color={COLORS.muted}
-                />
+                <Ionicons name="calendar" size={16} color={COLORS.muted} />
 
                 <Text
                   style={{
                     color: COLORS.muted,
-                    marginLeft: 6
+                    marginLeft: 6,
                   }}
                 >
-
                   {eventos[0]?.data}
-
                 </Text>
-
               </View>
-
             </View>
 
             <TouchableOpacity
@@ -215,28 +178,21 @@ export default function HomeScreen() {
                 backgroundColor: COLORS.primary,
                 paddingVertical: 16,
                 borderRadius: 18,
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
-
               <Text
                 style={{
                   color: "black",
                   fontWeight: "800",
-                  fontSize: 16
+                  fontSize: 16,
                 }}
               >
-
                 Ver Evento
-
               </Text>
-
             </TouchableOpacity>
-
           </View>
-
         </View>
-
       </View>
 
       {/* EVENTOS */}
@@ -244,52 +200,40 @@ export default function HomeScreen() {
       <View
         style={{
           paddingHorizontal: 20,
-          marginBottom: 40
+          marginBottom: 40,
         }}
       >
-
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 20
+            marginBottom: 20,
           }}
         >
-
           <Text
             style={{
               color: COLORS.text,
               fontSize: 26,
-              fontWeight: "800"
+              fontWeight: "800",
             }}
           >
-
             Próximos Eventos
-
           </Text>
 
-          <TouchableOpacity
-            onPress={() => router.push("/eventos")}
-          >
-
+          <TouchableOpacity onPress={() => router.push("/eventos")}>
             <Text
               style={{
                 color: COLORS.primary,
-                fontWeight: "700"
+                fontWeight: "700",
               }}
             >
-
               Ver todos
-
             </Text>
-
           </TouchableOpacity>
-
         </View>
 
         {eventos.slice(0, 4).map((evento) => (
-
           <TouchableOpacity
             key={evento.id_evento}
             onPress={() => router.push(`/evento/${evento.id_evento}`)}
@@ -298,19 +242,18 @@ export default function HomeScreen() {
               borderRadius: 22,
               marginBottom: 18,
               overflow: "hidden",
-              flexDirection: "row"
+              flexDirection: "row",
             }}
           >
-
             <Image
               source={{
                 uri: evento.imagem
                   ? `http://10.192.149.179:3000${evento.imagem}`
-                  : "https://placehold.co/300x300"
+                  : "https://placehold.co/300x300",
               }}
               style={{
                 width: 120,
-                height: 120
+                height: 120,
               }}
             />
 
@@ -318,31 +261,27 @@ export default function HomeScreen() {
               style={{
                 flex: 1,
                 padding: 16,
-                justifyContent: "center"
+                justifyContent: "center",
               }}
             >
-
               <Text
                 style={{
                   color: COLORS.text,
                   fontSize: 18,
                   fontWeight: "700",
-                  marginBottom: 10
+                  marginBottom: 10,
                 }}
               >
-
                 {evento.nome}
-
               </Text>
 
               <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  marginBottom: 8
+                  marginBottom: 8,
                 }}
               >
-
                 <Ionicons
                   name="location-sharp"
                   size={16}
@@ -352,52 +291,34 @@ export default function HomeScreen() {
                 <Text
                   style={{
                     color: COLORS.muted,
-                    marginLeft: 6
+                    marginLeft: 6,
                   }}
                 >
-
                   {evento.local_evento}
-
                 </Text>
-
               </View>
 
               <View
                 style={{
                   flexDirection: "row",
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
-
-                <Ionicons
-                  name="calendar"
-                  size={16}
-                  color={COLORS.muted}
-                />
+                <Ionicons name="calendar" size={16} color={COLORS.muted} />
 
                 <Text
                   style={{
                     color: COLORS.muted,
-                    marginLeft: 6
+                    marginLeft: 6,
                   }}
                 >
-
                   {evento.data}
-
                 </Text>
-
               </View>
-
             </View>
-
           </TouchableOpacity>
-
         ))}
-
       </View>
-
     </ScrollView>
-
   );
-
 }

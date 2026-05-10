@@ -17,7 +17,7 @@ endpoints.createBilhete = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -27,18 +27,18 @@ endpoints.createBilhete = async (req, res) => {
     // só cliente pode criar bilhetes
     if (decoded.role !== "cliente") {
       return res.status(403).json({
-        message: "Apenas clientes podem criar bilhetes"
+        message: "Apenas clientes podem criar bilhetes",
       });
     }
 
     // buscar pessoa
     const pessoa = await Pessoa.findOne({
-      where: { user_id: decoded.id }
+      where: { user_id: decoded.id },
     });
 
     if (!pessoa) {
       return res.status(404).json({
-        message: "Pessoa não encontrada"
+        message: "Pessoa não encontrada",
       });
     }
 
@@ -46,7 +46,7 @@ endpoints.createBilhete = async (req, res) => {
     const evento = await Evento.findByPk(id_evento);
     if (!evento) {
       return res.status(404).json({
-        message: "Evento não encontrado."
+        message: "Evento não encontrado.",
       });
     }
 
@@ -54,23 +54,22 @@ endpoints.createBilhete = async (req, res) => {
     const bilheteExistente = await Bilhete.findOne({
       where: {
         id_pessoa: pessoa.id_pessoa,
-        id_evento
-      }
+        id_evento,
+      },
     });
 
     if (bilheteExistente) {
       return res.status(400).json({
-        message: "Já tens bilhete para este evento."
+        message: "Já tens bilhete para este evento.",
       });
     }
 
     // REGRAS PARA PARTICIPANTE
     if (tipo === "participante") {
-
       // obrigatório indicar carro
       if (!matricula_carro) {
         return res.status(400).json({
-          message: "Tem de escolher um carro para participar"
+          message: "Tem de escolher um carro para participar",
         });
       }
 
@@ -78,13 +77,13 @@ endpoints.createBilhete = async (req, res) => {
       const carro = await Carro.findOne({
         where: {
           matricula: matricula_carro,
-          id_pessoa: pessoa.id_pessoa
-        }
+          id_pessoa: pessoa.id_pessoa,
+        },
       });
 
       if (!carro) {
         return res.status(400).json({
-          message: "Carro inválido ou não pertence ao utilizador"
+          message: "Carro inválido ou não pertence ao utilizador",
         });
       }
 
@@ -92,13 +91,13 @@ endpoints.createBilhete = async (req, res) => {
       const totalParticipantes = await Bilhete.count({
         where: {
           id_evento,
-          tipo: "participante"
-        }
+          tipo: "participante",
+        },
       });
 
       if (totalParticipantes >= evento.limite_participantes) {
         return res.status(400).json({
-          message: "Limite de participantes atingido"
+          message: "Limite de participantes atingido",
         });
       }
     }
@@ -109,7 +108,7 @@ endpoints.createBilhete = async (req, res) => {
       tipo,
       id_pessoa: pessoa.id_pessoa,
       id_evento,
-      matricula_carro: tipo === "participante" ? matricula_carro : null
+      matricula_carro: tipo === "participante" ? matricula_carro : null,
     });
 
     res.status(201).json({
@@ -117,7 +116,6 @@ endpoints.createBilhete = async (req, res) => {
       message: "Bilhete criado com sucesso.",
       data: dados,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -126,7 +124,6 @@ endpoints.createBilhete = async (req, res) => {
     });
   }
 };
-
 
 // GET ALL
 endpoints.getAllBilhetes = async (req, res) => {
@@ -145,17 +142,16 @@ endpoints.getAllBilhetes = async (req, res) => {
           "carro",
           {
             model: Pagamento,
-            as: "pagamento"
-          }
+            as: "pagamento",
+          },
         ],
       });
     }
 
     // CLIENTE
     else if (decoded.role === "cliente") {
-
       const pessoa = await Pessoa.findOne({
-        where: { user_id: decoded.id }
+        where: { user_id: decoded.id },
       });
 
       dados = await Bilhete.findAll({
@@ -166,8 +162,8 @@ endpoints.getAllBilhetes = async (req, res) => {
           "carro",
           {
             model: Pagamento,
-            as: "pagamento"
-          }
+            as: "pagamento",
+          },
         ],
       });
     }
@@ -179,13 +175,13 @@ endpoints.getAllBilhetes = async (req, res) => {
           {
             model: Evento,
             as: "evento",
-            where: { user_id: decoded.id }
+            where: { user_id: decoded.id },
           },
           {
             model: Pagamento,
-            as: "pagamento"
-          }
-        ]
+            as: "pagamento",
+          },
+        ],
       });
     }
 
@@ -193,14 +189,12 @@ endpoints.getAllBilhetes = async (req, res) => {
       status: "success",
       data: dados,
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao listar bilhetes."
+      message: "Erro ao listar bilhetes.",
     });
   }
 };
-
 
 // GET BY ID
 endpoints.getBilheteById = async (req, res) => {
@@ -218,14 +212,14 @@ endpoints.getBilheteById = async (req, res) => {
         "carro",
         {
           model: Pagamento,
-          as: "pagamento"
-        }
+          as: "pagamento",
+        },
       ],
     });
 
     if (!bilhete) {
       return res.status(404).json({
-        message: "Bilhete não encontrado."
+        message: "Bilhete não encontrado.",
       });
     }
 
@@ -236,13 +230,13 @@ endpoints.getBilheteById = async (req, res) => {
 
     // dono
     const pessoa = await Pessoa.findOne({
-      where: { user_id: decoded.id }
+      where: { user_id: decoded.id },
     });
     const carro = await Carro.findOne({
-      where: { matricula: bilhete.matricula_carro }
+      where: { matricula: bilhete.matricula_carro },
     });
 
-    if (carro && pessoa && carro.id_pessoa === pessoa.id_pessoa){
+    if (carro && pessoa && carro.id_pessoa === pessoa.id_pessoa) {
       return res.status(200).json(bilhete);
     }
 
@@ -252,17 +246,15 @@ endpoints.getBilheteById = async (req, res) => {
     }
 
     return res.status(403).json({
-      message: "Não autorizado"
+      message: "Não autorizado",
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Erro ao procurar bilhete."
+      message: "Erro ao procurar bilhete.",
     });
   }
 };
-
 
 // DELETE
 endpoints.deleteBilhete = async (req, res) => {
@@ -273,25 +265,24 @@ endpoints.deleteBilhete = async (req, res) => {
     const decoded = jwt.verify(token, config.secret);
 
     const bilhete = await Bilhete.findOne({
-      where: { id_bilhete: id }
+      where: { id_bilhete: id },
     });
 
     if (!bilhete) {
       return res.status(404).json({
-        message: "Bilhete não encontrado."
+        message: "Bilhete não encontrado.",
       });
     }
 
     // admin
     if (decoded.role !== "admin") {
-
       const pessoa = await Pessoa.findOne({
-        where: { user_id: decoded.id }
+        where: { user_id: decoded.id },
       });
 
       if (!pessoa || bilhete.id_pessoa !== pessoa.id_pessoa) {
         return res.status(403).json({
-          message: "Não autorizado"
+          message: "Não autorizado",
         });
       }
     }
@@ -299,12 +290,11 @@ endpoints.deleteBilhete = async (req, res) => {
     await Bilhete.destroy({ where: { id_bilhete: id } });
 
     res.status(200).json({
-      message: "Bilhete apagado com sucesso."
+      message: "Bilhete apagado com sucesso.",
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao apagar bilhete."
+      message: "Erro ao apagar bilhete.",
     });
   }
 };

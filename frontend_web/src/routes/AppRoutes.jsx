@@ -16,39 +16,81 @@ import Pagamentos from "../pages/private/Pagamentos";
 import Profile from "../pages/private/Profile";
 
 function AppRoutes() {
-
   return (
     <BrowserRouter>
-
       <Routes>
-
         <Route path="/" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
 
         <Route path="/register" element={<Register />} />
 
-        <Route path="/eventos" element={<ProtectedRoute><Eventos /></ProtectedRoute>} />
+        <Route
+          path="/eventos"
+          element={
+            <ProtectedRoute>
+              <Eventos />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/pessoas" element={<RoleProtectedRoute allowedRoles={["admin", "organizador", "cliente"]}><Pessoas /></RoleProtectedRoute>} />
+        <Route
+          path="/pessoas"
+          element={
+            <RoleProtectedRoute
+              allowedRoles={["admin", "organizador", "cliente"]}
+            >
+              <Pessoas />
+            </RoleProtectedRoute>
+          }
+        />
 
-        <Route path="/carros" element={<RoleProtectedRoute allowedRoles={["admin", "organizador", "cliente"]}><Carros /></RoleProtectedRoute>} />
+        <Route
+          path="/carros"
+          element={
+            <RoleProtectedRoute
+              allowedRoles={["admin", "organizador", "cliente"]}
+            >
+              <Carros />
+            </RoleProtectedRoute>
+          }
+        />
 
-        <Route path="/bilhetes" element={<ProtectedRoute><Bilhetes /></ProtectedRoute>} />
+        <Route
+          path="/bilhetes"
+          element={
+            <ProtectedRoute>
+              <Bilhetes />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/pagamentos" element={<RoleProtectedRoute allowedRoles={["admin", "organizador" , "cliente"]}><Pagamentos /></RoleProtectedRoute>}/>
+        <Route
+          path="/pagamentos"
+          element={
+            <RoleProtectedRoute
+              allowedRoles={["admin", "organizador", "cliente"]}
+            >
+              <Pagamentos />
+            </RoleProtectedRoute>
+          }
+        />
 
-        <Route path="/eventos/:id" element={<EventDetails />}/>
+        <Route path="/eventos/:id" element={<EventDetails />} />
 
-        <Route path="/eventos-publicos" element={<PublicEventos />}/>
+        <Route path="/eventos-publicos" element={<PublicEventos />} />
 
-        <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
-
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-
     </BrowserRouter>
-  )
-
+  );
 }
 
 export default AppRoutes;

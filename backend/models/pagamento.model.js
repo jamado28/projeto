@@ -8,31 +8,31 @@ const Pagamento = conexao.define(
     id_pagamento: {
       type: sequelize.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     iban: {
       type: sequelize.STRING(34),
-      allowNull: false
+      allowNull: false,
     },
     preco: {
       type: sequelize.DECIMAL(8, 2),
-      allowNull: false
+      allowNull: false,
     },
     estado: {
       type: sequelize.BOOLEAN,
-      allowNull: false
+      allowNull: false,
     },
     id_bilhete: {
       type: sequelize.INTEGER,
       allowNull: false,
-      unique: true
+      unique: true,
     },
   },
   {
     tableName: "pagamento",
     timestamps: true,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 );
 
 // pagamento - pertence a um bilhete
@@ -40,12 +40,12 @@ Pagamento.belongsTo(Bilhete, {
   foreignKey: "id_bilhete",
   targetKey: "id_bilhete",
   as: "bilhete",
-  onDelete: "CASCADE"
+  onDelete: "CASCADE",
 });
 Bilhete.hasOne(Pagamento, {
   foreignKey: "id_bilhete",
   sourceKey: "id_bilhete",
-  as: "pagamento"
+  as: "pagamento",
 });
 
 module.exports = Pagamento;

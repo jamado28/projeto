@@ -5,13 +5,24 @@ const controller = require("../controllers/evento.controller");
 const middlewareAuth = require("../../middleware");
 
 router.get("/", controller.getAllEventos); // público
+router.get("/publicos", controller.getEventosPublicos); // público
 router.get("/:id", controller.getEventoById); // público
 
 router.get("/user/:id", middlewareAuth.checkToken, controller.getEventosByUser); //Para cada organizador ver os seus de todos os anos
 
-router.post("/", middlewareAuth.checkToken, middlewareAuth.upload.single("imagem"), controller.createEvento);
+router.post(
+  "/",
+  middlewareAuth.checkToken,
+  middlewareAuth.upload.single("imagem"),
+  controller.createEvento,
+);
 
-router.put("/:id", middlewareAuth.checkToken, middlewareAuth.upload.single("imagem"), controller.updateEvento);
+router.put(
+  "/:id",
+  middlewareAuth.checkToken,
+  middlewareAuth.upload.single("imagem"),
+  controller.updateEvento,
+);
 
 router.delete("/:id", middlewareAuth.checkToken, controller.deleteEvento);
 

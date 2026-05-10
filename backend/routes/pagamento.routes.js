@@ -10,6 +10,11 @@ router.get("/:id", middlewareAuth.checkToken, controller.getPagamentoById);
 
 router.post("/", middlewareAuth.checkToken, controller.createPagamento);
 
-router.delete("/:id", middlewareAuth.checkToken, middlewareAuth.checkAdmin,controller.deletePagamento);
+router.delete(
+  "/:id",
+  middlewareAuth.checkToken,
+  middlewareAuth.checkAdmin,
+  controller.deletePagamento,
+);
 
 module.exports = router;

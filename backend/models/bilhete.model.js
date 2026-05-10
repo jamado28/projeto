@@ -23,21 +23,20 @@ const Bilhete = conexao.define(
       type: sequelize.STRING,
       allowNull: false,
       validate: {
-        isIn: [["visitante", "participante"]]
-      }
+        isIn: [["visitante", "participante"]],
+      },
     },
     matricula_carro: {
       type: sequelize.STRING(10),
-      allowNull: true
-    }
+      allowNull: true,
+    },
   },
   {
     tableName: "bilhete",
     timestamps: true,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 );
-
 
 // muitos bilhetes - 1 pessoa
 Bilhete.belongsTo(Pessoa, {
@@ -51,9 +50,8 @@ Bilhete.belongsTo(Evento, {
   foreignKey: "id_evento",
   targetKey: "id_evento",
   as: "evento",
-  onDelete: "CASCADE"
+  onDelete: "CASCADE",
 });
-
 
 module.exports = Bilhete;
 
@@ -62,5 +60,5 @@ const Carro = require("./carro.model");
 Bilhete.belongsTo(Carro, {
   foreignKey: "matricula_carro",
   targetKey: "matricula",
-  as: "carro"
+  as: "carro",
 });

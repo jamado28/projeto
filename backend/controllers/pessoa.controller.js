@@ -13,7 +13,7 @@ endpoints.getAllPessoas = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -36,16 +36,16 @@ endpoints.getAllPessoas = async (req, res) => {
           include: {
             model: Evento,
             as: "evento",
-            where: { user_id: decoded.id }
-          }
-        }
+            where: { user_id: decoded.id },
+          },
+        },
       });
     }
 
     // CLIENTE só a si
     else {
       dados = await Pessoa.findOne({
-        where: { user_id: decoded.id }
+        where: { user_id: decoded.id },
       });
     }
 
@@ -53,14 +53,12 @@ endpoints.getAllPessoas = async (req, res) => {
       status: "success",
       data: dados,
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao listar pessoas."
+      message: "Erro ao listar pessoas.",
     });
   }
 };
-
 
 // GET BY ID
 endpoints.getPessoaById = async (req, res) => {
@@ -74,7 +72,7 @@ endpoints.getPessoaById = async (req, res) => {
 
     if (!pessoa) {
       return res.status(404).json({
-        message: "Pessoa não encontrada."
+        message: "Pessoa não encontrada.",
       });
     }
 
@@ -85,7 +83,7 @@ endpoints.getPessoaById = async (req, res) => {
 
     // cliente
     const minhaPessoa = await Pessoa.findOne({
-      where: { user_id: decoded.id }
+      where: { user_id: decoded.id },
     });
 
     if (minhaPessoa && minhaPessoa.id_pessoa === pessoa.id_pessoa) {
@@ -98,8 +96,8 @@ endpoints.getPessoaById = async (req, res) => {
       include: {
         model: Evento,
         as: "evento",
-        where: { user_id: decoded.id }
-      }
+        where: { user_id: decoded.id },
+      },
     });
 
     if (bilhete) {
@@ -107,12 +105,11 @@ endpoints.getPessoaById = async (req, res) => {
     }
 
     return res.status(403).json({
-      message: "Não autorizado"
+      message: "Não autorizado",
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao procurar pessoa."
+      message: "Erro ao procurar pessoa.",
     });
   }
 };
@@ -129,35 +126,35 @@ endpoints.updatePessoa = async (req, res) => {
     if (decoded.role === "admin") {
       await Pessoa.update(
         { nome, email, telemovel, data_nascimento },
-        { where: { id_pessoa: id } }
+        { where: { id_pessoa: id } },
       );
 
       return res.status(200).json({
-        message: "Pessoa atualizada com sucesso."
+        message: "Pessoa atualizada com sucesso.",
       });
     }
 
     // buscar pessoa do user
     const pessoa = await Pessoa.findOne({
-      where: { user_id: decoded.id }
+      where: { user_id: decoded.id },
     });
 
     if (!pessoa) {
       return res.status(404).json({
-        message: "Pessoa não encontrada."
+        message: "Pessoa não encontrada.",
       });
     }
 
     // garantir que só edita a sua
     if (pessoa.id_pessoa != id) {
       return res.status(403).json({
-        message: "Não autorizado."
+        message: "Não autorizado.",
       });
     }
 
     const dados = await Pessoa.update(
       { nome, email, telemovel, data_nascimento },
-      { where: { id_pessoa: id } }
+      { where: { id_pessoa: id } },
     );
 
     res.status(200).json({
@@ -165,7 +162,6 @@ endpoints.updatePessoa = async (req, res) => {
       message: "Pessoa atualizada com sucesso.",
       data: dados,
     });
-
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -173,6 +169,5 @@ endpoints.updatePessoa = async (req, res) => {
     });
   }
 };
-
 
 module.exports = endpoints;

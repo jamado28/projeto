@@ -8,29 +8,29 @@ const Evento = conexao.define(
     id_evento: {
       type: sequelize.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     nome: {
       type: sequelize.STRING(150),
-      allowNull: false
+      allowNull: false,
     },
     data: {
       type: sequelize.DATEONLY,
-      allowNull: false
+      allowNull: false,
     },
     local_evento: {
       type: sequelize.STRING(255),
-      allowNull: false
+      allowNull: false,
     },
     preco_visitante: {
       type: sequelize.DECIMAL(8, 2),
       validate: { min: 0 },
-      allowNull: true
+      allowNull: true,
     },
     preco_participante: {
       type: sequelize.DECIMAL(8, 2),
       validate: { min: 0 },
-      allowNull: true
+      allowNull: true,
     },
     descricao: {
       type: sequelize.TEXT,
@@ -40,19 +40,18 @@ const Evento = conexao.define(
     },
     limite_participantes: {
       type: sequelize.INTEGER,
-      allowNull: false
+      allowNull: false,
     },
     user_id: {
       type: sequelize.INTEGER,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   },
   {
     tableName: "evento",
     timestamps: true,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 );
 
 module.exports = Evento;
-

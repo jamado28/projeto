@@ -1,104 +1,101 @@
 import { useEffect, useState } from "react";
+
 import { getUser } from "../../services/authUtils";
-import { getEventos, createEvento, deleteEvento, updateEvento } from "../../services/eventService";
+
+import {
+  getEventos,
+  createEvento,
+  deleteEvento,
+  updateEvento,
+} from "../../services/eventService";
+
+// ÍCONES
+import {
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaUsers,
+  FaEuroSign,
+  FaImage,
+  FaEdit,
+  FaTrashAlt,
+  FaPlus,
+  FaCarSide,
+  FaAlignLeft,
+} from "react-icons/fa";
 
 function Eventos() {
-
   const user = getUser();
+
   const [eventos, setEventos] = useState([]);
+
   const [nome, setNome] = useState("");
+
   const [data, setData] = useState("");
+
   const [localEvento, setLocalEvento] = useState("");
+
   const [precoVisitante, setPrecoVisitante] = useState("");
+
   const [precoParticipante, setPrecoParticipante] = useState("");
+
   const [limiteParticipantes, setLimiteParticipantes] = useState("");
+
   const [editingId, setEditingId] = useState(null);
+
   const [showForm, setShowForm] = useState(false);
+
   const [imagem, setImagem] = useState(null);
+
   const [descricao, setDescricao] = useState("");
+
   useEffect(() => {
-
     loadEventos();
-
   }, []);
 
   const loadEventos = async () => {
-
     try {
-
       const response = await getEventos();
 
       setEventos(response.data);
-
     } catch (error) {
-
       console.log(error);
 
       alert("Erro ao carregar eventos");
-
     }
-
   };
-  const handleCreate = async (e) => {
 
+  const handleCreate = async (e) => {
     e.preventDefault();
 
     try {
-
       const dados = new FormData();
 
       dados.append("nome", nome);
+
       dados.append("data", data);
 
-      dados.append(
-        "local_evento",
-        localEvento
-      );
+      dados.append("local_evento", localEvento);
 
-      dados.append(
-        "preco_visitante",
-        precoVisitante
-      );
+      dados.append("preco_visitante", precoVisitante);
 
-      dados.append(
-        "preco_participante",
-        precoParticipante
-      );
+      dados.append("preco_participante", precoParticipante);
 
-      dados.append(
-        "limite_participantes",
-        limiteParticipantes
-      );
+      dados.append("limite_participantes", limiteParticipantes);
 
-      dados.append(
-        "descricao",
-        descricao
-      );
+      dados.append("descricao", descricao);
 
       if (imagem) {
-
-        dados.append(
-          "imagem",
-          imagem
-        );
-
+        dados.append("imagem", imagem);
       }
 
       if (editingId) {
-
-        await updateEvento(
-          editingId,
-          dados
-        );
+        await updateEvento(editingId, dados);
 
         alert("Evento atualizado");
-
       } else {
-
         await createEvento(dados);
 
         alert("Evento criado");
-
       }
 
       loadEventos();
@@ -106,10 +103,13 @@ function Eventos() {
       setEditingId(null);
 
       setNome("");
+
       setData("");
+
       setLocalEvento("");
 
       setPrecoVisitante("");
+
       setPrecoParticipante("");
 
       setLimiteParticipantes("");
@@ -119,91 +119,87 @@ function Eventos() {
       setImagem(null);
 
       setShowForm(false);
-
     } catch (error) {
-
       console.log(error);
 
       alert("Erro ao criar evento");
-
     }
-
   };
-  const handleDelete = async (id) => {
 
-    const confirmDelete = window.confirm("Tem a certeza que quer eliminar este evento?");
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Tem a certeza que quer eliminar este evento?",
+    );
 
     if (!confirmDelete) {
       return;
     }
 
     try {
-
       await deleteEvento(id);
 
       alert("Evento apagado");
 
       loadEventos();
-
     } catch (error) {
-
       console.log(error);
 
       alert("Erro ao apagar");
-
     }
-
   };
-  const handleEdit = (evento) => {
 
+  const handleEdit = (evento) => {
     setEditingId(evento.id_evento);
+
     setNome(evento.nome);
+
     setData(evento.data);
+
     setLocalEvento(evento.local_evento);
+
     setPrecoVisitante(evento.preco_visitante);
+
     setPrecoParticipante(evento.preco_participante);
+
     setLimiteParticipantes(evento.limite_participantes);
+
     setDescricao(evento.descricao || "");
+
     setImagem(null);
+
     setShowForm(true);
   };
 
   return (
-
     <div>
-
       {/* TOPO */}
 
       <div className="d-flex justify-content-between align-items-center mb-4">
-
         <div>
-
-          <h2>
+          <h2 className="fw-bold d-flex align-items-center gap-2">
+            <FaCarSide color="#df9425" />
             Eventos
           </h2>
 
-          <p className="text-muted">
-            Gerir todos os eventos
-          </p>
-
+          <p className="text-muted mb-0">Gerir todos os eventos</p>
         </div>
 
         <button
-          className="btn btn-danger"
+          className="btn d-flex align-items-center gap-2"
           onClick={() => {
-
             setShowForm(!showForm);
 
             if (!showForm) {
-
               setEditingId(null);
 
               setNome("");
+
               setData("");
 
               setLocalEvento("");
 
               setPrecoVisitante("");
+
               setPrecoParticipante("");
 
               setLimiteParticipantes("");
@@ -211,45 +207,43 @@ function Eventos() {
               setDescricao("");
 
               setImagem(null);
-
             }
-
+          }}
+          style={{
+            backgroundColor: "#111",
+            color: "#fff",
+            borderRadius: "14px",
+            padding: "12px 20px",
+            fontWeight: "600",
           }}
         >
-
-          + Criar evento
-
+          <FaPlus />
+          Criar evento
         </button>
-
       </div>
 
       {/* FORM */}
 
       {showForm && (
-
         <form
           onSubmit={handleCreate}
-          className="card shadow-sm border-0 p-4 mb-4"
+          className="card border-0 shadow-sm p-4 mb-4"
+          style={{
+            borderRadius: "24px",
+          }}
         >
-
-          <h5 className="mb-1">
-            {editingId
-              ? "Editar evento"
-              : "Criar novo evento"}
+          <h5 className="fw-bold mb-1">
+            {editingId ? "Editar evento" : "Criar novo evento"}
           </h5>
 
-          <p className="text-muted mb-4">
-
-            Preencha os dados para criar
-            um novo evento.
-
-          </p>
+          <p className="text-muted mb-4">Preencha os dados do evento.</p>
 
           <div className="row">
+            {/* NOME */}
 
             <div className="col-md-4 mb-3">
-
-              <label className="form-label">
+              <label className="form-label fw-semibold">
+                <FaCarSide className="me-2" />
                 Nome do evento
               </label>
 
@@ -258,16 +252,19 @@ function Eventos() {
                 placeholder="Ex: Drift Night Lisboa"
                 className="form-control"
                 value={nome}
-                onChange={(e) =>
-                  setNome(e.target.value)
-                }
+                onChange={(e) => setNome(e.target.value)}
+                style={{
+                  borderRadius: "12px",
+                  padding: "12px",
+                }}
               />
-
             </div>
 
-            <div className="col-md-4 mb-3">
+            {/* DATA */}
 
-              <label className="form-label">
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">
+                <FaCalendarAlt className="me-2" />
                 Data
               </label>
 
@@ -275,16 +272,19 @@ function Eventos() {
                 type="date"
                 className="form-control"
                 value={data}
-                onChange={(e) =>
-                  setData(e.target.value)
-                }
+                onChange={(e) => setData(e.target.value)}
+                style={{
+                  borderRadius: "12px",
+                  padding: "12px",
+                }}
               />
-
             </div>
 
-            <div className="col-md-4 mb-3">
+            {/* LOCAL */}
 
-              <label className="form-label">
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">
+                <FaMapMarkerAlt className="me-2" />
                 Local
               </label>
 
@@ -293,16 +293,19 @@ function Eventos() {
                 placeholder="Ex: Lisboa"
                 className="form-control"
                 value={localEvento}
-                onChange={(e) =>
-                  setLocalEvento(e.target.value)
-                }
+                onChange={(e) => setLocalEvento(e.target.value)}
+                style={{
+                  borderRadius: "12px",
+                  padding: "12px",
+                }}
               />
-
             </div>
 
-            <div className="col-md-4 mb-3">
+            {/* PREÇO VISITANTE */}
 
-              <label className="form-label">
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">
+                <FaEuroSign className="me-2" />
                 Preço visitante
               </label>
 
@@ -311,16 +314,19 @@ function Eventos() {
                 placeholder="Ex: 20.00"
                 className="form-control"
                 value={precoVisitante}
-                onChange={(e) =>
-                  setPrecoVisitante(e.target.value)
-                }
+                onChange={(e) => setPrecoVisitante(e.target.value)}
+                style={{
+                  borderRadius: "12px",
+                  padding: "12px",
+                }}
               />
-
             </div>
 
-            <div className="col-md-4 mb-3">
+            {/* PREÇO PARTICIPANTE */}
 
-              <label className="form-label">
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">
+                <FaEuroSign className="me-2" />
                 Preço participante
               </label>
 
@@ -329,17 +335,20 @@ function Eventos() {
                 placeholder="Ex: 15.00"
                 className="form-control"
                 value={precoParticipante}
-                onChange={(e) =>
-                  setPrecoParticipante(e.target.value)
-                }
+                onChange={(e) => setPrecoParticipante(e.target.value)}
+                style={{
+                  borderRadius: "12px",
+                  padding: "12px",
+                }}
               />
-
             </div>
 
-            <div className="col-md-4 mb-3">
+            {/* LIMITE */}
 
-              <label className="form-label">
-                Limite de participantes
+            <div className="col-md-4 mb-3">
+              <label className="form-label fw-semibold">
+                <FaUsers className="me-2" />
+                Limite participantes
               </label>
 
               <input
@@ -347,17 +356,20 @@ function Eventos() {
                 placeholder="Ex: 100"
                 className="form-control"
                 value={limiteParticipantes}
-                onChange={(e) =>
-                  setLimiteParticipantes(e.target.value)
-                }
+                onChange={(e) => setLimiteParticipantes(e.target.value)}
+                style={{
+                  borderRadius: "12px",
+                  padding: "12px",
+                }}
               />
-
             </div>
-
           </div>
-          <div className="col-md-12 mb-3">
 
-            <label className="form-label">
+          {/* DESCRIÇÃO */}
+
+          <div className="mb-3">
+            <label className="form-label fw-semibold">
+              <FaAlignLeft className="me-2" />
               Descrição
             </label>
 
@@ -365,15 +377,19 @@ function Eventos() {
               className="form-control"
               rows="4"
               value={descricao}
-              onChange={(e) =>
-                setDescricao(e.target.value)
-              }
+              onChange={(e) => setDescricao(e.target.value)}
+              style={{
+                borderRadius: "12px",
+                padding: "12px",
+              }}
             />
-
           </div>
-          <div className="col-md-12 mb-3">
 
-            <label className="form-label">
+          {/* IMAGEM */}
+
+          <div className="mb-4">
+            <label className="form-label fw-semibold">
+              <FaImage className="me-2" />
               Imagem do evento
             </label>
 
@@ -381,73 +397,71 @@ function Eventos() {
               type="file"
               className="form-control"
               accept="image/*"
-              onChange={(e) =>
-                setImagem(e.target.files[0])
-              }
+              onChange={(e) => setImagem(e.target.files[0])}
+              style={{
+                borderRadius: "12px",
+                padding: "12px",
+              }}
             />
-
           </div>
+
           <button
             type="submit"
-            className="btn btn-dark w-100"
+            className="btn w-100"
+            style={{
+              backgroundColor: "#111",
+              color: "#fff",
+              borderRadius: "14px",
+              padding: "14px",
+              fontWeight: "600",
+            }}
           >
-
-            {editingId
-              ? "Atualizar evento"
-              : "Criar evento"}
-
+            {editingId ? "Atualizar evento" : "Criar evento"}
           </button>
-
         </form>
-
       )}
 
       {/* TABELA */}
 
-      <div className="card shadow-sm border-0 p-4">
-
-        <h5 className="mb-4">
-          Lista de eventos
-        </h5>
+      <div
+        className="card border-0 shadow-sm p-4"
+        style={{
+          borderRadius: "24px",
+        }}
+      >
+        <h5 className="fw-bold mb-4">Lista de eventos</h5>
 
         <div className="table-responsive">
-
           <table className="table align-middle">
-
             <thead>
-
               <tr>
-
                 <th>Evento</th>
 
                 <th>Data</th>
 
                 <th>Local</th>
 
-                <th>Preço Visitante</th>
+                <th>Visitante</th>
 
-                <th>Preço Participante</th>
+                <th>Participante</th>
 
-                <th>Limite de Participantes</th>
+                <th>Limite</th>
 
-                <th>Participantes Confirmados</th>
+                <th>Confirmados</th>
+
                 <th>Descrição</th>
-                <th>Ações</th>
 
+                <th className="text-center">Ações</th>
               </tr>
-
             </thead>
 
             <tbody>
-
               {eventos.map((evento) => (
-
                 <tr key={evento.id_evento}>
+                  {/* EVENTO */}
 
                   <td>
-
                     <div className="d-flex align-items-center gap-3">
-
                       <img
                         src={
                           evento.imagem
@@ -459,110 +473,95 @@ function Eventos() {
                           width: "60px",
                           height: "60px",
                           objectFit: "cover",
-                          borderRadius: "10px"
+                          borderRadius: "12px",
                         }}
                       />
 
                       <div>
-
-                        <strong>
-                          {evento.nome}
-                        </strong>
-
+                        <strong>{evento.nome}</strong>
                       </div>
-
                     </div>
-
                   </td>
 
-                  <td>
-                    {evento.data}
-                  </td>
+                  <td>{evento.data}</td>
 
-                  <td>
-                    {evento.local_evento}
-                  </td>
+                  <td>{evento.local_evento}</td>
 
-                  <td>
-                    {evento.preco_visitante}€
-                  </td>
+                  <td>{evento.preco_visitante}€</td>
+
+                  <td>{evento.preco_participante}€</td>
+
+                  <td>{evento.limite_participantes}</td>
 
                   <td>
-                    {evento.preco_participante}€
+                    <span
+                      className="badge"
+                      style={{
+                        backgroundColor: "#df9425",
+                        color: "#111",
+                        borderRadius: "10px",
+                        padding: "8px 12px",
+                      }}
+                    >
+                      {evento.total_participantes}
+                    </span>
                   </td>
 
-                  <td>
-                    {evento.limite_participantes}
-                  </td>
-                  <td>{evento.total_participantes}</td>    
                   <td
                     style={{
-                      maxWidth: "250px"
+                      maxWidth: "250px",
                     }}
                   >
+                    <span className="text-muted">
+                      {evento.descricao?.slice(0, 80)}
 
-                    <span
-                      className="text-muted"
-                    >
-
-                      {evento.descricao
-                        ?.slice(0, 80)}
-
-                      {evento.descricao?.length > 80
-                        ? "..."
-                        : ""}
-
+                      {evento.descricao?.length > 80 ? "..." : ""}
                     </span>
+                  </td>
 
-                  </td>  
+                  {/* AÇÕES */}
+
                   <td>
-
                     {(user.role === "admin" ||
                       (user.role === "organizador" &&
                         evento.user_id === user.id)) && (
-
-                      <div className="d-flex gap-2">
-
+                      <div className="d-flex gap-2 justify-content-center">
                         <button
-                          className="btn btn-warning btn-sm"
-                          onClick={() =>
-                            handleEdit(evento)
-                          }
+                          className="btn btn-sm"
+                          onClick={() => handleEdit(evento)}
+                          style={{
+                            backgroundColor: "#df9425",
+                            color: "#111",
+                            borderRadius: "10px",
+                            width: "42px",
+                            height: "42px",
+                          }}
                         >
-                          ✏️
+                          <FaEdit />
                         </button>
 
                         <button
                           className="btn btn-danger btn-sm"
-                          onClick={() =>
-                            handleDelete(evento.id_evento)
-                          }
+                          onClick={() => handleDelete(evento.id_evento)}
+                          style={{
+                            borderRadius: "10px",
+                            width: "42px",
+                            height: "42px",
+                          }}
                         >
-                          🗑️
+                          <FaTrashAlt />
                         </button>
-
                       </div>
-
                     )}
-
                   </td>
-
                 </tr>
-
               ))}
-
             </tbody>
-
           </table>
-
         </div>
-
       </div>
-
     </div>
-
-  )
-
+  );
 }
 
 export default Eventos;

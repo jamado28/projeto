@@ -15,7 +15,7 @@ endpoints.createEvento = async (req, res) => {
     preco_visitante,
     preco_participante,
     descricao,
-    limite_participantes
+    limite_participantes,
   } = req.body;
 
   try {
@@ -23,7 +23,7 @@ endpoints.createEvento = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -33,11 +33,11 @@ endpoints.createEvento = async (req, res) => {
     // cliente não pode criar eventos
     if (decoded.role !== "admin" && decoded.role !== "organizador") {
       return res.status(403).json({
-        message: "Sem permissão para criar eventos"
+        message: "Sem permissão para criar eventos",
       });
     }
     const existe = await Evento.findOne({
-      where: { nome, data, local_evento }
+      where: { nome, data, local_evento },
     });
 
     if (existe) {
@@ -50,10 +50,9 @@ endpoints.createEvento = async (req, res) => {
       preco_visitante,
       preco_participante,
       descricao,
-      imagem: req.file
-        ? `/uploads/images/${req.file.filename}`: null,
+      imagem: req.file ? `/uploads/images/${req.file.filename}` : null,
       limite_participantes,
-      user_id: decoded.id
+      user_id: decoded.id,
     });
 
     res.status(201).json({
@@ -61,87 +60,63 @@ endpoints.createEvento = async (req, res) => {
       message: "Evento criado com sucesso.",
       data: dados,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Erro ao criar evento."
+      message: "Erro ao criar evento.",
     });
   }
 };
 
 // GET ALL
 endpoints.getAllEventos = async (req, res) => {
-
   try {
-
-    const authHeader =
-      req.headers.authorization;
+    const authHeader = req.headers.authorization;
 
     let decoded = null;
 
     // token opcional
     if (authHeader) {
+      const token = authHeader.split(" ")[1];
 
-      const token =
-        authHeader.split(" ")[1];
-
-      decoded = jwt.verify(
-        token,
-        config.secret
-      );
-
+      decoded = jwt.verify(token, config.secret);
     }
 
     let eventos;
 
     // ADMIN
     if (decoded?.role === "admin") {
-
       eventos = await Evento.findAll();
-
     }
 
     // ORGANIZADOR
-    else if (
-      decoded?.role === "organizador"
-    ) {
-
+    else if (decoded?.role === "organizador") {
       eventos = await Evento.findAll({
         where: {
-          user_id: decoded.id
-        }
+          user_id: decoded.id,
+        },
       });
-
     }
 
     // PÚBLICO / CLIENTE
     else {
-
       eventos = await Evento.findAll();
-
     }
 
     const dados = await Promise.all(
-
       eventos.map(async (evento) => {
-
-        const totalParticipantes =
-          await Bilhete.count({
-            where: {
-              id_evento: evento.id_evento,
-              tipo: "participante"
-            }
-          });
+        const totalParticipantes = await Bilhete.count({
+          where: {
+            id_evento: evento.id_evento,
+            tipo: "participante",
+          },
+        });
 
         return {
           ...evento.toJSON(),
-          total_participantes:
-            totalParticipantes
+          total_participantes: totalParticipantes,
         };
-
-      })
-
+      }),
     );
 
     res.status(200).json({
@@ -149,9 +124,7 @@ endpoints.getAllEventos = async (req, res) => {
       message: "Lista de eventos.",
       data: dados,
     });
-
   } catch (error) {
-
     console.log(error);
 
     res.status(500).json({
@@ -159,9 +132,38 @@ endpoints.getAllEventos = async (req, res) => {
       message: "Erro ao listar eventos.",
       data: null,
     });
-
   }
+};
 
+endpoints.getEventosPublicos = async (req, res) => {
+  try {
+    const eventos = await Evento.findAll();
+
+    const dados = await Promise.all(
+      eventos.map(async (evento) => {
+        const totalParticipantes = await Bilhete.count({
+          where: {
+            id_evento: evento.id_evento,
+            tipo: "participante",
+          },
+        });
+
+        return {
+          ...evento.toJSON(),
+          total_participantes: totalParticipantes,
+        };
+      }),
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: dados,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Erro ao listar eventos.",
+    });
+  }
 };
 
 // GET BY ID
@@ -201,21 +203,19 @@ endpoints.getEventosByUser = async (req, res) => {
 
   try {
     const dados = await Evento.findAll({
-      where: { user_id: id }
+      where: { user_id: id },
     });
 
     res.status(200).json({
       status: "success",
       data: dados,
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao listar eventos do organizador."
+      message: "Erro ao listar eventos do organizador.",
     });
   }
 };
-
 
 // UPDATE
 endpoints.updateEvento = async (req, res) => {
@@ -227,7 +227,7 @@ endpoints.updateEvento = async (req, res) => {
     preco_visitante,
     preco_participante,
     descricao,
-    limite_participantes
+    limite_participantes,
   } = req.body;
 
   try {
@@ -235,7 +235,7 @@ endpoints.updateEvento = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -246,43 +246,44 @@ endpoints.updateEvento = async (req, res) => {
 
     if (!evento) {
       return res.status(404).json({
-        message: "Evento não encontrado."
+        message: "Evento não encontrado.",
       });
     }
 
     // cliente não pode
     if (decoded.role === "cliente") {
       return res.status(403).json({
-        message: "Clientes não podem atualizar eventos"
+        message: "Clientes não podem atualizar eventos",
       });
     }
 
     // organizador só os seus
     if (decoded.role === "organizador" && evento.user_id !== decoded.id) {
       return res.status(403).json({
-        message: "Não autorizado"
+        message: "Não autorizado",
       });
     }
 
     await Evento.update(
-      { nome,
+      {
+        nome,
         data,
         local_evento,
         preco_visitante,
         preco_participante,
         descricao,
-        imagem: req.file? `/uploads/images/${req.file.filename}`: null,
-        limite_participantes },
-      { where: { id_evento: id } }
+        imagem: req.file ? `/uploads/images/${req.file.filename}` : null,
+        limite_participantes,
+      },
+      { where: { id_evento: id } },
     );
 
     res.status(200).json({
-      message: "Evento atualizado com sucesso."
+      message: "Evento atualizado com sucesso.",
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao atualizar evento."
+      message: "Erro ao atualizar evento.",
     });
   }
 };
@@ -299,25 +300,24 @@ endpoints.deleteEvento = async (req, res) => {
 
     if (!evento) {
       return res.status(404).json({
-        message: "Evento não encontrado."
+        message: "Evento não encontrado.",
       });
     }
 
     if (decoded.role !== "admin" && evento.user_id !== decoded.id) {
       return res.status(403).json({
-        message: "Não autorizado"
+        message: "Não autorizado",
       });
     }
 
     await Evento.destroy({ where: { id_evento: id } });
 
     res.status(200).json({
-      message: "Evento apagado com sucesso."
+      message: "Evento apagado com sucesso.",
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao apagar evento."
+      message: "Erro ao apagar evento.",
     });
   }
 };

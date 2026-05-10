@@ -1,170 +1,176 @@
 import { useEffect, useState } from "react";
+
 import { getUser } from "../../services/authUtils";
+
 import {
   getPagamentos,
   createPagamento,
-  deletePagamento
+  deletePagamento,
 } from "../../services/pagamentoService";
+
 import { getBilhetes } from "../../services/bilheteService";
 
-function Pagamentos() {
+// ÍCONES
+import {
+  FaCreditCard,
+  FaPlus,
+  FaTrashAlt,
+  FaMoneyBillWave,
+  FaCheckCircle,
+  FaClock,
+  FaTicketAlt,
+  FaUniversity,
+} from "react-icons/fa";
 
+function Pagamentos() {
   const user = getUser();
+
   const [pagamentos, setPagamentos] = useState([]);
+
   const [bilhetes, setBilhetes] = useState([]);
+
   const [iban, setIban] = useState("");
+
   const [estado, setEstado] = useState(true);
+
   const [idBilhete, setIdBilhete] = useState("");
+
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-
     loadPagamentos();
 
     loadBilhetes();
+
     const bilheteGuardado = localStorage.getItem("bilhetePagamento");
+
     if (bilheteGuardado) {
       setIdBilhete(bilheteGuardado);
+
       setShowForm(true);
     }
   }, []);
 
   const loadPagamentos = async () => {
-
     try {
-
       const response = await getPagamentos();
 
       setPagamentos(response.data);
-
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
   const loadBilhetes = async () => {
-
     try {
-
       const response = await getBilhetes();
 
       setBilhetes(response.data);
-
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
       await createPagamento({
         iban,
         estado: true,
-        id_bilhete: idBilhete
+        id_bilhete: idBilhete,
       });
+
       alert("Pagamento criado");
+
       loadPagamentos();
+
       setIban("");
+
       setIdBilhete("");
-      localStorage.removeItem(
-        "bilhetePagamento"
-      );
+
+      localStorage.removeItem("bilhetePagamento");
 
       setShowForm(false);
     } catch (error) {
-
       console.log(error);
 
-      alert(
-        error.response?.data?.message || "Erro"
-      );
-
+      alert(error.response?.data?.message || "Erro");
     }
-
   };
 
   const handleDelete = async (id) => {
-
-    const confirmDelete = window.confirm(
-      "Tem a certeza?"
-    );
+    const confirmDelete = window.confirm("Tem a certeza?");
 
     if (!confirmDelete) {
       return;
     }
 
     try {
-
       await deletePagamento(id);
 
       alert("Pagamento apagado");
 
       loadPagamentos();
-
     } catch (error) {
-
       console.log(error);
 
       alert("Erro ao apagar");
-
     }
-
   };
 
   return (
     <div>
       {/* CLIENTE */}
+
       {user.role === "cliente" && (
         <div>
           {/* TOPO */}
+
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h2>
+              <h2 className="fw-bold d-flex align-items-center gap-2">
+                <FaCreditCard color="#df9425" />
                 Pagamentos
               </h2>
-              <p className="text-muted">
-                Gerir os seus pagamentos
-              </p>
+
+              <p className="text-muted mb-0">Gerir os seus pagamentos</p>
             </div>
 
             <button
-              className="btn btn-danger"
-              onClick={() =>
-                setShowForm(!showForm)
-              }
+              className="btn d-flex align-items-center gap-2"
+              onClick={() => setShowForm(!showForm)}
+              style={{
+                backgroundColor: "#111",
+                color: "#fff",
+                borderRadius: "14px",
+                padding: "12px 20px",
+                fontWeight: "600",
+              }}
             >
-              + Criar pagamento
+              <FaPlus />
+              Criar pagamento
             </button>
-
           </div>
 
           {/* FORM */}
 
           {showForm && (
-
             <form
               onSubmit={handleSubmit}
-              className="card p-4 mb-4 shadow-sm"
+              className="card border-0 shadow-sm p-4 mb-4"
+              style={{
+                borderRadius: "24px",
+              }}
             >
-
-              <h5 className="mb-4">
-                Criar novo pagamento
-              </h5>
+              <h5 className="mb-4 fw-bold">Novo pagamento</h5>
 
               <div className="row">
+                {/* IBAN */}
 
                 <div className="col-md-6 mb-3">
-
-                  <label className="form-label">
+                  <label className="form-label fw-semibold">
+                    <FaUniversity className="me-2" />
                     IBAN
                   </label>
 
@@ -173,33 +179,34 @@ function Pagamentos() {
                     placeholder="PT50..."
                     className="form-control"
                     value={iban}
-                    onChange={(e) =>
-                      setIban(e.target.value)
-                    }
+                    onChange={(e) => setIban(e.target.value)}
+                    style={{
+                      borderRadius: "12px",
+                      padding: "12px",
+                    }}
                   />
-
                 </div>
 
-                <div className="col-md-6 mb-3">
+                {/* BILHETE */}
 
-                  <label className="form-label">
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-semibold">
+                    <FaTicketAlt className="me-2" />
                     Bilhete
                   </label>
 
                   <select
                     className="form-control"
                     value={idBilhete}
-                    onChange={(e) =>
-                      setIdBilhete(e.target.value)
-                    }
+                    onChange={(e) => setIdBilhete(e.target.value)}
+                    style={{
+                      borderRadius: "12px",
+                      padding: "12px",
+                    }}
                   >
-
-                    <option value="">
-                      Escolher bilhete
-                    </option>
+                    <option value="">Escolher bilhete</option>
 
                     {bilhetes.map((bilhete) => (
-
                       <option
                         key={bilhete.id_bilhete}
                         value={bilhete.id_bilhete}
@@ -208,148 +215,116 @@ function Pagamentos() {
                         {" - "}
                         {bilhete.evento?.nome}
                       </option>
-
                     ))}
-
                   </select>
-
                 </div>
-
               </div>
 
               <button
                 type="submit"
-                className="btn btn-danger"
+                className="btn mt-3"
+                style={{
+                  backgroundColor: "#df9425",
+                  color: "#111",
+                  borderRadius: "14px",
+                  padding: "12px 24px",
+                  fontWeight: "700",
+                }}
               >
                 Criar pagamento
               </button>
-
             </form>
-
           )}
 
           {/* LISTA */}
 
           <div className="row">
-
             {pagamentos.map((pagamento) => (
-
-              <div
-                key={pagamento.id_pagamento}
-                className="col-md-6 mb-4"
-              >
-
-                <div className="card shadow-sm h-100">
-
-                  <div className="card-body">
-
-                    <div className="d-flex justify-content-between align-items-start mb-3">
-
+              <div key={pagamento.id_pagamento} className="col-lg-6 mb-4">
+                <div
+                  className="card border-0 shadow-sm h-100"
+                  style={{
+                    borderRadius: "22px",
+                  }}
+                >
+                  <div className="card-body p-4">
+                    <div className="d-flex justify-content-between align-items-start mb-4">
                       <div>
-
-                        <h5>
+                        <h5 className="fw-bold">
                           {pagamento.bilhete?.evento?.nome}
                         </h5>
 
-                        <p className="text-muted">
-                          {pagamento.bilhete?.evento?.nome}
+                        <p className="text-muted mb-0">
+                          Bilhete #{pagamento.id_bilhete}
                         </p>
-
                       </div>
 
                       <span
-                        className={`badge ${
+                        className={`badge d-flex align-items-center gap-2 ${
                           pagamento.estado
                             ? "bg-success"
                             : "bg-warning text-dark"
                         }`}
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: "10px",
+                        }}
                       >
+                        {pagamento.estado ? <FaCheckCircle /> : <FaClock />}
 
-                        {pagamento.estado
-                          ? "Pago"
-                          : "Pendente"}
-
+                        {pagamento.estado ? "Pago" : "Pendente"}
                       </span>
-
                     </div>
 
                     <p>
-
-                      <strong>IBAN:</strong>
-                      {" "}
-                      {pagamento.iban}
-
+                      <strong>IBAN:</strong> {pagamento.iban}
                     </p>
 
                     <p>
-
-                      <strong>Preço:</strong>
-                      {" "}
-                      {pagamento.preco}€
-
+                      <strong>Preço:</strong> {pagamento.preco}€
                     </p>
 
-                    <p>
-
-                      <strong>Data pagamento:</strong>
-                      {" "}
-
-                      {new Date(
-                        pagamento.createdAt
-                      ).toLocaleDateString()}
-
+                    <p className="mb-0">
+                      <strong>Data:</strong>{" "}
+                      {new Date(pagamento.createdAt).toLocaleDateString()}
                     </p>
-
                   </div>
-
                 </div>
-
               </div>
-
             ))}
-
           </div>
-
         </div>
-
       )}
 
       {/* ADMIN */}
 
       {user.role === "admin" && (
-
         <div>
-
           {/* TOPO */}
 
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="mb-4">
+            <h2 className="fw-bold d-flex align-items-center gap-2">
+              <FaMoneyBillWave color="#df9425" />
+              Todos os pagamentos
+            </h2>
 
-            <div>
-
-              <h2>
-                Todos os pagamentos
-              </h2>
-
-              <p className="text-muted">
-                Gerir todos os pagamentos da plataforma
-              </p>
-
-            </div>
-
+            <p className="text-muted mb-0">
+              Gerir todos os pagamentos da plataforma
+            </p>
           </div>
 
           {/* TABELA */}
 
-          <div className="card shadow-sm border-0 p-4">
-
+          <div
+            className="card border-0 shadow-sm p-4"
+            style={{
+              borderRadius: "24px",
+            }}
+          >
             <div className="table-responsive">
-
               <table className="table align-middle">
-
                 <thead>
-
                   <tr>
-
                     <th>ID</th>
 
                     <th>Bilhete</th>
@@ -360,123 +335,90 @@ function Pagamentos() {
 
                     <th>Estado</th>
 
-                    <th>Ações</th>
-
+                    <th className="text-center">Ações</th>
                   </tr>
-
                 </thead>
 
                 <tbody>
-
                   {pagamentos.map((pagamento) => (
-
                     <tr key={pagamento.id_pagamento}>
+                      <td>#{pagamento.id_pagamento}</td>
+
+                      <td>#{pagamento.id_bilhete}</td>
+
+                      <td>{pagamento.bilhete?.evento?.nome}</td>
+
+                      <td>{pagamento.preco}€</td>
 
                       <td>
-                        #{pagamento.id_pagamento}
-                      </td>
-
-                      <td>
-                        #{pagamento.id_bilhete}
-                      </td>
-
-                      <td>
-                        {pagamento.bilhete?.evento?.nome}
-                      </td>
-
-                      <td>
-                        {pagamento.preco}€
-                      </td>
-
-                      <td>
-
                         <span
                           className={`badge ${
                             pagamento.estado
                               ? "bg-success"
                               : "bg-warning text-dark"
                           }`}
+                          style={{
+                            borderRadius: "10px",
+                            padding: "8px 12px",
+                          }}
                         >
-
-                          {pagamento.estado
-                            ? "Pago"
-                            : "Pendente"}
-
+                          {pagamento.estado ? "Pago" : "Pendente"}
                         </span>
-
                       </td>
 
                       <td>
-
-                        <div className="d-flex gap-2">
-
+                        <div className="d-flex justify-content-center">
                           <button
                             className="btn btn-danger btn-sm"
-                            onClick={() =>
-                              handleDelete(
-                                pagamento.id_pagamento
-                              )
-                            }
+                            onClick={() => handleDelete(pagamento.id_pagamento)}
+                            style={{
+                              borderRadius: "10px",
+                              width: "40px",
+                              height: "40px",
+                            }}
                           >
-                            🗑️
+                            <FaTrashAlt />
                           </button>
-
                         </div>
-
                       </td>
-
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         </div>
-
       )}
 
       {/* ORGANIZADOR */}
 
       {user.role === "organizador" && (
-
         <div>
-
           {/* TOPO */}
 
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="mb-4">
+            <h2 className="fw-bold d-flex align-items-center gap-2">
+              <FaMoneyBillWave color="#df9425" />
+              Pagamentos dos seus eventos
+            </h2>
 
-            <div>
-
-              <h2>
-                Pagamentos dos seus eventos
-              </h2>
-
-              <p className="text-muted">
-                Consultar pagamentos associados aos seus eventos
-              </p>
-
-            </div>
-
+            <p className="text-muted mb-0">
+              Consultar pagamentos associados aos seus eventos
+            </p>
           </div>
 
           {/* TABELA */}
 
-          <div className="card shadow-sm border-0 p-4">
-
+          <div
+            className="card border-0 shadow-sm p-4"
+            style={{
+              borderRadius: "24px",
+            }}
+          >
             <div className="table-responsive">
-
               <table className="table align-middle">
-
                 <thead>
-
                   <tr>
-
                     <th>ID</th>
 
                     <th>Bilhete</th>
@@ -486,71 +428,45 @@ function Pagamentos() {
                     <th>Preço</th>
 
                     <th>Estado</th>
-
                   </tr>
-
                 </thead>
 
                 <tbody>
-
                   {pagamentos.map((pagamento) => (
-
                     <tr key={pagamento.id_pagamento}>
+                      <td>#{pagamento.id_pagamento}</td>
+
+                      <td>#{pagamento.id_bilhete}</td>
+
+                      <td>{pagamento.bilhete?.evento?.nome}</td>
+
+                      <td>{pagamento.preco}€</td>
 
                       <td>
-                        #{pagamento.id_pagamento}
-                      </td>
-
-                      <td>
-                        #{pagamento.id_bilhete}
-                      </td>
-
-                      <td>
-                        {pagamento.bilhete?.evento?.nome}
-                      </td>
-
-                      <td>
-                        {pagamento.preco}€
-                      </td>
-
-                      <td>
-
                         <span
                           className={`badge ${
                             pagamento.estado
                               ? "bg-success"
                               : "bg-warning text-dark"
                           }`}
+                          style={{
+                            borderRadius: "10px",
+                            padding: "8px 12px",
+                          }}
                         >
-
-                          {pagamento.estado
-                            ? "Pago"
-                            : "Pendente"}
-
+                          {pagamento.estado ? "Pago" : "Pendente"}
                         </span>
-
                       </td>
-
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         </div>
-
       )}
-
     </div>
-
-  )
-
+  );
 }
 
 export default Pagamentos;

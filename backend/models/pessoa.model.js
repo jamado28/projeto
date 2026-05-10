@@ -14,36 +14,36 @@ const Pessoa = conexao.define(
     nif: {
       type: sequelize.INTEGER,
       allowNull: true,
-      unique: true
+      unique: true,
     },
     nome: {
       type: sequelize.STRING(100),
-      allowNull: true
+      allowNull: true,
     },
     email: {
       type: sequelize.STRING(100),
       unique: true,
-      allowNull: true
+      allowNull: true,
     },
     telemovel: {
       type: sequelize.STRING(15),
-      allowNull: true
+      allowNull: true,
     },
     data_nascimento: {
       type: sequelize.DATEONLY,
-      allowNull: true
+      allowNull: true,
     },
     user_id: {
       type: sequelize.INTEGER,
       allowNull: false,
-      unique: true
-    }
+      unique: true,
+    },
   },
   {
     tableName: "pessoa",
     timestamps: false,
-    freezeTableName: true
-  }
+    freezeTableName: true,
+  },
 );
 
 User.hasOne(Pessoa, { foreignKey: "user_id" });

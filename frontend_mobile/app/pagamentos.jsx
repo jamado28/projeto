@@ -5,584 +5,438 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  TextInput
+  TextInput,
 } from "react-native";
-import {
-  Picker
-} from "@react-native-picker/picker";
+import { Picker } from "@react-native-picker/picker";
 import {
   getPagamentos,
   createPagamento,
-  deletePagamento
+  deletePagamento,
 } from "../services/pagamentoService";
-import {
-  Ionicons
-} from "@expo/vector-icons";
-import {
-  getBilhetes
-} from "../services/bilheteService";
+import { Ionicons } from "@expo/vector-icons";
+import { getBilhetes } from "../services/bilheteService";
 
-import {
-  getUser
-} from "../services/authUtils";
+import { getUser } from "../services/authUtils";
 
 import { COLORS } from "../styles/colors";
 
 export default function PagamentosScreen() {
-    const [user, setUser] = useState(null);
-    const [pagamentos, setPagamentos] = useState([]);
-    const [bilhetes, setBilhetes] = useState([]);
-    const [iban, setIban] = useState("");
+  const [user, setUser] = useState(null);
+  const [pagamentos, setPagamentos] = useState([]);
+  const [bilhetes, setBilhetes] = useState([]);
+  const [iban, setIban] = useState("");
 
-    const [idBilhete, setIdBilhete] = useState("");
+  const [idBilhete, setIdBilhete] = useState("");
 
-    const [showForm, setShowForm] =
-    useState(false);
+  const [showForm, setShowForm] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
+    loadUser();
 
-        loadUser();
+    loadPagamentos();
+    loadBilhetes();
+  }, []);
 
-        loadPagamentos();
-        loadBilhetes();
+  const loadUser = async () => {
+    const loggedUser = await getUser();
 
-    }, []);
+    setUser(loggedUser);
+  };
 
-    const loadUser = async () => {
+  const loadBilhetes = async () => {
+    try {
+      const response = await getBilhetes();
 
-        const loggedUser =
-        await getUser();
+      setBilhetes(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const loadPagamentos = async () => {
+    try {
+      const response = await getPagamentos();
 
-        setUser(loggedUser);
+      setPagamentos(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    };
+  const handleSubmit = async () => {
+    try {
+      await createPagamento({
+        iban,
+        estado: true,
+        id_bilhete: idBilhete,
+      });
 
-    const loadBilhetes = async () => {
+      alert("Pagamento criado");
 
-        try {
+      setIban("");
 
-            const response =
-            await getBilhetes();
+      setIdBilhete("");
 
-            setBilhetes(response.data);
+      setShowForm(false);
 
-        } catch (error) {
+      loadPagamentos();
+    } catch (error) {
+      console.log(error);
 
-            console.log(error);
-
-        }
-
-        };
-    const loadPagamentos = async () => {
-
-        try {
-
-        const response =
-            await getPagamentos();
-
-        setPagamentos(response.data);
-
-        } catch (error) {
-
-        console.log(error);
-
-        }
-
-    };
-
-    const handleSubmit = async () => {
-
-        try {
-
-            await createPagamento({
-            iban,
-            estado: true,
-            id_bilhete: idBilhete
-            });
-
-            alert(
-            "Pagamento criado"
-            );
-
-            setIban("");
-
-            setIdBilhete("");
-
-            setShowForm(false);
+      alert("Erro ao criar pagamento");
+    }
+  };
+  const handleDelete = async (id) => {
+    Alert.alert("Eliminar", "Tem a certeza?", [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deletePagamento(id);
 
             loadPagamentos();
-
-        } catch (error) {
-
+          } catch (error) {
             console.log(error);
+          }
+        },
+      },
+    ]);
+  };
 
-            alert(
-            "Erro ao criar pagamento"
-            );
+  return (
+    <ScrollView
+      style={{
+        flex: 1,
+        backgroundColor: COLORS.background,
+      }}
+      contentContainerStyle={{
+        paddingBottom: 120,
+      }}
+    >
+      {/* HEADER */}
 
-        }
-
-    };
-    const handleDelete = async (id) => {
-
-        Alert.alert(
-            "Eliminar",
-            "Tem a certeza?",
-            [
-            {
-                text: "Cancelar",
-                style: "cancel"
-            },
-            {
-                text: "Eliminar",
-                style: "destructive",
-                onPress: async () => {
-
-                try {
-
-                    await deletePagamento(id);
-
-                    loadPagamentos();
-
-                } catch (error) {
-
-                    console.log(error);
-
-                }
-
-                }
-            }
-            ]
-        );
-
-    };
-
-    return (
-
-        <ScrollView
+      <View
         style={{
-            flex: 1,
-            backgroundColor: COLORS.background
+          paddingTop: 80,
+          paddingHorizontal: 24,
+          marginBottom: 30,
         }}
-        contentContainerStyle={{
-            paddingBottom: 120
-        }}
+      >
+        <Text
+          style={{
+            color: COLORS.text,
+            fontSize: 34,
+            fontWeight: "900",
+            marginBottom: 10,
+          }}
         >
+          Pagamentos
+        </Text>
 
-        {/* HEADER */}
+        <Text
+          style={{
+            color: COLORS.muted,
+          }}
+        >
+          Gerir os seus pagamentos
+        </Text>
+      </View>
 
+      {/* BOTÃO */}
+
+      {user?.role === "cliente" && (
         <View
-            style={{
-            paddingTop: 80,
-            paddingHorizontal: 24,
-            marginBottom: 30
-            }}
+          style={{
+            paddingHorizontal: 20,
+            marginBottom: 30,
+          }}
         >
-
-            <Text
+          <TouchableOpacity
+            onPress={() => setShowForm(true)}
             style={{
-                color: COLORS.text,
-                fontSize: 34,
-                fontWeight: "900",
-                marginBottom: 10
+              backgroundColor: COLORS.primary,
+              paddingVertical: 18,
+              borderRadius: 20,
+              alignItems: "center",
             }}
-            >
-
-            Pagamentos
-
-            </Text>
-
+          >
             <Text
-            style={{
-                color: COLORS.muted
-            }}
+              style={{
+                color: "black",
+                fontWeight: "800",
+                fontSize: 16,
+              }}
             >
-
-            Gerir os seus pagamentos
-
+              Criar Pagamento
             </Text>
-
-        </View>
-
-        {/* BOTÃO */}
-
-        {user?.role === "cliente" && (
-
+          </TouchableOpacity>
+          {showForm && (
             <View
-            style={{
+              style={{
                 paddingHorizontal: 20,
-                marginBottom: 30
-            }}
+                marginBottom: 30,
+              }}
             >
-
-            <TouchableOpacity
-                onPress={() => setShowForm(true)}
+              <View
                 style={{
-                backgroundColor: COLORS.primary,
-                paddingVertical: 18,
-                borderRadius: 20,
-                alignItems: "center"
+                  backgroundColor: COLORS.card,
+                  borderRadius: 28,
+                  padding: 24,
                 }}
-            >
-
+              >
                 <Text
-                style={{
-                    color: "black",
-                    fontWeight: "800",
-                    fontSize: 16
-                }}
+                  style={{
+                    color: COLORS.text,
+                    fontSize: 24,
+                    fontWeight: "900",
+                    marginBottom: 20,
+                  }}
                 >
-
-                Criar Pagamento
-
+                  Novo Pagamento
                 </Text>
 
-            </TouchableOpacity>
-            {showForm && (
-
-                <View
-                style={{
-                    paddingHorizontal: 20,
-                    marginBottom: 30
-                }}
-                >
-
-                <View
-                    style={{
-                    backgroundColor: COLORS.card,
-                    borderRadius: 28,
-                    padding: 24
-                    }}
-                >
-
-                    <Text
-                    style={{
-                        color: COLORS.text,
-                        fontSize: 24,
-                        fontWeight: "900",
-                        marginBottom: 20
-                    }}
-                    >
-
-                    Novo Pagamento
-
-                    </Text>
-
-                    <TextInput
-                    placeholder="IBAN"
-                    placeholderTextColor="#6b7280"
-                    value={iban}
-                    onChangeText={setIban}
-                    style={{
-                        backgroundColor: "#111827",
-                        color: COLORS.text,
-                        padding: 18,
-                        borderRadius: 18,
-                        marginBottom: 16,
-                        fontSize: 16
-                    }}
-                    />
-
-                    <View
-                        style={{
-                            backgroundColor: "#111827",
-                            borderRadius: 18,
-                            marginBottom: 16,
-                            overflow: "hidden"
-                        }}
-                        >
-
-                        <Picker
-                            selectedValue={idBilhete}
-                            onValueChange={(itemValue) =>
-                            setIdBilhete(itemValue)
-                            }
-                            dropdownIconColor="white"
-                            style={{
-                            color: "white"
-                            }}
-                        >
-
-                            <Picker.Item
-                            label="Escolher Bilhete"
-                            value=""
-                            />
-
-                            {bilhetes.map((bilhete) => (
-
-                            <Picker.Item
-                                key={bilhete.id_bilhete}
-                                label={`${bilhete.evento?.nome} - ${bilhete.tipo}`}
-                                value={bilhete.id_bilhete}
-                            />
-
-                            ))}
-
-                        </Picker>
-
-                        </View>
-
-                    <TouchableOpacity
-                    onPress={handleSubmit}
-                    style={{
-                        backgroundColor: COLORS.primary,
-                        paddingVertical: 18,
-                        borderRadius: 20,
-                        alignItems: "center"
-                    }}
-                    >
-
-                    <Text
-                        style={{
-                        color: "black",
-                        fontWeight: "900",
-                        fontSize: 16
-                        }}
-                    >
-
-                        Criar Pagamento
-
-                    </Text>
-
-                    </TouchableOpacity>
-
-                </View>
-
-                </View>
-
-                )}
-            </View>
-
-        )}
-
-        {/* LISTA */}
-
-        <View
-            style={{
-            paddingHorizontal: 20
-            }}
-        >
-
-            {pagamentos.map((pagamento) => (
-
-            <View
-                key={pagamento.id_pagamento}
-                style={{
-                backgroundColor: COLORS.card,
-                borderRadius: 28,
-                padding: 24,
-                marginBottom: 22
-                }}
-            >
-
-                {/* TOPO */}
-
-                <View
-                style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: 22
-                }}
-                >
-
-                <View
-                    style={{
-                    flex: 1
-                    }}
-                >
-
-                    <Text
-                    style={{
-                        color: COLORS.text,
-                        fontSize: 24,
-                        fontWeight: "900",
-                        marginBottom: 8
-                    }}
-                    >
-
-                    {pagamento.bilhete?.evento?.nome}
-
-                    </Text>
-
-                    <Text
-                    style={{
-                        color: COLORS.muted,
-                        fontSize: 15
-                    }}
-                    >
-
-                    Bilhete
-                    {" "}
-                    #{pagamento.id_bilhete}
-
-                    </Text>
-
-                </View>
-
-                {/* BADGE */}
-
-                <View
-                    style={{
-                    backgroundColor:
-                        pagamento.estado
-                        ? "#166534"
-                        : "#92400e",
-                    paddingHorizontal: 14,
-                    paddingVertical: 10,
-                    borderRadius: 14
-                    }}
-                >
-
-                    <Text
-                    style={{
-                        color: "white",
-                        fontWeight: "800",
-                        fontSize: 12
-                    }}
-                    >
-
-                    {pagamento.estado
-                        ? "PAGO"
-                        : "PENDENTE"}
-
-                    </Text>
-
-                </View>
-
-                </View>
-
-                {/* PREÇO */}
-
-                <View
-                style={{
+                <TextInput
+                  placeholder="IBAN"
+                  placeholderTextColor="#6b7280"
+                  value={iban}
+                  onChangeText={setIban}
+                  style={{
                     backgroundColor: "#111827",
-                    borderRadius: 20,
-                    padding: 22,
-                    marginBottom: 22
-                }}
-                >
+                    color: COLORS.text,
+                    padding: 18,
+                    borderRadius: 18,
+                    marginBottom: 16,
+                    fontSize: 16,
+                  }}
+                />
 
-                <Text
+                <View
+                  style={{
+                    backgroundColor: "#111827",
+                    borderRadius: 18,
+                    marginBottom: 16,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Picker
+                    selectedValue={idBilhete}
+                    onValueChange={(itemValue) => setIdBilhete(itemValue)}
+                    dropdownIconColor="white"
                     style={{
-                    color: COLORS.muted,
-                    marginBottom: 8
+                      color: "white",
                     }}
-                >
+                  >
+                    <Picker.Item label="Escolher Bilhete" value="" />
 
-                    Valor
-
-                </Text>
-
-                <Text
-                    style={{
-                    color: COLORS.primary,
-                    fontSize: 34,
-                    fontWeight: "900"
-                    }}
-                >
-
-                    {pagamento.preco}€
-
-                </Text>
-
+                    {bilhetes.map((bilhete) => (
+                      <Picker.Item
+                        key={bilhete.id_bilhete}
+                        label={`${bilhete.evento?.nome} - ${bilhete.tipo}`}
+                        value={bilhete.id_bilhete}
+                      />
+                    ))}
+                  </Picker>
                 </View>
-
-                {/* INFO */}
-
-                <View
-                    style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginBottom: 10
-                    }}
-                    >
-
-                    <Ionicons
-                        name="card-outline"
-                        size={18}
-                        color={COLORS.primary}
-                    />
-
-                    <Text
-                        style={{
-                            color: COLORS.muted,
-                            marginLeft: 8
-                        }}
-                    >
-
-                        {pagamento.iban}
-
-                    </Text>
-
-                    </View>
-
-                <View
-                    style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginBottom: 24
-                    }}
-                    >
-
-                    <Ionicons
-                        name="calendar"
-                        size={18}
-                        color={COLORS.muted}
-                    />
-
-                    <Text
-                        style={{
-                            color: COLORS.muted,
-                            marginLeft: 8
-                        }}
-                    >
-
-                        {new Date(
-                            pagamento.createdAt
-                        ).toLocaleDateString()}
-
-                    </Text>
-
-                    </View>
-
-                {/* BOTÃO */}
-
-                {user?.role === "admin" && (
 
                 <TouchableOpacity
-                    onPress={() => handleDelete(pagamento.id_pagamento)}
-                    style={{
-                    backgroundColor: "#7f1d1d",
-                    paddingVertical: 16,
-                    borderRadius: 18,
-                    alignItems: "center"
-                    }}
+                  onPress={handleSubmit}
+                  style={{
+                    backgroundColor: COLORS.primary,
+                    paddingVertical: 18,
+                    borderRadius: 20,
+                    alignItems: "center",
+                  }}
                 >
-
-                    <Text
+                  <Text
                     style={{
-                        color: "white",
-                        fontWeight: "800"
+                      color: "black",
+                      fontWeight: "900",
+                      fontSize: 16,
                     }}
-                    >
-
-                    Apagar
-
-                    </Text>
-
+                  >
+                    Criar Pagamento
+                  </Text>
                 </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
 
-                )}
+      {/* LISTA */}
 
+      <View
+        style={{
+          paddingHorizontal: 20,
+        }}
+      >
+        {pagamentos.map((pagamento) => (
+          <View
+            key={pagamento.id_pagamento}
+            style={{
+              backgroundColor: COLORS.card,
+              borderRadius: 28,
+              padding: 24,
+              marginBottom: 22,
+            }}
+          >
+            {/* TOPO */}
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 22,
+              }}
+            >
+              <View
+                style={{
+                  flex: 1,
+                }}
+              >
+                <Text
+                  style={{
+                    color: COLORS.text,
+                    fontSize: 24,
+                    fontWeight: "900",
+                    marginBottom: 8,
+                  }}
+                >
+                  {pagamento.bilhete?.evento?.nome}
+                </Text>
+
+                <Text
+                  style={{
+                    color: COLORS.muted,
+                    fontSize: 15,
+                  }}
+                >
+                  Bilhete #{pagamento.id_bilhete}
+                </Text>
+              </View>
+
+              {/* BADGE */}
+
+              <View
+                style={{
+                  backgroundColor: pagamento.estado ? "#166534" : "#92400e",
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                  borderRadius: 14,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "800",
+                    fontSize: 12,
+                  }}
+                >
+                  {pagamento.estado ? "PAGO" : "PENDENTE"}
+                </Text>
+              </View>
             </View>
 
-            ))}
+            {/* PREÇO */}
 
-        </View>
+            <View
+              style={{
+                backgroundColor: "#111827",
+                borderRadius: 20,
+                padding: 22,
+                marginBottom: 22,
+              }}
+            >
+              <Text
+                style={{
+                  color: COLORS.muted,
+                  marginBottom: 8,
+                }}
+              >
+                Valor
+              </Text>
 
-        </ScrollView>
+              <Text
+                style={{
+                  color: COLORS.primary,
+                  fontSize: 34,
+                  fontWeight: "900",
+                }}
+              >
+                {pagamento.preco}€
+              </Text>
+            </View>
 
-    );
+            {/* INFO */}
 
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 10,
+              }}
+            >
+              <Ionicons name="card-outline" size={18} color={COLORS.primary} />
+
+              <Text
+                style={{
+                  color: COLORS.muted,
+                  marginLeft: 8,
+                }}
+              >
+                {pagamento.iban}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 24,
+              }}
+            >
+              <Ionicons name="calendar" size={18} color={COLORS.muted} />
+
+              <Text
+                style={{
+                  color: COLORS.muted,
+                  marginLeft: 8,
+                }}
+              >
+                {new Date(pagamento.createdAt).toLocaleDateString()}
+              </Text>
+            </View>
+
+            {/* BOTÃO */}
+
+            {user?.role === "admin" && (
+              <TouchableOpacity
+                onPress={() => handleDelete(pagamento.id_pagamento)}
+                style={{
+                  backgroundColor: "#7f1d1d",
+                  paddingVertical: 16,
+                  borderRadius: 18,
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "800",
+                  }}
+                >
+                  Apagar
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
 }

@@ -9,13 +9,32 @@ router.post("/register", authController.register);
 router.post("/login", authController.login);
 
 // ROTAS PROTEGIDAS
-router.post("/refresh-token", middleware.checkToken, authController.refreshToken);
+router.post(
+  "/refresh-token",
+  middleware.checkToken,
+  authController.refreshToken,
+);
 router.post("/logout", middleware.checkToken, authController.logout);
 
-router.get("/users", middleware.checkToken, middleware.checkAdmin, authController.getAllUsers);
+router.get(
+  "/users",
+  middleware.checkToken,
+  middleware.checkAdmin,
+  authController.getAllUsers,
+);
 
-router.put("/users/:id", middleware.checkToken, middleware.checkAdmin, authController.updateUser);
+router.put(
+  "/users/:id",
+  middleware.checkToken,
+  middleware.checkAdmin,
+  authController.updateUser,
+);
 
-router.delete("/:id", middleware.checkToken, middleware.checkAdmin, authController.deleteUser);
+router.delete(
+  "/:id",
+  middleware.checkToken,
+  middleware.checkAdmin,
+  authController.deleteUser,
+);
 
 module.exports = router;

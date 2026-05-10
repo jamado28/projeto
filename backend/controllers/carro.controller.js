@@ -7,7 +7,6 @@ const Evento = require("../models/evento.model");
 
 const endpoints = {};
 
-
 // CREATE
 endpoints.createCarro = async (req, res) => {
   const { matricula, marca, modelo, ano, id_pessoa } = req.body;
@@ -17,7 +16,7 @@ endpoints.createCarro = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -27,18 +26,18 @@ endpoints.createCarro = async (req, res) => {
     // organizador não pode
     if (decoded.role !== "cliente") {
       return res.status(403).json({
-        message: "Apenas clientes podem criar carros"
+        message: "Apenas clientes podem criar carros",
       });
     }
 
     // buscar pessoa do user
     const pessoa = await Pessoa.findOne({
-      where: { user_id: decoded.id }
+      where: { user_id: decoded.id },
     });
 
     if (!pessoa) {
       return res.status(404).json({
-        message: "Pessoa não encontrada"
+        message: "Pessoa não encontrada",
       });
     }
 
@@ -46,7 +45,7 @@ endpoints.createCarro = async (req, res) => {
     const existe = await Carro.findOne({ where: { matricula } });
     if (existe) {
       return res.status(400).json({
-        message: "Já existe um carro com essa matrícula"
+        message: "Já existe um carro com essa matrícula",
       });
     }
 
@@ -55,9 +54,7 @@ endpoints.createCarro = async (req, res) => {
       marca,
       modelo,
       ano,
-      img_url: req.file
-        ? `/uploads/images/${req.file.filename}`
-        : null,
+      img_url: req.file ? `/uploads/images/${req.file.filename}` : null,
       id_pessoa: pessoa.id_pessoa,
     });
 
@@ -66,14 +63,12 @@ endpoints.createCarro = async (req, res) => {
       message: "Carro criado com sucesso.",
       data: dados,
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao criar carro."
+      message: "Erro ao criar carro.",
     });
   }
 };
-
 
 // GET ALL
 endpoints.getAllCarros = async (req, res) => {
@@ -82,7 +77,7 @@ endpoints.getAllCarros = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -97,16 +92,15 @@ endpoints.getAllCarros = async (req, res) => {
         include: {
           model: Pessoa,
           as: "pessoa",
-          attributes: ["id_pessoa", "nome"]
-        }
+          attributes: ["id_pessoa", "nome"],
+        },
       });
     }
 
     // CLIENTE - só os seus carros
     else if (decoded.role === "cliente") {
-
       const pessoa = await Pessoa.findOne({
-        where: { user_id: decoded.id }
+        where: { user_id: decoded.id },
       });
 
       dados = await Carro.findAll({
@@ -114,20 +108,19 @@ endpoints.getAllCarros = async (req, res) => {
         include: {
           model: Pessoa,
           as: "pessoa",
-          attributes: ["id_pessoa", "nome"]
-        }
+          attributes: ["id_pessoa", "nome"],
+        },
       });
     }
 
     // ORGANIZADOR - carros dos seus eventos
     else {
-
       dados = await Carro.findAll({
         include: [
           {
             model: Pessoa,
             as: "pessoa",
-            attributes: ["id_pessoa", "nome"]
+            attributes: ["id_pessoa", "nome"],
           },
           {
             model: Bilhete,
@@ -136,10 +129,10 @@ endpoints.getAllCarros = async (req, res) => {
             include: {
               model: Evento,
               as: "evento",
-              where: { user_id: decoded.id }
-            }
-          }
-        ]
+              where: { user_id: decoded.id },
+            },
+          },
+        ],
       });
     }
 
@@ -148,7 +141,6 @@ endpoints.getAllCarros = async (req, res) => {
       message: "Lista de carros.",
       data: dados,
     });
-
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -156,7 +148,6 @@ endpoints.getAllCarros = async (req, res) => {
     });
   }
 };
-
 
 // GET BY ID (matricula)
 endpoints.getCarroById = async (req, res) => {
@@ -167,7 +158,7 @@ endpoints.getCarroById = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -178,13 +169,13 @@ endpoints.getCarroById = async (req, res) => {
       where: { matricula: id },
       include: {
         model: Pessoa,
-        as: "pessoa"
-      }
+        as: "pessoa",
+      },
     });
 
     if (!carro) {
       return res.status(404).json({
-        message: "Carro não encontrado."
+        message: "Carro não encontrado.",
       });
     }
 
@@ -195,7 +186,7 @@ endpoints.getCarroById = async (req, res) => {
 
     // dono
     const pessoa = await Pessoa.findOne({
-      where: { user_id: decoded.id }
+      where: { user_id: decoded.id },
     });
 
     if (pessoa && carro.id_pessoa === pessoa.id_pessoa) {
@@ -205,13 +196,13 @@ endpoints.getCarroById = async (req, res) => {
     // organizador - carros dos seus eventos
     const bilhete = await Bilhete.findOne({
       where: {
-        matricula_carro: carro.matricula
+        matricula_carro: carro.matricula,
       },
       include: {
         model: Evento,
         as: "evento",
-        where: { user_id: decoded.id }
-      }
+        where: { user_id: decoded.id },
+      },
     });
 
     if (bilhete) {
@@ -219,12 +210,11 @@ endpoints.getCarroById = async (req, res) => {
     }
 
     return res.status(403).json({
-      message: "Não autorizado"
+      message: "Não autorizado",
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao procurar carro."
+      message: "Erro ao procurar carro.",
     });
   }
 };
@@ -232,14 +222,14 @@ endpoints.getCarroById = async (req, res) => {
 // UPDATE
 endpoints.updateCarro = async (req, res) => {
   const { id } = req.params;
-  const { marca, modelo, ano} = req.body;
+  const { marca, modelo, ano } = req.body;
 
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -247,50 +237,49 @@ endpoints.updateCarro = async (req, res) => {
     const decoded = jwt.verify(token, config.secret);
 
     const carro = await Carro.findOne({
-      where: { matricula: id }
+      where: { matricula: id },
     });
 
     if (!carro) {
       return res.status(404).json({
-        message: "Carro não encontrado."
+        message: "Carro não encontrado.",
       });
     }
 
     // admin pode tudo
     if (decoded.role !== "admin") {
-
       const pessoa = await Pessoa.findOne({
-        where: { user_id: decoded.id }
+        where: { user_id: decoded.id },
       });
 
       if (!pessoa || carro.id_pessoa !== pessoa.id_pessoa) {
         return res.status(403).json({
-          message: "Não autorizado"
+          message: "Não autorizado",
         });
       }
     }
 
     await Carro.update(
-      { marca,
+      {
+        marca,
         modelo,
         ano,
         img_url: req.file
           ? `/uploads/images/${req.file.filename}`
-          : carro.img_url},
-      { where: { matricula: id } }
+          : carro.img_url,
+      },
+      { where: { matricula: id } },
     );
 
     res.status(200).json({
-      message: "Carro atualizado com sucesso."
+      message: "Carro atualizado com sucesso.",
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao atualizar carro."
+      message: "Erro ao atualizar carro.",
     });
   }
 };
-
 
 // DELETE
 endpoints.deleteCarro = async (req, res) => {
@@ -301,7 +290,7 @@ endpoints.deleteCarro = async (req, res) => {
 
     if (!authHeader) {
       return res.status(401).json({
-        message: "Token não fornecido"
+        message: "Token não fornecido",
       });
     }
 
@@ -309,25 +298,24 @@ endpoints.deleteCarro = async (req, res) => {
     const decoded = jwt.verify(token, config.secret);
 
     const carro = await Carro.findOne({
-      where: { matricula: id }
+      where: { matricula: id },
     });
 
     if (!carro) {
       return res.status(404).json({
-        message: "Carro não encontrado."
+        message: "Carro não encontrado.",
       });
     }
 
     // admin pode tudo
     if (decoded.role !== "admin") {
-
       const pessoa = await Pessoa.findOne({
-        where: { user_id: decoded.id }
+        where: { user_id: decoded.id },
       });
 
       if (!pessoa || carro.id_pessoa !== pessoa.id_pessoa) {
         return res.status(403).json({
-          message: "Não autorizado"
+          message: "Não autorizado",
         });
       }
     }
@@ -335,12 +323,11 @@ endpoints.deleteCarro = async (req, res) => {
     await Carro.destroy({ where: { matricula: id } });
 
     res.status(200).json({
-      message: "Carro apagado com sucesso."
+      message: "Carro apagado com sucesso.",
     });
-
   } catch (error) {
     res.status(500).json({
-      message: "Erro ao apagar carro."
+      message: "Erro ao apagar carro.",
     });
   }
 };

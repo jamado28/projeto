@@ -14,7 +14,7 @@ endpoints.register = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email e password são obrigatórios."
+        message: "Email e password são obrigatórios.",
       });
     }
 
@@ -23,10 +23,10 @@ endpoints.register = async (req, res) => {
     if (existente) {
       return res.status(400).json({
         success: false,
-        message: "Email já existe."
+        message: "Email já existe.",
       });
     }
-    
+
     // criar user
     const user = await User.create({
       email,
@@ -55,7 +55,6 @@ endpoints.register = async (req, res) => {
         role: user.role,
       },
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -64,7 +63,6 @@ endpoints.register = async (req, res) => {
     });
   }
 };
-
 
 // LOGIN
 endpoints.login = async (req, res) => {
@@ -97,7 +95,7 @@ endpoints.login = async (req, res) => {
         role: user.role,
       },
       config.secret,
-      { expiresIn: config.timer }
+      { expiresIn: config.timer },
     );
 
     res.status(200).json({
@@ -105,7 +103,6 @@ endpoints.login = async (req, res) => {
       message: "Autenticação realizada com sucesso.",
       AccessToken: token,
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -113,7 +110,6 @@ endpoints.login = async (req, res) => {
     });
   }
 };
-
 
 // REFRESH TOKEN
 endpoints.refreshToken = async (req, res) => {
@@ -142,7 +138,7 @@ endpoints.refreshToken = async (req, res) => {
           role: decoded.role,
         },
         config.secret,
-        { expiresIn: config.timer }
+        { expiresIn: config.timer },
       );
 
       res.status(200).json({
@@ -151,7 +147,6 @@ endpoints.refreshToken = async (req, res) => {
         AccessToken: newToken,
       });
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -159,7 +154,6 @@ endpoints.refreshToken = async (req, res) => {
     });
   }
 };
-
 
 // LOGOUT
 endpoints.logout = async (req, res) => {
@@ -198,66 +192,46 @@ endpoints.deleteUser = async (req, res) => {
       status: "success",
       message: "Utilizador eliminado com sucesso.",
     });
-
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "Erro ao eliminar utilizador."
+      message: "Erro ao eliminar utilizador.",
     });
   }
 };
 
 //GET ALL USERS
 endpoints.getAllUsers = async (req, res) => {
-
   try {
-
     const users = await User.findAll({
-      attributes: [
-        "id",
-        "email",
-        "role",
-        "createdAt"
-      ]
+      attributes: ["id", "email", "role", "createdAt"],
     });
 
     res.status(200).json({
       status: "success",
-      data: users
+      data: users,
     });
-
   } catch (error) {
-
     res.status(500).json({
       status: "error",
-      message: "Erro ao listar utilizadores."
+      message: "Erro ao listar utilizadores.",
     });
-
   }
-
 };
 
 //UPDTATE USER
 endpoints.updateUser = async (req, res) => {
-
   const { id } = req.params;
 
-  const {
-    email,
-    password,
-    role
-  } = req.body;
+  const { email, password, role } = req.body;
 
   try {
-
     const user = await User.findByPk(id);
 
     if (!user) {
-
       return res.status(404).json({
-        message: "Utilizador não encontrado."
+        message: "Utilizador não encontrado.",
       });
-
     }
 
     // atualizar email
@@ -272,29 +246,22 @@ endpoints.updateUser = async (req, res) => {
 
     // atualizar password
     if (password) {
-
-      const hashed =
-        await bcrypt.hash(password, 10);
+      const hashed = await bcrypt.hash(password, 10);
 
       user.password = hashed;
-
     }
 
     await user.save();
 
     res.status(200).json({
-      message: "Utilizador atualizado."
+      message: "Utilizador atualizado.",
     });
-
   } catch (error) {
-
     console.log(error);
 
     res.status(500).json({
-      message: "Erro ao atualizar utilizador."
+      message: "Erro ao atualizar utilizador.",
     });
-
   }
-
 };
 module.exports = endpoints;

@@ -1,7 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
 export const getUser = () => {
-
   const token = localStorage.getItem("token");
 
   if (!token) {
@@ -9,13 +8,8 @@ export const getUser = () => {
   }
 
   try {
-
     return jwtDecode(token);
-
   } catch (error) {
-
     return null;
-
   }
-
-}
+};
