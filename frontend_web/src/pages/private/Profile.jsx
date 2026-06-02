@@ -4,7 +4,7 @@ import PublicNavbar from "../../components/public/PublicNavbar";
 
 import Footer from "../../components/public/Footer";
 
-import { getUser } from "../../services/authUtils";
+import { useAuth } from "../../hooks/useAuth";
 
 import Pessoas from "./Pessoas";
 
@@ -41,7 +41,7 @@ function Profile() {
     navigate("/");
   };
 
-  const user = getUser();
+  const { user, role, isAuthenticated } = useAuth();
 
   const [section, setSection] = useState("dados");
 
@@ -183,6 +183,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "dados" ? "" : "btn-outline-light"
                         }`}
+                        aria-label= "Conta"
                         onClick={() => setSection("dados")}
                         style={{
                           backgroundColor:
@@ -212,6 +213,7 @@ function Profile() {
                           fontWeight: "600",
                           border: section === "carros" ? "none" : "",
                         }}
+                        aria-label= "Veículos"
                       >
                         <FaCarSide />
                         Veículos
@@ -221,6 +223,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "bilhetes" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Bilhetes"
                         onClick={() => setSection("bilhetes")}
                         style={{
                           backgroundColor:
@@ -240,6 +243,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "pagamentos" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Pagamentos"
                         onClick={() => setSection("pagamentos")}
                         style={{
                           backgroundColor:
@@ -267,6 +271,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "eventos" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Eventos"
                         onClick={() => setSection("eventos")}
                         style={{
                           backgroundColor:
@@ -286,6 +291,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "carros" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Carros"
                         onClick={() => setSection("carros")}
                         style={{
                           backgroundColor:
@@ -305,6 +311,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "pagamentos" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Pagamentos"
                         onClick={() => setSection("pagamentos")}
                         style={{
                           backgroundColor:
@@ -332,6 +339,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "eventos" ? "" : "btn-outline-light"
                         }`}
+                          aria-label="Eventos"
                         onClick={() => setSection("eventos")}
                         style={{
                           backgroundColor:
@@ -351,6 +359,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "users" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Utilizadores"
                         onClick={() => setSection("users")}
                         style={{
                           backgroundColor:
@@ -370,6 +379,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "pessoas" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Pessoas"
                         onClick={() => setSection("pessoas")}
                         style={{
                           backgroundColor:
@@ -389,6 +399,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "carros" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Carros"
                         onClick={() => setSection("carros")}
                         style={{
                           backgroundColor:
@@ -408,6 +419,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "bilhetes" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Bilhetes"
                         onClick={() => setSection("bilhetes")}
                         style={{
                           backgroundColor:
@@ -427,6 +439,7 @@ function Profile() {
                         className={`btn text-start d-flex align-items-center gap-3 ${
                           section === "pagamentos" ? "" : "btn-outline-light"
                         }`}
+                        aria-label="Pagamentos"
                         onClick={() => setSection("pagamentos")}
                         style={{
                           backgroundColor:
@@ -454,6 +467,7 @@ function Profile() {
                 <button
                   className="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2"
                   onClick={logout}
+                  aria-label="Sair"
                   style={{
                     borderRadius: "14px",
                     padding: "12px",

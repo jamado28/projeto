@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { getUser } from "../../services/authUtils";
-
+import { useAuth } from "../../hooks/useAuth";
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import {
   getPagamentos,
   createPagamento,
@@ -21,9 +21,9 @@ import {
   FaTicketAlt,
   FaUniversity,
 } from "react-icons/fa";
-
+import { useBilhetes } from "../../hooks/useBilhetes";
 function Pagamentos() {
-  const user = getUser();
+  const { user, role, isAuthenticated } = useAuth();
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
@@ -31,7 +31,7 @@ function Pagamentos() {
   const [pagamentoToDelete, setPagamentoToDelete] = useState(null);
   const [pagamentos, setPagamentos] = useState([]);
 
-  const [bilhetes, setBilhetes] = useState([]);
+  const { bilhetes, loadBilhetes } = useBilhetes();
 
   const [iban, setIban] = useState("");
 
@@ -41,8 +41,6 @@ function Pagamentos() {
 
   useEffect(() => {
     loadPagamentos();
-
-    loadBilhetes();
 
     const bilheteGuardado = localStorage.getItem("bilhetePagamento");
 
@@ -65,26 +63,21 @@ function Pagamentos() {
     }
   };
 
-  const loadBilhetes = async () => {
-    try {
-      const response = await getBilhetes();
-
-      setBilhetes(response.data);
-    } catch (error) {
-      console.log(error);
-      setErro("Não foi possível carregar os bilhetes.");
-    }
-  };
-
   const handleSubmit = async (e) => {
     setErro("");
     setSucesso("");
     e.preventDefault();
-    if (!iban || !idBilhete) {
-      setErro("Preencha todos os campos.");
+    if (!iban.trim()) {
+      setErro("Introduza o IBAN.");
       return;
     }
-    if (iban.length < 15) {
+
+    if (!iban.startsWith("PT50")) {
+      setErro("O IBAN deve começar por PT50.");
+      return;
+    }
+
+    if (iban.replace(/\s/g, "").length < 25) {
       setErro("Introduza um IBAN válido.");
       return;
     }
@@ -158,6 +151,7 @@ function Pagamentos() {
 
             <button
               className="btn d-flex align-items-center gap-2"
+              aria-label="Criar pagamento"
               onClick={() => setShowForm(!showForm)}
               style={{
                 backgroundColor: "#111",
@@ -213,6 +207,7 @@ function Pagamentos() {
                     type="text"
                     placeholder="PT50..."
                     className="form-control"
+                    aria-label="IBAN"
                     value={iban}
                     onChange={(e) => setIban(e.target.value)}
                     style={{
@@ -232,6 +227,7 @@ function Pagamentos() {
 
                   <select
                     className="form-control"
+                    aria-label="Bilhete"
                     value={idBilhete}
                     onChange={(e) => setIdBilhete(e.target.value)}
                     style={{
@@ -257,6 +253,7 @@ function Pagamentos() {
 
               <button
                 type="submit"
+                aria-label="Criar pagamento"
                 className="btn mt-3"
                 style={{
                   backgroundColor: "#df9425",
@@ -405,6 +402,9 @@ function Pagamentos() {
                         <div className="d-flex justify-content-center">
                           <button
                             className="btn btn-danger btn-sm"
+                            aria-label={
+                              "Eliminar pagamento #" + pagamento.id_pagamento
+                            }
                             onClick={() => handleDelete(pagamento.id_pagamento)}
                             style={{
                               borderRadius: "10px",
@@ -467,33 +467,41 @@ function Pagamentos() {
                 </thead>
 
                 <tbody>
-                  {pagamentos.map((pagamento) => (
-                    <tr key={pagamento.id_pagamento}>
-                      <td>#{pagamento.id_pagamento}</td>
-
-                      <td>#{pagamento.id_bilhete}</td>
-
-                      <td>{pagamento.bilhete?.evento?.nome}</td>
-
-                      <td>{pagamento.preco}€</td>
-
-                      <td>
-                        <span
-                          className={`badge ${
-                            pagamento.estado
-                              ? "bg-success"
-                              : "bg-warning text-dark"
-                          }`}
-                          style={{
-                            borderRadius: "10px",
-                            padding: "8px 12px",
-                          }}
-                        >
-                          {pagamento.estado ? "Pago" : "Pendente"}
-                        </span>
+                  {pagamentos.length === 0 ? (
+                    <tr>
+                      <td colSpan="999" className="text-center py-4">
+                        Não existem pagamentos.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    pagamentos.map((pagamento) => (
+                      <tr key={pagamento.id_pagamento}>
+                        <td>#{pagamento.id_pagamento}</td>
+
+                        <td>#{pagamento.id_bilhete}</td>
+
+                        <td>{pagamento.bilhete?.evento?.nome}</td>
+
+                        <td>{pagamento.preco}€</td>
+
+                        <td>
+                          <span
+                            className={`badge ${
+                              pagamento.estado
+                                ? "bg-success"
+                                : "bg-warning text-dark"
+                            }`}
+                            style={{
+                              borderRadius: "10px",
+                              padding: "8px 12px",
+                            }}
+                          >
+                            {pagamento.estado ? "Pago" : "Pendente"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

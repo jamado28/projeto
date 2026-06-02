@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { getUser } from "../../services/authUtils";
-
+import { useAuth } from "../../hooks/useAuth";
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import {
   getBilhetes,
   createBilhete,
@@ -9,9 +9,9 @@ import {
 } from "../../services/bilheteService";
 
 import { getEventos } from "../../services/eventService";
-
+import { useEventos } from "../../hooks/useEventos";
 import { getCarros } from "../../services/carroService";
-
+import { useBilhetes } from "../../hooks/useBilhetes";
 import { useNavigate } from "react-router-dom";
 
 // ÍCONES
@@ -26,21 +26,23 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
+import { useCarros } from "../../hooks/useCarros";
 
 function Bilhetes({ setSection }) {
-  const user = getUser();
+  const { user, role, isAuthenticated } = useAuth();
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const itemsPerPage = 6;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bilheteToDelete, setBilheteToDelete] = useState(null);
   const navigate = useNavigate();
 
-  const [bilhetes, setBilhetes] = useState([]);
+  const { bilhetes, loadBilhetes } = useBilhetes();
 
-  const [eventos, setEventos] = useState([]);
-
-  const [carros, setCarros] = useState([]);
+  const { eventos } = useEventos();
+  const { carros } = useCarros();
 
   const [idEvento, setIdEvento] = useState("");
 
@@ -49,14 +51,8 @@ function Bilhetes({ setSection }) {
   const [matriculaCarro, setMatriculaCarro] = useState("");
 
   const [showForm, setShowForm] = useState(false);
-
+  
   useEffect(() => {
-    loadBilhetes();
-
-    loadEventos();
-
-    loadCarros();
-
     const eventoGuardado = localStorage.getItem("eventoBilhete");
 
     if (eventoGuardado) {
@@ -67,39 +63,6 @@ function Bilhetes({ setSection }) {
       localStorage.removeItem("eventoBilhete");
     }
   }, []);
-
-  const loadBilhetes = async () => {
-    try {
-      const response = await getBilhetes();
-
-      setBilhetes(response.data);
-    } catch (error) {
-      console.log(error);
-      setErro("Não foi possível carregar os bilhetes.");
-    }
-  };
-
-  const loadEventos = async () => {
-    try {
-      const response = await getEventos();
-
-      setEventos(response.data);
-    } catch (error) {
-      console.log(error);
-      setErro("Não foi possível carregar os eventos.");
-    }
-  };
-
-  const loadCarros = async () => {
-    try {
-      const response = await getCarros();
-
-      setCarros(response.data);
-    } catch (error) {
-      console.log(error);
-      setErro("Não foi possível carregar os veículos.");
-    }
-  };
 
   const handleSubmit = async (e) => {
     setErro("");
@@ -187,6 +150,7 @@ function Bilhetes({ setSection }) {
             </div>
 
             <button
+              aria-label="Comprar bilhete"
               className="btn d-flex align-items-center gap-2"
               onClick={() => setShowForm(!showForm)}
               style={{
@@ -234,10 +198,13 @@ function Bilhetes({ setSection }) {
                 {/* EVENTO */}
 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label fw-semibold">Evento</label>
+                  <label className="form-label fw-semibold" aria-label="Evento">
+                    Evento
+                  </label>
 
                   <select
                     className="form-control"
+                    aria-label="Evento"
                     value={idEvento}
                     onChange={(e) => setIdEvento(e.target.value)}
                     style={{
@@ -262,6 +229,7 @@ function Bilhetes({ setSection }) {
 
                   <select
                     className="form-control"
+                    aria-label="Tipo de bilhete"
                     value={tipo}
                     onChange={(e) => setTipo(e.target.value)}
                     style={{
@@ -286,6 +254,7 @@ function Bilhetes({ setSection }) {
 
                     <select
                       className="form-control"
+                      aria-label="Carro"
                       value={matriculaCarro}
                       onChange={(e) => setMatriculaCarro(e.target.value)}
                       style={{
@@ -307,6 +276,7 @@ function Bilhetes({ setSection }) {
 
               <button
                 type="submit"
+                aria-label="Comprar bilhete"
                 className="btn"
                 style={{
                   backgroundColor: "#df9425",
@@ -389,6 +359,7 @@ function Bilhetes({ setSection }) {
                     <div className="d-flex gap-2 mt-4">
                       {!bilhete.pagamento && (
                         <button
+                          aria-label={"Pagar bilhete " + bilhete.evento?.nome}
                           className="btn btn-success btn-sm d-flex align-items-center gap-2"
                           onClick={() => handlePagar(bilhete.id_bilhete)}
                           style={{
@@ -402,6 +373,7 @@ function Bilhetes({ setSection }) {
                       )}
 
                       <button
+                        aria-label={"Eliminar bilhete " + bilhete.evento?.nome}
                         className="btn btn-outline-danger btn-sm d-flex align-items-center gap-2"
                         onClick={() => handleDelete(bilhete.id_bilhete)}
                         style={{
@@ -494,6 +466,7 @@ function Bilhetes({ setSection }) {
                       <td>
                         <div className="d-flex justify-content-center">
                           <button
+                            aria-label={"Pagar bilhete " + bilhete.evento?.nome}
                             className="btn btn-danger btn-sm"
                             onClick={() => handleDelete(bilhete.id_bilhete)}
                             style={{
@@ -553,37 +526,45 @@ function Bilhetes({ setSection }) {
                 </thead>
 
                 <tbody>
-                  {bilhetes.map((bilhete) => (
-                    <tr key={bilhete.id_bilhete}>
-                      <td>#{bilhete.id_bilhete}</td>
-
-                      <td>{bilhete.evento?.nome}</td>
-
-                      <td>
-                        <span
-                          className={`badge ${
-                            bilhete.tipo === "participante"
-                              ? "bg-primary"
-                              : "bg-secondary"
-                          }`}
-                        >
-                          {bilhete.tipo}
-                        </span>
-                      </td>
-
-                      <td>{bilhete.matricula_carro || "-"}</td>
-
-                      <td>
-                        <span
-                          className={`badge ${
-                            bilhete.pagamento ? "bg-success" : "bg-danger"
-                          }`}
-                        >
-                          {bilhete.pagamento ? "Pago" : "Não pago"}
-                        </span>
+                  {bilhetes.length === 0 ? (
+                    <tr>
+                      <td colSpan="999" className="text-center py-4">
+                        Não existem bilhetes.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    bilhetes.map((bilhete) => (
+                      <tr key={bilhete.id_bilhete}>
+                        <td>#{bilhete.id_bilhete}</td>
+
+                        <td>{bilhete.evento?.nome}</td>
+
+                        <td>
+                          <span
+                            className={`badge ${
+                              bilhete.tipo === "participante"
+                                ? "bg-primary"
+                                : "bg-secondary"
+                            }`}
+                          >
+                            {bilhete.tipo}
+                          </span>
+                        </td>
+
+                        <td>{bilhete.matricula_carro || "-"}</td>
+
+                        <td>
+                          <span
+                            className={`badge ${
+                              bilhete.pagamento ? "bg-success" : "bg-danger"
+                            }`}
+                          >
+                            {bilhete.pagamento ? "Pago" : "Não pago"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

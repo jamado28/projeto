@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { getEventoById } from "../../services/eventService";
-import { getUser } from "../../services/authUtils";
+import { useAuth } from "../../hooks/useAuth";
 
 import PublicNavbar from "../../components/public/PublicNavbar";
 
@@ -23,7 +23,7 @@ function EventDetails() {
 
   const navigate = useNavigate();
 
-  const user = getUser();
+  const { user, role, isAuthenticated } = useAuth();
 
   const [evento, setEvento] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -283,6 +283,7 @@ if (erro) {
                 <button
                   className="btn w-100 mt-4 d-flex align-items-center justify-content-center gap-2"
                   onClick={handleComprar}
+                  aria-label="Comprar Bilhete"
                   style={{
                     backgroundColor: "#111",
                     color: "#fff",

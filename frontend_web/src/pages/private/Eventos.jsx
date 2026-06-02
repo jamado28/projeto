@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-
-import { getUser } from "../../services/authUtils";
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { useAuth } from "../../hooks/useAuth";
+import { useEventos } from "../../hooks/useEventos";
 import {
   getEventos,
   createEvento,
@@ -23,9 +24,9 @@ import {
 } from "react-icons/fa";
 
 function Eventos() {
-  const user = getUser();
+  const { user, role, isAuthenticated } = useAuth();
 
-  const [eventos, setEventos] = useState([]);
+  const { eventos, setEventos, loading, erro, loadEventos } = useEventos();
 
   const [nome, setNome] = useState("");
 
@@ -46,31 +47,39 @@ function Eventos() {
   const [imagem, setImagem] = useState(null);
 
   const [descricao, setDescricao] = useState("");
-  const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [eventoToDelete, setEventoToDelete] = useState(null);
-  useEffect(() => {
-    loadEventos();
-  }, []);
-
-  const loadEventos = async () => {
-    try {
-      const response = await getEventos();
-
-      setEventos(response.data);
-    } catch (error) {
-      console.log(error);
-
-      setErro("Não foi possível carregar os eventos.");
-    }
-  };
 
   const handleCreate = async (e) => {
     setErro("");
     setSucesso("");
     e.preventDefault();
+    if (nome.trim().length < 3) {
+      setErro("O nome do evento deve ter pelo menos 3 caracteres.");
+      return;
+    }
+
+    if (localEvento.trim().length < 3) {
+      setErro("O local do evento é inválido.");
+      return;
+    }
+
+    if (Number(precoVisitante) < 0) {
+      setErro("O preço de visitante não pode ser negativo.");
+      return;
+    }
+
+    if (Number(precoParticipante) < 0) {
+      setErro("O preço de participante não pode ser negativo.");
+      return;
+    }
+
+    if (Number(limiteParticipantes) <= 0) {
+      setErro("O limite de participantes deve ser superior a 0.");
+      return;
+    }
     if (
       !nome ||
       !data ||
@@ -203,6 +212,7 @@ function Eventos() {
         </div>
 
         <button
+          aria-label="Criar evento"
           className="btn d-flex align-items-center gap-2"
           onClick={() => {
             setShowForm(!showForm);
@@ -284,6 +294,7 @@ function Eventos() {
               <input
                 type="text"
                 placeholder="Ex: Drift Night Lisboa"
+                aria-label="Nome do evento"
                 className="form-control"
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
@@ -305,6 +316,7 @@ function Eventos() {
               <input
                 type="date"
                 className="form-control"
+                aria-label="Data"
                 value={data}
                 onChange={(e) => setData(e.target.value)}
                 style={{
@@ -326,6 +338,7 @@ function Eventos() {
                 type="text"
                 placeholder="Ex: Lisboa"
                 className="form-control"
+                aria-label="Local do evento"
                 value={localEvento}
                 onChange={(e) => setLocalEvento(e.target.value)}
                 style={{
@@ -347,6 +360,7 @@ function Eventos() {
                 type="number"
                 placeholder="Ex: 20.00"
                 className="form-control"
+                aria-label="Preço visitante"
                 value={precoVisitante}
                 onChange={(e) => setPrecoVisitante(e.target.value)}
                 style={{
@@ -368,6 +382,7 @@ function Eventos() {
                 type="number"
                 placeholder="Ex: 15.00"
                 className="form-control"
+                aria-label="Preço participante"
                 value={precoParticipante}
                 onChange={(e) => setPrecoParticipante(e.target.value)}
                 style={{
@@ -389,6 +404,7 @@ function Eventos() {
                 type="number"
                 placeholder="Ex: 100"
                 className="form-control"
+                aria-label="Limite de participantes"
                 value={limiteParticipantes}
                 onChange={(e) => setLimiteParticipantes(e.target.value)}
                 style={{
@@ -409,6 +425,8 @@ function Eventos() {
 
             <textarea
               className="form-control"
+              aria-label="Descrição do evento"
+              placeholder="Escreva uma descrição para o evento"
               rows="4"
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
@@ -430,6 +448,7 @@ function Eventos() {
             <input
               type="file"
               className="form-control"
+              aria-label="Imagem do evento"
               accept="image/*"
               onChange={(e) => setImagem(e.target.files[0])}
               style={{
@@ -441,6 +460,7 @@ function Eventos() {
 
           <button
             type="submit"
+            aria-label={editingId ? "Atualizar evento" : "Criar evento"}
             className="btn w-100"
             style={{
               backgroundColor: "#111",
@@ -490,106 +510,116 @@ function Eventos() {
             </thead>
 
             <tbody>
-              {eventos.map((evento) => (
-                <tr key={evento.id_evento}>
-                  {/* EVENTO */}
-
-                  <td>
-                    <div className="d-flex align-items-center gap-3">
-                      <img
-                        src={
-                          evento.imagem
-                            ? `${BASE_URL}${evento.imagem}`
-                            : "https://placehold.co/60x60"
-                        }
-                        alt={evento.nome}
-                        style={{
-                          width: "60px",
-                          height: "60px",
-                          objectFit: "cover",
-                          borderRadius: "12px",
-                        }}
-                      />
-
-                      <div>
-                        <strong>{evento.nome}</strong>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td>{evento.data}</td>
-
-                  <td>{evento.local_evento}</td>
-
-                  <td>{evento.preco_visitante}€</td>
-
-                  <td>{evento.preco_participante}€</td>
-
-                  <td>{evento.limite_participantes}</td>
-
-                  <td>
-                    <span
-                      className="badge"
-                      style={{
-                        backgroundColor: "#df9425",
-                        color: "#111",
-                        borderRadius: "10px",
-                        padding: "8px 12px",
-                      }}
-                    >
-                      {evento.total_participantes}
-                    </span>
-                  </td>
-
-                  <td
-                    style={{
-                      maxWidth: "250px",
-                    }}
-                  >
-                    <span className="text-muted">
-                      {evento.descricao?.slice(0, 80)}
-
-                      {evento.descricao?.length > 80 ? "..." : ""}
-                    </span>
-                  </td>
-
-                  {/* AÇÕES */}
-
-                  <td>
-                    {(user.role === "admin" ||
-                      (user.role === "organizador" &&
-                        evento.user_id === user.id)) && (
-                      <div className="d-flex gap-2 justify-content-center">
-                        <button
-                          className="btn btn-sm"
-                          onClick={() => handleEdit(evento)}
-                          style={{
-                            backgroundColor: "#df9425",
-                            color: "#111",
-                            borderRadius: "10px",
-                            width: "42px",
-                            height: "42px",
-                          }}
-                        >
-                          <FaEdit />
-                        </button>
-
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(evento.id_evento)}
-                          style={{
-                            borderRadius: "10px",
-                            width: "42px",
-                            height: "42px",
-                          }}
-                        >
-                          <FaTrashAlt />
-                        </button>
-                      </div>
-                    )}
+              {eventos.length === 0 ? (
+                <tr>
+                  <td colSpan="999" className="text-center py-4">
+                    Não existem eventos registados.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                eventos.map((evento) => (
+                  <tr key={evento.id_evento}>
+                    {/* EVENTO */}
+
+                    <td>
+                      <div className="d-flex align-items-center gap-3">
+                        <img
+                          src={
+                            evento.imagem
+                              ? `${BASE_URL}${evento.imagem}`
+                              : "https://placehold.co/60x60"
+                          }
+                          alt={evento.nome}
+                          style={{
+                            width: "60px",
+                            height: "60px",
+                            objectFit: "cover",
+                            borderRadius: "12px",
+                          }}
+                        />
+
+                        <div>
+                          <strong>{evento.nome}</strong>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>{evento.data}</td>
+
+                    <td>{evento.local_evento}</td>
+
+                    <td>{evento.preco_visitante}€</td>
+
+                    <td>{evento.preco_participante}€</td>
+
+                    <td>{evento.limite_participantes}</td>
+
+                    <td>
+                      <span
+                        className="badge"
+                        style={{
+                          backgroundColor: "#df9425",
+                          color: "#111",
+                          borderRadius: "10px",
+                          padding: "8px 12px",
+                        }}
+                      >
+                        {evento.total_participantes}
+                      </span>
+                    </td>
+
+                    <td
+                      style={{
+                        maxWidth: "250px",
+                      }}
+                    >
+                      <span className="text-muted">
+                        {evento.descricao?.slice(0, 80)}
+
+                        {evento.descricao?.length > 80 ? "..." : ""}
+                      </span>
+                    </td>
+
+                    {/* AÇÕES */}
+
+                    <td>
+                      {(user.role === "admin" ||
+                        (user.role === "organizador" &&
+                          evento.user_id === user.id)) && (
+                        <div className="d-flex gap-2 justify-content-center">
+                          <button
+                            aria-label={"Editar " + evento.nome}
+                            className="btn btn-sm"
+                            onClick={() => handleEdit(evento)}
+                            style={{
+                              backgroundColor: "#df9425",
+                              color: "#111",
+                              borderRadius: "10px",
+                              width: "42px",
+                              height: "42px",
+                            }}
+                          >
+                            <FaEdit />
+                          </button>
+
+                          <button
+                            aria-label={"Eliminar " + evento.nome}
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDelete(evento.id_evento)}
+                            style={{
+                              borderRadius: "10px",
+                              width: "42px",
+                              height: "42px",
+                            }}
+                          >
+                            <FaTrashAlt />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

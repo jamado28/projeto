@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-import { getUser } from "../../services/authUtils";
+import { useAuth } from "../../hooks/useAuth";
 
 import { getPessoas, updatePessoa } from "../../services/pessoaService";
-
+import { usePessoas } from "../../hooks/usePessoa";
 // ÍCONES
 import {
   FaUser,
@@ -16,10 +16,9 @@ import {
 } from "react-icons/fa";
 
 function Pessoas() {
-  const user = getUser();
-  const [erro, setErro] = useState("");
+  const { user, role, isAuthenticated } = useAuth();
   const [sucesso, setSucesso] = useState("");
-  const [pessoas, setPessoas] = useState([]);
+  const { pessoas, erro, setErro, loadPessoas } = usePessoas(user.role);
 
   const [editingId, setEditingId] = useState(null);
 
@@ -30,36 +29,6 @@ function Pessoas() {
   const [telemovel, setTelemovel] = useState("");
 
   const [dataNascimento, setDataNascimento] = useState("");
-
-  useEffect(() => {
-    loadPessoas();
-  }, []);
-
-  const loadPessoas = async () => {
-    try {
-      const response = await getPessoas();
-
-      // cliente recebe objeto
-      if (user.role === "cliente") {
-        setPessoas([response.data]);
-
-        setEditingId(response.data.id_pessoa);
-
-        setNome(response.data.nome || "");
-
-        setEmail(response.data.email || "");
-
-        setTelemovel(response.data.telemovel || "");
-
-        setDataNascimento(response.data.data_nascimento || "");
-      } else {
-        setPessoas(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-      setErro("Não foi possível carregar os utilizadores.");
-    }
-  };
 
   const handleEdit = (pessoa) => {
     setEditingId(pessoa.id_pessoa);
@@ -77,6 +46,7 @@ function Pessoas() {
     setErro("");
     setSucesso("");
     e.preventDefault();
+
     if (!nome || !email) {
       setErro("Nome e email são obrigatórios.");
       return;
@@ -86,6 +56,15 @@ function Pessoas() {
       return;
     }
     if (telemovel && telemovel.length < 9) {
+      setErro("Introduza um telemóvel válido.");
+      return;
+    }
+    if (nome.trim().length < 3) {
+      setErro("O nome deve ter pelo menos 3 caracteres.");
+      return;
+    }
+
+    if (telemovel && !/^[0-9]{9}$/.test(telemovel)) {
       setErro("Introduza um telemóvel válido.");
       return;
     }
@@ -177,6 +156,7 @@ function Pessoas() {
                 <input
                   type="text"
                   className="form-control"
+                  aria-label="Nome"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
                   style={{
@@ -197,6 +177,7 @@ function Pessoas() {
                 <input
                   type="email"
                   className="form-control"
+                  aria-label="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   style={{
@@ -217,6 +198,7 @@ function Pessoas() {
                 <input
                   type="text"
                   className="form-control"
+                  aria-label="Telemóvel"
                   value={telemovel}
                   onChange={(e) => setTelemovel(e.target.value)}
                   style={{
@@ -237,6 +219,7 @@ function Pessoas() {
                 <input
                   type="date"
                   className="form-control"
+                  aria-label="Data de nascimento"
                   value={dataNascimento}
                   onChange={(e) => setDataNascimento(e.target.value)}
                   style={{
@@ -249,6 +232,7 @@ function Pessoas() {
 
             <button
               type="submit"
+              aria-label="Guardar alterações"
               className="btn mt-3 d-flex align-items-center gap-2"
               style={{
                 backgroundColor: "#111",
@@ -307,6 +291,7 @@ function Pessoas() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Nome"
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     style={{
@@ -327,6 +312,7 @@ function Pessoas() {
                   <input
                     type="email"
                     className="form-control"
+                    aria-label="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     style={{
@@ -347,6 +333,7 @@ function Pessoas() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Telemóvel"
                     value={telemovel}
                     onChange={(e) => setTelemovel(e.target.value)}
                     style={{
@@ -367,6 +354,7 @@ function Pessoas() {
                   <input
                     type="date"
                     className="form-control"
+                    aria-label="Data de nascimento"
                     value={dataNascimento}
                     onChange={(e) => setDataNascimento(e.target.value)}
                     style={{
@@ -379,6 +367,7 @@ function Pessoas() {
 
               <button
                 type="submit"
+                aria-label="Guardar alterações"
                 className="btn mt-3 d-flex align-items-center gap-2"
                 style={{
                   backgroundColor: "#111",
@@ -421,55 +410,64 @@ function Pessoas() {
                 </thead>
 
                 <tbody>
-                  {pessoas.map((pessoa) => (
-                    <tr key={pessoa.id_pessoa}>
-                      {user.role === "admin" && (
-                        <td>
-                          <span
-                            className="badge"
-                            style={{
-                              backgroundColor: "#111",
-                              color: "#fff",
-                              borderRadius: "10px",
-                              padding: "8px 12px",
-                            }}
-                          >
-                            #{pessoa.id_pessoa}
-                          </span>
-                        </td>
-                      )}
-
-                      <td className="fw-semibold">{pessoa.nome}</td>
-
-                      <td>{pessoa.email}</td>
-
-                      <td>{pessoa.telemovel}</td>
-
-                      <td>
-                        {new Date(pessoa.data_nascimento).toLocaleDateString(
-                          "pt-PT",
-                        )}
-                      </td>
-
-                      <td>
-                        <div className="d-flex justify-content-center">
-                          <button
-                            className="btn btn-sm"
-                            onClick={() => handleEdit(pessoa)}
-                            style={{
-                              backgroundColor: "#df9425",
-                              color: "#111",
-                              borderRadius: "10px",
-                              width: "42px",
-                              height: "42px",
-                            }}
-                          >
-                            <FaUserEdit />
-                          </button>
-                        </div>
+                  {pessoas.length === 0 ? (
+                    <tr>
+                      <td colSpan="999" className="text-center py-4">
+                        Não existem utilizadores.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    pessoas.map((pessoa) => (
+                      <tr key={pessoa.id_pessoa}>
+                        {user.role === "admin" && (
+                          <td>
+                            <span
+                              className="badge"
+                              style={{
+                                backgroundColor: "#111",
+                                color: "#fff",
+                                borderRadius: "10px",
+                                padding: "8px 12px",
+                              }}
+                            >
+                              #{pessoa.id_pessoa}
+                            </span>
+                          </td>
+                        )}
+
+                        <td className="fw-semibold">{pessoa.nome}</td>
+
+                        <td>{pessoa.email}</td>
+
+                        <td>{pessoa.telemovel}</td>
+
+                        <td>
+                          {new Date(pessoa.data_nascimento).toLocaleDateString(
+                            "pt-PT",
+                          )}
+                        </td>
+
+                        <td>
+                          <div className="d-flex justify-content-center">
+                            <button
+                              className="btn btn-sm"
+                              aria-label={"Editar " + pessoa.nome}
+                              onClick={() => handleEdit(pessoa)}
+                              style={{
+                                backgroundColor: "#df9425",
+                                color: "#111",
+                                borderRadius: "10px",
+                                width: "42px",
+                                height: "42px",
+                              }}
+                            >
+                              <FaUserEdit />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

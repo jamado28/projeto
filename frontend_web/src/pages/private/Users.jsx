@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { getUsers, updateUser, deleteUser } from "../../services/authService";
-
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 // ÍCONES
 import {
   FaUsers,

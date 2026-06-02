@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { getUser } from "../../services/authUtils";
+import { useAuth } from "../../hooks/useAuth";
 
 // ÍCONES
 import {
@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 
 function PublicNavbar() {
-  const user = getUser();
+  const { user, role, isAuthenticated } = useAuth();
 
   return (
     <nav
@@ -39,8 +39,10 @@ function PublicNavbar() {
         {/* BOTÃO MOBILE */}
 
         <button
+          aria-label= "Toggle navigation"
           className="navbar-toggler border-0"
           type="button"
+          aria-label="Toggle navigation"
           data-bs-toggle="collapse"
           data-bs-target="#navbarContent"
         >

@@ -13,7 +13,20 @@ function Login() {
   const [erro, setErro] = useState("");
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!email.trim()) {
+      setErro("Introduza o email.");
+      return;
+    }
 
+    if (!email.includes("@")) {
+      setErro("Introduza um email válido.");
+      return;
+    }
+
+    if (!password) {
+      setErro("Introduza a password.");
+      return;
+    }
     try {
       const response = await login(email, password);
 
@@ -41,6 +54,7 @@ function Login() {
                   <input
                     type="email"
                     className="form-control"
+                    aria-label="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -51,17 +65,18 @@ function Login() {
 
                   <input
                     type="password"
+                    aria-label="Password"
                     className="form-control"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-                {erro && (
-                  <div className="alert alert-danger mt-3">
-                    {erro}
-                  </div>
-                )}
-                <button type="submit" className="btn btn-dark w-100">
+                {erro && <div className="alert alert-danger mt-3">{erro}</div>}
+                <button
+                  type="submit"
+                  className="btn btn-dark w-100"
+                  aria-label="Entrar"
+                >
                   Entrar
                 </button>
                 <p className="mt-3 text-center">

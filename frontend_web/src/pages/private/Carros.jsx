@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
-import { getUser } from "../../services/authUtils";
+import { useAuth } from "../../hooks/useAuth";
+import { useCarros } from "../../hooks/useCarros";
 import {
   getCarros,
   createCarro,
@@ -20,12 +21,11 @@ import {
 } from "react-icons/fa";
 
 function Carros() {
-  const user = getUser();
-  const [erro, setErro] = useState("");
+  const { user, role, isAuthenticated } = useAuth();
   const [sucesso, setSucesso] = useState("");
-  const [carros, setCarros] = useState([]);
+  const { carros, setCarros, loading, erro, loadCarros } = useCarros();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [carroToDelete, setCarroToDelete] = useState(null); 
+  const [carroToDelete, setCarroToDelete] = useState(null);
   const [matricula, setMatricula] = useState("");
 
   const [marca, setMarca] = useState("");
@@ -42,27 +42,36 @@ function Carros() {
 
   const [imagem, setImagem] = useState(null);
 
-  useEffect(() => {
-    loadCarros();
-  }, []);
-
-  const loadCarros = async () => {
-    try {
-      const response = await getCarros();
-
-      setCarros(response.data);
-    } catch (error) {
-      console.log(error);
-
-      setErro("Não foi possível carregar os veículos.");
-    }
-  };
-
   const handleSubmit = async (e) => {
     setErro("");
     setSucesso("");
     e.preventDefault();
+    if (!matricula.trim()) {
+      setErro("A matrícula é obrigatória.");
+      return;
+    }
 
+    if (!marca.trim()) {
+      setErro("A marca é obrigatória.");
+      return;
+    }
+
+    if (!modelo.trim()) {
+      setErro("O modelo é obrigatório.");
+      return;
+    }
+
+    if (!ano) {
+      setErro("O ano é obrigatório.");
+      return;
+    }
+
+    const anoAtual = new Date().getFullYear();
+
+    if (ano < 1900 || ano > anoAtual + 1) {
+      setErro("Introduza um ano válido.");
+      return;
+    }
     try {
       const dados = new FormData();
 
@@ -111,7 +120,10 @@ function Carros() {
     } catch (error) {
       console.log(error);
 
-      setErro(error.response?.data?.message || "Ocorreu um erro ao guardar o veículo.");
+      setErro(
+        error.response?.data?.message ||
+          "Ocorreu um erro ao guardar o veículo.",
+      );
     }
   };
 
@@ -190,6 +202,7 @@ function Carros() {
 
             <button
               className="btn d-flex align-items-center gap-2"
+              aria-label="Adicionar carro"
               onClick={() => {
                 setShowForm(true);
 
@@ -235,7 +248,7 @@ function Carros() {
             >
               {sucesso}
             </div>
-          )}    
+          )}
           {showForm && (
             <form
               onSubmit={handleSubmit}
@@ -260,6 +273,7 @@ function Carros() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Matrícula"
                     value={matricula}
                     onChange={(e) => setMatricula(e.target.value)}
                     disabled={editingId}
@@ -281,6 +295,7 @@ function Carros() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Marca"
                     value={marca}
                     onChange={(e) => setMarca(e.target.value)}
                     style={{
@@ -301,6 +316,7 @@ function Carros() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Modelo"
                     value={modelo}
                     onChange={(e) => setModelo(e.target.value)}
                     style={{
@@ -321,6 +337,7 @@ function Carros() {
                   <input
                     type="number"
                     className="form-control"
+                    aria-label="Ano"
                     value={ano}
                     onChange={(e) => setAno(e.target.value)}
                     style={{
@@ -341,6 +358,7 @@ function Carros() {
                   <input
                     type="file"
                     className="form-control"
+                    aria-label="Imagem do veículo"
                     accept="image/*"
                     onChange={(e) => setImagem(e.target.files[0])}
                     style={{
@@ -353,6 +371,9 @@ function Carros() {
 
               <button
                 type="submit"
+                aria-label={
+                  editingId ? "Atualizar veículo" : "Adicionar veículo"
+                }
                 className="btn"
                 style={{
                   backgroundColor: "#111",
@@ -417,6 +438,7 @@ function Carros() {
                   <div className="card-footer bg-white border-0 d-flex gap-2 pb-4 px-4">
                     <button
                       className="btn w-100"
+                      aria-label={"Editar " + carro.marca + " " + carro.modelo}
                       onClick={() => handleEdit(carro)}
                       style={{
                         backgroundColor: "#df9425",
@@ -430,6 +452,9 @@ function Carros() {
 
                     <button
                       className="btn btn-danger w-100"
+                      aria-label={
+                        "Eliminar " + carro.marca + " " + carro.modelo
+                      }
                       onClick={() => handleDelete(carro.matricula)}
                       style={{
                         borderRadius: "12px",
@@ -479,6 +504,7 @@ function Carros() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Matrícula"
                     value={matricula}
                     disabled
                     style={{
@@ -494,6 +520,7 @@ function Carros() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Marca"
                     value={marca}
                     onChange={(e) => setMarca(e.target.value)}
                     style={{
@@ -509,6 +536,7 @@ function Carros() {
                   <input
                     type="text"
                     className="form-control"
+                    aria-label="Modelo"
                     value={modelo}
                     onChange={(e) => setModelo(e.target.value)}
                     style={{
@@ -524,6 +552,7 @@ function Carros() {
                   <input
                     type="number"
                     className="form-control"
+                    aria-label="Ano"
                     value={ano}
                     onChange={(e) => setAno(e.target.value)}
                     style={{
@@ -536,6 +565,7 @@ function Carros() {
 
               <button
                 type="submit"
+                aria-label="Atualizar veículo"
                 className="btn"
                 style={{
                   backgroundColor: "#111",
@@ -577,64 +607,78 @@ function Carros() {
                 </thead>
 
                 <tbody>
-                  {carros.map((carro) => (
-                    <tr key={carro.matricula}>
-                      <td>
-                        <img
-                          src={
-                            carro.img_url
-                              ? `${BASE_URL}${carro.img_url}`
-                              : "https://placehold.co/600x400"
-                          }
-                          alt={carro.modelo}
-                          style={{
-                            width: "60px",
-                            height: "60px",
-                            objectFit: "cover",
-                            borderRadius: "12px",
-                          }}
-                        />
-                      </td>
-
-                      <td>{carro.matricula}</td>
-
-                      <td>{carro.marca}</td>
-
-                      <td>{carro.modelo}</td>
-
-                      <td>{carro.ano}</td>
-
-                      <td>
-                        <div className="d-flex gap-2 justify-content-center">
-                          <button
-                            className="btn btn-sm"
-                            onClick={() => handleEdit(carro)}
-                            style={{
-                              backgroundColor: "#df9425",
-                              color: "#111",
-                              borderRadius: "10px",
-                              width: "42px",
-                              height: "42px",
-                            }}
-                          >
-                            <FaEdit />
-                          </button>
-
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(carro.matricula)}
-                            style={{
-                              borderRadius: "10px",
-                              width: "42px",
-                              height: "42px",
-                            }}
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </div>
+                  {carros.length === 0 ? (
+                    <tr>
+                      <td colSpan="999" className="text-center py-4">
+                        Não existem veículos registados.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    carros.map((carro) => (
+                      <tr key={carro.matricula}>
+                        <td>
+                          <img
+                            src={
+                              carro.img_url
+                                ? `${BASE_URL}${carro.img_url}`
+                                : "https://placehold.co/600x400"
+                            }
+                            alt={carro.modelo}
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              objectFit: "cover",
+                              borderRadius: "12px",
+                            }}
+                          />
+                        </td>
+
+                        <td>{carro.matricula}</td>
+
+                        <td>{carro.marca}</td>
+
+                        <td>{carro.modelo}</td>
+
+                        <td>{carro.ano}</td>
+
+                        <td>
+                          <div className="d-flex gap-2 justify-content-center">
+                            <button
+                              aria-label={
+                                "Editar " + carro.marca + " " + carro.modelo
+                              }
+                              className="btn btn-sm"
+                              onClick={() => handleEdit(carro)}
+                              style={{
+                                backgroundColor: "#df9425",
+                                color: "#111",
+                                borderRadius: "10px",
+                                width: "42px",
+                                height: "42px",
+                              }}
+                            >
+                              <FaEdit />
+                            </button>
+
+                            <button
+                              aria-label={
+                                "Eliminar " + carro.marca + " " + carro.modelo
+                              }
+                              className="btn btn-danger btn-sm"
+                              onClick={() => handleDelete(carro.matricula)}
+                              style={{
+                                borderRadius: "10px",
+                                width: "42px",
+                                height: "42px",
+                              }}
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

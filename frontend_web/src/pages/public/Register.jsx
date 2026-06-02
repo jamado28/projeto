@@ -16,7 +16,25 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.trim()) {
+      setErro("Introduza o email.");
+      return;
+    }
 
+    if (!email.includes("@")) {
+      setErro("Introduza um email válido.");
+      return;
+    }
+
+    if (!password) {
+      setErro("Introduza a password.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setErro("A password deve ter pelo menos 6 caracteres.");
+      return;
+    }
     try {
       await register({
         email,
@@ -50,6 +68,7 @@ function Register() {
 
                   <input
                     type="email"
+                    aria-label="Email"
                     className="form-control"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -61,6 +80,7 @@ function Register() {
 
                   <input
                     type="password"
+                    aria-label="Password"
                     className="form-control"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -71,6 +91,7 @@ function Register() {
                   <label className="form-label">Role</label>
 
                   <select
+                    aria-label="Role"
                     className="form-control"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
@@ -80,18 +101,16 @@ function Register() {
                     <option value="organizador">Organizador</option>
                   </select>
                 </div>
-                {erro && (
-                    <div className="alert alert-danger mt-3">
-                      {erro}
-                    </div>
-                  )}
+                {erro && <div className="alert alert-danger mt-3">{erro}</div>}
 
-                  {sucesso && (
-                    <div className="alert alert-success mt-3">
-                      {sucesso}
-                    </div>
-                  )}
-                <button type="submit" className="btn btn-dark w-100">
+                {sucesso && (
+                  <div className="alert alert-success mt-3">{sucesso}</div>
+                )}
+                <button
+                  type="submit"
+                  className="btn btn-dark w-100"
+                  aria-label="Criar Conta"
+                >
                   Criar Conta
                 </button>
               </form>
