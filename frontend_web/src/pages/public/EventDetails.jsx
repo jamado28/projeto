@@ -3,13 +3,12 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { getEventoById } from "../../services/eventService";
-
 import { getUser } from "../../services/authUtils";
 
 import PublicNavbar from "../../components/public/PublicNavbar";
 
 import Footer from "../../components/public/Footer";
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 // ÍCONES
 import {
   FaMapMarkerAlt,
@@ -27,22 +26,31 @@ function EventDetails() {
   const user = getUser();
 
   const [evento, setEvento] = useState(null);
-
+  const [loading, setLoading] = useState(true);
+const [erro, setErro] = useState("");
+const [mensagem, setMensagem] = useState("");
   useEffect(() => {
     loadEvento();
   }, []);
 
   const loadEvento = async () => {
     try {
+      setLoading(true);
+
       const response = await getEventoById(id);
 
       setEvento(response.data);
     } catch (error) {
       console.log(error);
+
+      setErro("Não foi possível carregar o evento.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleComprar = () => {
+    setMensagem("");
     // sem login
     if (!user) {
       navigate("/login");
@@ -52,10 +60,12 @@ function EventDetails() {
 
     // apenas clientes podem comprar
     if (user.role !== "cliente") {
-      alert("Apenas clientes podem comprar bilhetes.");
-
-      return;
-    }
+        setMensagem("Apenas clientes podem comprar bilhetes.");
+        setTimeout(() => {
+          setMensagem("");
+        }, 4000);
+        return;
+      }
 
     // guardar evento escolhido
     localStorage.setItem("eventoBilhete", evento.id_evento);
@@ -63,7 +73,25 @@ function EventDetails() {
     // abrir perfil
     navigate("/profile");
   };
-
+  if (loading) {
+  return (
+    <div className="container py-5">
+      <div className="text-center">
+        <div className="spinner-border text-warning" />
+        <p className="mt-3">A carregar evento...</p>
+      </div>
+    </div>
+  );
+}
+if (erro) {
+  return (
+    <div className="container py-5">
+      <div className="alert alert-danger">
+        {erro}
+      </div>
+    </div>
+  );
+}
   if (!evento) {
     return (
       <div className="container py-5">
@@ -80,7 +108,13 @@ function EventDetails() {
       }}
     >
       <PublicNavbar />
-
+      {mensagem && (
+        <div className="container mt-4">
+          <div className="alert alert-warning border-0 shadow-sm">
+            {mensagem}
+          </div>
+        </div>
+      )}
       <div>
         {/* IMAGEM */}
 
@@ -92,7 +126,7 @@ function EventDetails() {
           <img
             src={
               evento.imagem
-                ? `http://localhost:3000${evento.imagem}`
+                ? `${BASE_URL}${evento.imagem}`
                 : "https://placehold.co/1200x500"
             }
             alt={evento.nome}
@@ -216,7 +250,7 @@ function EventDetails() {
                   <div>
                     <small className="text-muted">Data</small>
 
-                    <p className="mb-0 fw-semibold">{evento.data}</p>
+                    <p className="mb-0 fw-semibold">{new Date(evento.data).toLocaleDateString("pt-PT")}</p>
                   </div>
                 </div>
 

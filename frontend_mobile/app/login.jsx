@@ -19,11 +19,24 @@ import { COLORS } from "../styles/colors";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
-
+  const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    setErro("");
+
+    if (!email || !password) {
+      setErro("Preencha todos os campos.");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      setErro("Introduza um email válido.");
+      return;
+    }
     try {
+      setLoading(true);
       const response = await login(email, password);
 
       await AsyncStorage.setItem("token", response.AccessToken);
@@ -34,7 +47,9 @@ export default function LoginScreen() {
 
       console.log(error.response?.data);
 
-      alert(error.response?.data?.message || "Erro no login");
+      setErro(error.response?.data?.message || "Erro no login.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,10 +85,29 @@ export default function LoginScreen() {
       </Text>
 
       {/* EMAIL */}
-
+      {erro ? (
+        <View
+          style={{
+            backgroundColor: "#3a1616",
+            padding: 14,
+            borderRadius: 14,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              color: "#ff8a8a",
+              fontWeight: "600",
+            }}
+          >
+            {erro}
+          </Text>
+        </View>
+      ) : null}
       <TextInput
         placeholder="Email"
         placeholderTextColor={COLORS.muted}
+        accessibilityLabel="Email"
         value={email}
         onChangeText={setEmail}
         style={{
@@ -92,6 +126,7 @@ export default function LoginScreen() {
         placeholder="Password"
         placeholderTextColor={COLORS.muted}
         secureTextEntry
+        accessibilityLabel="Password"
         value={password}
         onChangeText={setPassword}
         style={{
@@ -108,6 +143,8 @@ export default function LoginScreen() {
 
       <TouchableOpacity
         onPress={handleLogin}
+        accessibilityRole="button"
+        accessibilityLabel="Entrar"
         style={{
           backgroundColor: COLORS.primary,
           paddingVertical: 18,
@@ -122,7 +159,7 @@ export default function LoginScreen() {
             fontSize: 16,
           }}
         >
-          Entrar
+          {loading ? "A entrar..." : "Entrar"}
         </Text>
       </TouchableOpacity>
 

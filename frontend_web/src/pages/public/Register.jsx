@@ -6,7 +6,8 @@ import Footer from "../../components/public/Footer";
 
 function Register() {
   const navigate = useNavigate();
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [email, setEmail] = useState("");
 
   const [password, setPassword] = useState("");
@@ -23,13 +24,14 @@ function Register() {
         role,
       });
 
-      alert("Conta criada com sucesso");
+      setSucesso("Conta criada com sucesso.");
 
-      navigate("/login");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (error) {
       console.log(error);
-
-      alert(error.response?.data?.message || "Erro");
+      setErro(error.response?.data?.message || "Erro ao criar conta.");
     }
   };
 
@@ -78,7 +80,17 @@ function Register() {
                     <option value="organizador">Organizador</option>
                   </select>
                 </div>
+                {erro && (
+                    <div className="alert alert-danger mt-3">
+                      {erro}
+                    </div>
+                  )}
 
+                  {sucesso && (
+                    <div className="alert alert-success mt-3">
+                      {sucesso}
+                    </div>
+                  )}
                 <button type="submit" className="btn btn-dark w-100">
                   Criar Conta
                 </button>

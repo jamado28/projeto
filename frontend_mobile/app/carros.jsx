@@ -19,10 +19,12 @@ import {
 import { getUser } from "../services/authUtils";
 
 import { COLORS } from "../styles/colors";
-
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 export default function CarrosScreen() {
   const [user, setUser] = useState(null);
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [loading, setLoading] = useState(false);
   const [carros, setCarros] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingMatricula, setEditingMatricula] = useState(null);
@@ -51,6 +53,7 @@ export default function CarrosScreen() {
       setCarros(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os veículos.");
     }
   };
   const handleEdit = (carro) => {
@@ -69,6 +72,20 @@ export default function CarrosScreen() {
     setShowForm(true);
   };
   const handleSubmit = async () => {
+    setErro("");
+    setSucesso("");
+    if (!marca || !modelo || !ano || !matricula) {
+      setErro("Preencha todos os campos obrigatórios.");
+      return;
+    }
+    if (isNaN(ano)) {
+      setErro("Introduza um ano válido.");
+      return;
+    }
+    if (matricula.length < 6) {
+      setErro("Introduza uma matrícula válida.");
+      return;
+    }
     try {
       const dados = {
         marca,
@@ -77,17 +94,21 @@ export default function CarrosScreen() {
         matricula,
         img_url: imgUrl,
       };
-
+      setLoading(true);
       if (editingMatricula) {
         await updateCarro(editingMatricula, dados);
-
-        alert("Carro atualizado");
       } else {
         await createCarro(dados);
-
-        alert("Carro criado");
       }
+      setSucesso(
+        editingMatricula
+          ? "Veículo atualizado com sucesso."
+          : "Veículo criado com sucesso.",
+      );
 
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
       setShowForm(false);
 
       setEditingMatricula(null);
@@ -96,7 +117,9 @@ export default function CarrosScreen() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao guardar carro");
+      setErro(error.response?.data?.message || "Erro ao guardar veículo.");
+    } finally {
+      setLoading(false);
     }
   };
   const handleDelete = (matricula) => {
@@ -112,10 +135,15 @@ export default function CarrosScreen() {
         onPress: async () => {
           try {
             await deleteCarro(matricula);
+            setSucesso("Veículo eliminado com sucesso.");
 
+            setTimeout(() => {
+              setSucesso("");
+            }, 4000);
             loadCarros();
           } catch (error) {
             console.log(error);
+            setErro("Erro ao eliminar veículo.");
           }
         },
       },
@@ -204,6 +232,45 @@ export default function CarrosScreen() {
               Adicionar Carro
             </Text>
           </TouchableOpacity>
+          {erro ? (
+            <View
+              style={{
+                backgroundColor: "#3a1616",
+                padding: 14,
+                borderRadius: 14,
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#ff8a8a",
+                  fontWeight: "600",
+                }}
+              >
+                {erro}
+              </Text>
+            </View>
+          ) : null}
+
+          {sucesso ? (
+            <View
+              style={{
+                backgroundColor: "#17361f",
+                padding: 14,
+                borderRadius: 14,
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#7dff9b",
+                  fontWeight: "600",
+                }}
+              >
+                {sucesso}
+              </Text>
+            </View>
+          ) : null}
           {showForm && (
             <View
               style={{
@@ -232,6 +299,7 @@ export default function CarrosScreen() {
                 <TextInput
                   placeholder="Marca"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Marca"
                   value={marca}
                   onChangeText={setMarca}
                   style={inputStyle}
@@ -240,6 +308,7 @@ export default function CarrosScreen() {
                 <TextInput
                   placeholder="Modelo"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Modelo"
                   value={modelo}
                   onChangeText={setModelo}
                   style={inputStyle}
@@ -248,6 +317,7 @@ export default function CarrosScreen() {
                 <TextInput
                   placeholder="Ano"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Ano"
                   value={ano}
                   onChangeText={setAno}
                   style={inputStyle}
@@ -256,6 +326,7 @@ export default function CarrosScreen() {
                 <TextInput
                   placeholder="Matrícula"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Matrícula"
                   value={matricula}
                   onChangeText={setMatricula}
                   style={inputStyle}
@@ -264,6 +335,7 @@ export default function CarrosScreen() {
                 <TextInput
                   placeholder="Imagem URL"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Imagem URL"
                   value={imgUrl}
                   onChangeText={setImgUrl}
                   style={inputStyle}
@@ -271,6 +343,7 @@ export default function CarrosScreen() {
 
                 <TouchableOpacity
                   onPress={handleSubmit}
+                  accessibilityRole="button"
                   style={{
                     backgroundColor: COLORS.primary,
                     paddingVertical: 18,
@@ -285,7 +358,7 @@ export default function CarrosScreen() {
                       fontSize: 16,
                     }}
                   >
-                    Guardar Carro
+                    {loading ? "A guardar..." : "Guardar Carro"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -301,6 +374,24 @@ export default function CarrosScreen() {
           paddingHorizontal: 20,
         }}
       >
+        {carros.length === 0 && (
+          <View
+            style={{
+              backgroundColor: COLORS.card,
+              padding: 24,
+              borderRadius: 20,
+            }}
+          >
+            <Text
+              style={{
+                color: COLORS.muted,
+                textAlign: "center",
+              }}
+            >
+              Ainda não possui veículos registados.
+            </Text>
+          </View>
+        )}
         {carros.map((carro) => (
           <View
             key={carro.matricula}
@@ -316,7 +407,7 @@ export default function CarrosScreen() {
             <Image
               source={{
                 uri: carro.img_url
-                  ? `http://10.192.149.179:3000${carro.img_url}`
+                  ? `${BASE_URL}${carro.img_url}`
                   : "https://placehold.co/600x400",
               }}
               style={{
@@ -417,6 +508,7 @@ export default function CarrosScreen() {
                 >
                   <TouchableOpacity
                     onPress={() => handleEdit(carro)}
+                    accessibilityRole="button"
                     style={{
                       flex: 1,
                       backgroundColor: "#374151",
@@ -437,6 +529,7 @@ export default function CarrosScreen() {
 
                   <TouchableOpacity
                     onPress={() => handleDelete(carro.matricula)}
+                    accessibilityRole="button"
                     style={{
                       flex: 1,
                       backgroundColor: "#7f1d1d",

@@ -21,6 +21,9 @@ import { getUser } from "../services/authUtils";
 import { COLORS } from "../styles/colors";
 
 export default function PagamentosScreen() {
+  const [erro, setErro] = useState("");
+const [sucesso, setSucesso] = useState("");
+const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [pagamentos, setPagamentos] = useState([]);
   const [bilhetes, setBilhetes] = useState([]);
@@ -50,6 +53,7 @@ export default function PagamentosScreen() {
       setBilhetes(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os bilhetes.");
     }
   };
   const loadPagamentos = async () => {
@@ -59,18 +63,34 @@ export default function PagamentosScreen() {
       setPagamentos(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os pagamentos.");
     }
   };
 
   const handleSubmit = async () => {
+    setErro("");
+setSucesso("");
+if (!iban) {
+  setErro("Introduza um IBAN.");
+  return;
+}
+if (!iban) {
+  setErro("Introduza um IBAN.");
+  return;
+}
     try {
+      setLoading(true);
       await createPagamento({
         iban,
         estado: true,
         id_bilhete: idBilhete,
       });
 
-      alert("Pagamento criado");
+      setSucesso("Pagamento criado com sucesso.");
+
+setTimeout(() => {
+  setSucesso("");
+}, 4000);
 
       setIban("");
 
@@ -82,8 +102,14 @@ export default function PagamentosScreen() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao criar pagamento");
+      setErro(
+  error.response?.data?.message ||
+  "Erro ao criar pagamento."
+);
     }
+    finally {
+  setLoading(false);
+}
   };
   const handleDelete = async (id) => {
     Alert.alert("Eliminar", "Tem a certeza?", [
@@ -96,11 +122,16 @@ export default function PagamentosScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            await deletePagamento(id);
+            setSucesso("Pagamento eliminado com sucesso.");
+
+setTimeout(() => {
+  setSucesso("");
+}, 4000);
 
             loadPagamentos();
           } catch (error) {
             console.log(error);
+            setErro("Erro ao eliminar pagamento.");
           }
         },
       },
@@ -157,6 +188,7 @@ export default function PagamentosScreen() {
         >
           <TouchableOpacity
             onPress={() => setShowForm(true)}
+            accessibilityRole="button"
             style={{
               backgroundColor: COLORS.primary,
               paddingVertical: 18,
@@ -198,10 +230,49 @@ export default function PagamentosScreen() {
                 >
                   Novo Pagamento
                 </Text>
+                {erro ? (
+  <View
+    style={{
+      backgroundColor: "#3a1616",
+      padding: 14,
+      borderRadius: 14,
+      marginBottom: 20,
+    }}
+  >
+    <Text
+      style={{
+        color: "#ff8a8a",
+        fontWeight: "600",
+      }}
+    >
+      {erro}
+    </Text>
+  </View>
+) : null}
 
+{sucesso ? (
+  <View
+    style={{
+      backgroundColor: "#17361f",
+      padding: 14,
+      borderRadius: 14,
+      marginBottom: 20,
+    }}
+  >
+    <Text
+      style={{
+        color: "#7dff9b",
+        fontWeight: "600",
+      }}
+    >
+      {sucesso}
+    </Text>
+  </View>
+) : null}  
                 <TextInput
                   placeholder="IBAN"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="IBAN"
                   value={iban}
                   onChangeText={setIban}
                   style={{
@@ -224,6 +295,7 @@ export default function PagamentosScreen() {
                 >
                   <Picker
                     selectedValue={idBilhete}
+                    accessibilityLabel="Bilhete"
                     onValueChange={(itemValue) => setIdBilhete(itemValue)}
                     dropdownIconColor="white"
                     style={{
@@ -244,6 +316,7 @@ export default function PagamentosScreen() {
 
                 <TouchableOpacity
                   onPress={handleSubmit}
+                  accessibilityRole="button"
                   style={{
                     backgroundColor: COLORS.primary,
                     paddingVertical: 18,
@@ -258,7 +331,9 @@ export default function PagamentosScreen() {
                       fontSize: 16,
                     }}
                   >
-                    Criar Pagamento
+                     {loading
+    ? "A processar..."
+    : "Criar Pagamento"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -274,6 +349,24 @@ export default function PagamentosScreen() {
           paddingHorizontal: 20,
         }}
       >
+        {pagamentos.length === 0 && (
+  <View
+    style={{
+      backgroundColor: COLORS.card,
+      padding: 24,
+      borderRadius: 20,
+    }}
+  >
+    <Text
+      style={{
+        color: COLORS.muted,
+        textAlign: "center",
+      }}
+    >
+      Ainda não existem pagamentos registados.
+    </Text>
+  </View>
+)}
         {pagamentos.map((pagamento) => (
           <View
             key={pagamento.id_pagamento}
@@ -417,6 +510,7 @@ export default function PagamentosScreen() {
             {user?.role === "admin" && (
               <TouchableOpacity
                 onPress={() => handleDelete(pagamento.id_pagamento)}
+                accessibilityRole="button"
                 style={{
                   backgroundColor: "#7f1d1d",
                   paddingVertical: 16,

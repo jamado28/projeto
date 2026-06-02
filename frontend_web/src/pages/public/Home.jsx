@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
-
 import { getEventosPublicos } from "../../services/eventService";
 
 import PublicNavbar from "../../components/public/PublicNavbar";
 import heroImg from "../../assets/hero.jpg";
 import ctaImg from "../../assets/cta.jpg";
 import Footer from "../../components/public/Footer";
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 // ÍCONES
 import {
   FaMapMarkerAlt,
@@ -123,7 +122,7 @@ function Home() {
                 <img
                   src={
                     evento.imagem
-                      ? `http://localhost:3000${evento.imagem}`
+                      ? `${BASE_URL}${evento.imagem}`
                       : "https://placehold.co/600x400"
                   }
                   className="card-img-top"

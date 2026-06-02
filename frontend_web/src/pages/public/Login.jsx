@@ -10,7 +10,7 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [erro, setErro] = useState("");
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -21,7 +21,7 @@ function Login() {
 
       navigate("/perfil");
     } catch (error) {
-      alert("Credenciais inválidas");
+      setErro("Credenciais inválidas");
     }
   };
 
@@ -56,7 +56,11 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-
+                {erro && (
+                  <div className="alert alert-danger mt-3">
+                    {erro}
+                  </div>
+                )}
                 <button type="submit" className="btn btn-dark w-100">
                   Entrar
                 </button>

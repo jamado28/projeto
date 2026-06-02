@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { getUser } from "../../services/authUtils";
-
 import {
   getEventos,
   createEvento,
   deleteEvento,
   updateEvento,
 } from "../../services/eventService";
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 // ÍCONES
 import {
   FaCalendarAlt,
@@ -47,7 +46,11 @@ function Eventos() {
   const [imagem, setImagem] = useState(null);
 
   const [descricao, setDescricao] = useState("");
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [eventoToDelete, setEventoToDelete] = useState(null);
   useEffect(() => {
     loadEventos();
   }, []);
@@ -60,13 +63,25 @@ function Eventos() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao carregar eventos");
+      setErro("Não foi possível carregar os eventos.");
     }
   };
 
   const handleCreate = async (e) => {
+    setErro("");
+    setSucesso("");
     e.preventDefault();
-
+    if (
+      !nome ||
+      !data ||
+      !localEvento ||
+      !precoVisitante ||
+      !precoParticipante ||
+      !limiteParticipantes
+    ) {
+      setErro("Preencha todos os campos obrigatórios.");
+      return;
+    }
     try {
       const dados = new FormData();
 
@@ -91,11 +106,14 @@ function Eventos() {
       if (editingId) {
         await updateEvento(editingId, dados);
 
-        alert("Evento atualizado");
+        setSucesso("Evento atualizado com sucesso.");
       } else {
         await createEvento(dados);
 
-        alert("Evento criado");
+        setSucesso("Evento criado com sucesso.");
+        setTimeout(() => {
+          setSucesso("");
+        }, 4000);
       }
 
       loadEventos();
@@ -122,30 +140,30 @@ function Eventos() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao criar evento");
+      setErro(
+        error.response?.data?.message || "Ocorreu um erro ao guardar o evento.",
+      );
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Tem a certeza que quer eliminar este evento?",
-    );
+  const handleDelete = (id) => {
+    setEventoToDelete(id);
+    setShowDeleteModal(true);
+  };
 
-    if (!confirmDelete) {
-      return;
-    }
-
+  const confirmDelete = async () => {
     try {
-      await deleteEvento(id);
+      await deleteEvento(eventoToDelete);
 
-      alert("Evento apagado");
+      setSucesso("Evento eliminado com sucesso.");
 
       loadEventos();
     } catch (error) {
-      console.log(error);
-
-      alert("Erro ao apagar");
+      setErro("Erro ao eliminar evento.");
     }
+
+    setShowDeleteModal(false);
+    setEventoToDelete(null);
   };
 
   const handleEdit = (evento) => {
@@ -223,7 +241,23 @@ function Eventos() {
       </div>
 
       {/* FORM */}
+      {erro && (
+        <div
+          className="alert alert-danger border-0 shadow-sm mb-4"
+          role="alert"
+        >
+          {erro}
+        </div>
+      )}
 
+      {sucesso && (
+        <div
+          className="alert alert-success border-0 shadow-sm mb-4"
+          role="alert"
+        >
+          {sucesso}
+        </div>
+      )}
       {showForm && (
         <form
           onSubmit={handleCreate}
@@ -465,7 +499,7 @@ function Eventos() {
                       <img
                         src={
                           evento.imagem
-                            ? `http://localhost:3000${evento.imagem}`
+                            ? `${BASE_URL}${evento.imagem}`
                             : "https://placehold.co/60x60"
                         }
                         alt={evento.nome}
@@ -560,6 +594,14 @@ function Eventos() {
           </table>
         </div>
       </div>
+      {/* MODAL DE CONFIRMAÇÃO DE ELIMINAÇÃO */}
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        title="Eliminar evento"
+        message="Tem a certeza que pretende eliminar este evento? Esta ação não pode ser revertida."
+        onConfirm={confirmDelete}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

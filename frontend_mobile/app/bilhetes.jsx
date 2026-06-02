@@ -24,7 +24,9 @@ import { COLORS } from "../styles/colors";
 
 export default function BilhetesScreen() {
   const [user, setUser] = useState(null);
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [loading, setLoading] = useState(false);
   const [bilhetes, setBilhetes] = useState([]);
   const [eventos, setEventos] = useState([]);
   const [carros, setCarros] = useState([]);
@@ -54,6 +56,7 @@ export default function BilhetesScreen() {
       setBilhetes(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os bilhetes.");
     }
   };
 
@@ -64,6 +67,7 @@ export default function BilhetesScreen() {
       setEventos(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os eventos.");
     }
   };
 
@@ -74,17 +78,33 @@ export default function BilhetesScreen() {
       setCarros(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os veículos.");
     }
   };
   const handleSubmit = async () => {
+    setErro("");
+    setSucesso("");
+    if (!idEvento) {
+      setErro("Selecione um evento.");
+      return;
+    }
+    if (tipo === "participante" && !matriculaCarro) {
+      setErro("Selecione um veículo.");
+      return;
+    }
     try {
+      setLoading(true);
       await createBilhete({
         tipo,
         id_evento: idEvento,
         matricula_carro: tipo === "participante" ? matriculaCarro : null,
       });
 
-      alert("Bilhete criado");
+      setSucesso("Bilhete criado com sucesso.");
+
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
 
       setShowForm(false);
 
@@ -92,7 +112,9 @@ export default function BilhetesScreen() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao criar bilhete");
+      setErro(error.response?.data?.message || "Erro ao criar bilhete.");
+    } finally {
+      setLoading(false);
     }
   };
   const handleDelete = (id) => {
@@ -167,6 +189,7 @@ export default function BilhetesScreen() {
         >
           <TouchableOpacity
             onPress={() => setShowForm(!showForm)}
+            accessibilityRole="button"
             style={{
               backgroundColor: COLORS.primary,
               paddingVertical: 18,
@@ -184,6 +207,45 @@ export default function BilhetesScreen() {
               Comprar Bilhete
             </Text>
           </TouchableOpacity>
+          {erro ? (
+            <View
+              style={{
+                backgroundColor: "#3a1616",
+                padding: 14,
+                borderRadius: 14,
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#ff8a8a",
+                  fontWeight: "600",
+                }}
+              >
+                {erro}
+              </Text>
+            </View>
+          ) : null}
+
+          {sucesso ? (
+            <View
+              style={{
+                backgroundColor: "#17361f",
+                padding: 14,
+                borderRadius: 14,
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#7dff9b",
+                  fontWeight: "600",
+                }}
+              >
+                {sucesso}
+              </Text>
+            </View>
+          ) : null}
           {showForm && (
             <View
               style={{
@@ -221,6 +283,7 @@ export default function BilhetesScreen() {
                 >
                   <Picker
                     selectedValue={tipo}
+                    accessibilityLabel="Tipo de bilhete"
                     onValueChange={(itemValue) => setTipo(itemValue)}
                     dropdownIconColor="white"
                     style={{
@@ -245,6 +308,7 @@ export default function BilhetesScreen() {
                 >
                   <Picker
                     selectedValue={idEvento}
+                    accessibilityLabel="Evento"
                     onValueChange={(itemValue) => setIdEvento(itemValue)}
                     dropdownIconColor="white"
                     style={{
@@ -276,6 +340,7 @@ export default function BilhetesScreen() {
                   >
                     <Picker
                       selectedValue={matriculaCarro}
+                      accessibilityLabel="Carro"
                       onValueChange={(itemValue) =>
                         setMatriculaCarro(itemValue)
                       }
@@ -299,6 +364,8 @@ export default function BilhetesScreen() {
 
                 <TouchableOpacity
                   onPress={handleSubmit}
+                  accessibilityRole="button"
+                  accessibilityLabel="Confirmar Compra"
                   style={{
                     backgroundColor: COLORS.primary,
                     paddingVertical: 18,
@@ -313,7 +380,7 @@ export default function BilhetesScreen() {
                       fontSize: 16,
                     }}
                   >
-                    Confirmar Compra
+                    {loading ? "A processar..." : "Confirmar Compra"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -329,6 +396,24 @@ export default function BilhetesScreen() {
           paddingHorizontal: 20,
         }}
       >
+        {bilhetes.length === 0 && (
+          <View
+            style={{
+              backgroundColor: COLORS.card,
+              padding: 24,
+              borderRadius: 20,
+            }}
+          >
+            <Text
+              style={{
+                color: COLORS.muted,
+                textAlign: "center",
+              }}
+            >
+              Ainda não possui bilhetes.
+            </Text>
+          </View>
+        )}
         {bilhetes.map((bilhete) => (
           <View
             key={bilhete.id_bilhete}
@@ -479,6 +564,7 @@ export default function BilhetesScreen() {
                   onPress={() => {
                     router.push("/pagamentos");
                   }}
+                  accessibilityRole="button"
                   style={{
                     flex: 1,
                     backgroundColor: COLORS.primary,
@@ -500,6 +586,7 @@ export default function BilhetesScreen() {
 
               <TouchableOpacity
                 onPress={() => handleDelete(bilhete.id_bilhete)}
+                accessibilityRole="button"
                 style={{
                   flex: 1,
                   backgroundColor: "#7f1d1d",

@@ -19,10 +19,12 @@ import {
 import { getUser } from "../services/authUtils";
 
 import { COLORS } from "../styles/colors";
-
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 export default function EventosAdminScreen() {
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
-
   const [eventos, setEventos] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -53,6 +55,7 @@ export default function EventosAdminScreen() {
       setEventos(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os eventos.");
     }
   };
   const handleEdit = (evento) => {
@@ -75,6 +78,28 @@ export default function EventosAdminScreen() {
     setShowForm(true);
   };
   const handleSubmit = async () => {
+    setErro("");
+    setSucesso("");
+    if (
+      !nome ||
+      !data ||
+      !localEvento ||
+      !descricao ||
+      !precoVisitante ||
+      !precoParticipante ||
+      !limiteParticipantes
+    ) {
+      setErro("Preencha todos os campos.");
+      return;
+    }
+    if (isNaN(precoVisitante) || isNaN(precoParticipante)) {
+      setErro("Os preços devem ser numéricos.");
+      return;
+    }
+    if (isNaN(limiteParticipantes)) {
+      setErro("Introduza um limite válido.");
+      return;
+    }
     try {
       const dados = {
         nome,
@@ -90,17 +115,21 @@ export default function EventosAdminScreen() {
 
         limite_participantes: limiteParticipantes,
       };
-
+      setLoading(true);
       if (editingId) {
         await updateEvento(editingId, dados);
-
-        alert("Evento atualizado");
       } else {
         await createEvento(dados);
-
-        alert("Evento criado");
       }
+      setSucesso(
+        editingId
+          ? "Evento atualizado com sucesso."
+          : "Evento criado com sucesso.",
+      );
 
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
       setShowForm(false);
 
       setEditingId(null);
@@ -109,7 +138,9 @@ export default function EventosAdminScreen() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao guardar evento");
+      setErro(error.response?.data?.message || "Erro ao guardar evento.");
+    } finally {
+      setLoading(false);
     }
   };
   const handleDelete = async (id) => {
@@ -124,10 +155,15 @@ export default function EventosAdminScreen() {
         onPress: async () => {
           try {
             await deleteEvento(id);
+            setSucesso("Evento eliminado com sucesso.");
 
+            setTimeout(() => {
+              setSucesso("");
+            }, 4000);
             loadEventos();
           } catch (error) {
             console.log(error);
+            setErro("Erro ao eliminar evento.");
           }
         },
       },
@@ -216,6 +252,45 @@ export default function EventosAdminScreen() {
               Criar Evento
             </Text>
           </TouchableOpacity>
+          {erro ? (
+            <View
+              style={{
+                backgroundColor: "#3a1616",
+                padding: 14,
+                borderRadius: 14,
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#ff8a8a",
+                  fontWeight: "600",
+                }}
+              >
+                {erro}
+              </Text>
+            </View>
+          ) : null}
+
+          {sucesso ? (
+            <View
+              style={{
+                backgroundColor: "#17361f",
+                padding: 14,
+                borderRadius: 14,
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#7dff9b",
+                  fontWeight: "600",
+                }}
+              >
+                {sucesso}
+              </Text>
+            </View>
+          ) : null}
           {showForm && (
             <View
               style={{
@@ -244,6 +319,7 @@ export default function EventosAdminScreen() {
                 <TextInput
                   placeholder="Nome"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Nome do evento"
                   value={nome}
                   onChangeText={setNome}
                   style={inputStyle}
@@ -252,6 +328,7 @@ export default function EventosAdminScreen() {
                 <TextInput
                   placeholder="Data"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Data do evento"
                   value={data}
                   onChangeText={setData}
                   style={inputStyle}
@@ -260,6 +337,7 @@ export default function EventosAdminScreen() {
                 <TextInput
                   placeholder="Local"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Local do evento"
                   value={localEvento}
                   onChangeText={setLocalEvento}
                   style={inputStyle}
@@ -268,6 +346,7 @@ export default function EventosAdminScreen() {
                 <TextInput
                   placeholder="Preço visitante"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Preço do visitante"
                   value={precoVisitante}
                   onChangeText={setPrecoVisitante}
                   style={inputStyle}
@@ -276,6 +355,7 @@ export default function EventosAdminScreen() {
                 <TextInput
                   placeholder="Preço participante"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Preço do participante"
                   value={precoParticipante}
                   onChangeText={setPrecoParticipante}
                   style={inputStyle}
@@ -284,6 +364,7 @@ export default function EventosAdminScreen() {
                 <TextInput
                   placeholder="Limite participantes"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Limite de participantes"
                   value={limiteParticipantes}
                   onChangeText={setLimiteParticipantes}
                   style={inputStyle}
@@ -292,6 +373,7 @@ export default function EventosAdminScreen() {
                 <TextInput
                   placeholder="Descrição"
                   placeholderTextColor="#6b7280"
+                  accessibilityLabel="Descrição do evento"
                   multiline
                   value={descricao}
                   onChangeText={setDescricao}
@@ -320,7 +402,7 @@ export default function EventosAdminScreen() {
                       fontSize: 16,
                     }}
                   >
-                    Guardar Evento
+                    {loading ? "A guardar..." : "Guardar Evento"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -336,6 +418,24 @@ export default function EventosAdminScreen() {
           paddingHorizontal: 20,
         }}
       >
+        {eventos.length === 0 && (
+          <View
+            style={{
+              backgroundColor: COLORS.card,
+              padding: 24,
+              borderRadius: 20,
+            }}
+          >
+            <Text
+              style={{
+                color: COLORS.muted,
+                textAlign: "center",
+              }}
+            >
+              Ainda não existem eventos disponíveis.
+            </Text>
+          </View>
+        )}
         {eventos.map((evento) => (
           <View
             key={evento.id_evento}
@@ -351,7 +451,7 @@ export default function EventosAdminScreen() {
             <Image
               source={{
                 uri: evento.imagem
-                  ? `http://10.192.149.179:3000${evento.imagem}`
+                  ? `${BASE_URL}${evento.imagem}`
                   : "https://placehold.co/800x500",
               }}
               style={{
@@ -424,7 +524,7 @@ export default function EventosAdminScreen() {
                     fontSize: 15,
                   }}
                 >
-                  {evento.data}
+                  {new Date(evento.data).toLocaleDateString("pt-PT")}
                 </Text>
               </View>
 

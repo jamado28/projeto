@@ -15,7 +15,11 @@ import {
 
 function Users() {
   const [users, setUsers] = useState([]);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [editingId, setEditingId] = useState(null);
 
   const [email, setEmail] = useState("");
@@ -37,6 +41,7 @@ function Users() {
       setUsers(response.data.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os utilizadores.");
     }
   };
 
@@ -53,8 +58,21 @@ function Users() {
   };
 
   const handleSubmit = async (e) => {
+    setErro("");
+    setSucesso("");
     e.preventDefault();
-
+    if (!email) {
+      setErro("O email é obrigatório.");
+      return;
+    }
+    if (!email.includes("@")) {
+      setErro("Introduza um email válido.");
+      return;
+    }
+    if (password && password.length < 6) {
+      setErro("A password deve ter pelo menos 6 caracteres.");
+      return;
+    }
     try {
       await updateUser(editingId, {
         email,
@@ -62,7 +80,11 @@ function Users() {
         role,
       });
 
-      alert("Utilizador atualizado");
+      setSucesso("Utilizador atualizado com sucesso.");
+
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
 
       loadUsers();
 
@@ -78,28 +100,30 @@ function Users() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao atualizar");
+      setErro(
+        error.response?.data?.message ||
+          "Ocorreu um erro ao atualizar o utilizador.",
+      );
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Tem a certeza?");
-
-    if (!confirmDelete) {
-      return;
-    }
-
+  const handleDelete = (id) => {
+    setUserToDelete(id);
+    setShowDeleteModal(true);
+  };
+  const confirmDelete = async () => {
     try {
-      await deleteUser(id);
+      await deleteUser(userToDelete);
 
-      alert("Utilizador eliminado");
+      setSucesso("Utilizador eliminado com sucesso.");
 
       loadUsers();
     } catch (error) {
-      console.log(error);
-
-      alert(error.response?.data?.message || "Erro");
+      setErro(error.response?.data?.message || "Erro ao eliminar utilizador.");
     }
+
+    setShowDeleteModal(false);
+    setUserToDelete(null);
   };
 
   return (
@@ -118,7 +142,23 @@ function Users() {
       </div>
 
       {/* FORM */}
+      {erro && (
+        <div
+          className="alert alert-danger border-0 shadow-sm mb-4"
+          role="alert"
+        >
+          {erro}
+        </div>
+      )}
 
+      {sucesso && (
+        <div
+          className="alert alert-success border-0 shadow-sm mb-4"
+          role="alert"
+        >
+          {sucesso}
+        </div>
+      )}
       {showForm && (
         <form
           onSubmit={handleSubmit}
@@ -218,7 +258,13 @@ function Users() {
             <button
               type="button"
               className="btn btn-light"
-              onClick={() => setShowForm(false)}
+              onClick={() => {
+                setShowForm(false);
+                setEditingId(null);
+                setEmail("");
+                setPassword("");
+                setRole("cliente");
+              }}
               style={{
                 borderRadius: "12px",
                 padding: "12px 24px",
@@ -320,6 +366,14 @@ function Users() {
           </table>
         </div>
       </div>
+      {/* MODAL DE CONFIRMAÇÃO DE ELIMINAÇÃO */}
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        title="Eliminar utilizador"
+        message="Tem a certeza que pretende eliminar este utilizador? Esta ação não pode ser revertida."
+        onConfirm={confirmDelete}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

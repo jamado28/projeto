@@ -29,7 +29,11 @@ import {
 
 function Bilhetes({ setSection }) {
   const user = getUser();
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bilheteToDelete, setBilheteToDelete] = useState(null);
   const navigate = useNavigate();
 
   const [bilhetes, setBilhetes] = useState([]);
@@ -71,6 +75,7 @@ function Bilhetes({ setSection }) {
       setBilhetes(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os bilhetes.");
     }
   };
 
@@ -81,6 +86,7 @@ function Bilhetes({ setSection }) {
       setEventos(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os eventos.");
     }
   };
 
@@ -91,10 +97,21 @@ function Bilhetes({ setSection }) {
       setCarros(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os veículos.");
     }
   };
 
   const handleSubmit = async (e) => {
+    setErro("");
+    setSucesso("");
+    if (!idEvento) {
+      setErro("Selecione um evento.");
+      return;
+    }
+    if (tipo === "participante" && !matriculaCarro) {
+      setErro("Selecione um veículo.");
+      return;
+    }
     e.preventDefault();
 
     try {
@@ -104,7 +121,11 @@ function Bilhetes({ setSection }) {
         matricula_carro: tipo === "participante" ? matriculaCarro : null,
       });
 
-      alert("Bilhete criado");
+      setSucesso("Bilhete criado com sucesso.");
+
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
 
       loadBilhetes();
 
@@ -118,28 +139,27 @@ function Bilhetes({ setSection }) {
     } catch (error) {
       console.log(error);
 
-      alert(error.response?.data?.message || "Erro");
+      setErro(error.response?.data?.message || "Erro ao criar bilhete.");
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Tem a certeza?");
-
-    if (!confirmDelete) {
-      return;
-    }
-
+  const handleDelete = (id) => {
+    setBilheteToDelete(id);
+    setShowDeleteModal(true);
+  };
+  const confirmDelete = async () => {
     try {
-      await deleteBilhete(id);
+      await deleteBilhete(bilheteToDelete);
 
-      alert("Bilhete apagado");
+      setSucesso("Bilhete eliminado com sucesso.");
 
       loadBilhetes();
     } catch (error) {
-      console.log(error);
-
-      alert("Erro ao apagar");
+      setErro("Erro ao eliminar bilhete.");
     }
+
+    setShowDeleteModal(false);
+    setBilheteToDelete(null);
   };
 
   const handlePagar = (idBilhete) => {
@@ -183,7 +203,23 @@ function Bilhetes({ setSection }) {
           </div>
 
           {/* FORM */}
+          {erro && (
+            <div
+              className="alert alert-danger border-0 shadow-sm mb-4"
+              role="alert"
+            >
+              {erro}
+            </div>
+          )}
 
+          {sucesso && (
+            <div
+              className="alert alert-success border-0 shadow-sm mb-4"
+              role="alert"
+            >
+              {sucesso}
+            </div>
+          )}
           {showForm && (
             <form
               onSubmit={handleSubmit}
@@ -310,7 +346,9 @@ function Bilhetes({ setSection }) {
                         <p className="text-muted mb-0">
                           <FaCalendarAlt className="me-2" />
 
-                          {bilhete.evento?.data}
+                          {new Date(bilhete.evento?.data).toLocaleDateString(
+                            "pt-PT",
+                          )}
                         </p>
                       </div>
 
@@ -552,6 +590,13 @@ function Bilhetes({ setSection }) {
           </div>
         </div>
       )}
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        title="Eliminar bilhete"
+        message="Tem a certeza que pretende eliminar este bilhete? Esta ação não pode ser revertida."
+        onConfirm={confirmDelete}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

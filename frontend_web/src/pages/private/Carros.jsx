@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import { getUser } from "../../services/authUtils";
-
 import {
   getCarros,
   createCarro,
   updateCarro,
   deleteCarro,
 } from "../../services/carroService";
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 // ÍCONES
 import {
   FaCarSide,
@@ -22,9 +21,11 @@ import {
 
 function Carros() {
   const user = getUser();
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [carros, setCarros] = useState([]);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [carroToDelete, setCarroToDelete] = useState(null); 
   const [matricula, setMatricula] = useState("");
 
   const [marca, setMarca] = useState("");
@@ -53,11 +54,13 @@ function Carros() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao carregar carros");
+      setErro("Não foi possível carregar os veículos.");
     }
   };
 
   const handleSubmit = async (e) => {
+    setErro("");
+    setSucesso("");
     e.preventDefault();
 
     try {
@@ -78,11 +81,14 @@ function Carros() {
       if (editingId) {
         await updateCarro(editingId, dados);
 
-        alert("Carro atualizado");
+        setSucesso("Veículo atualizado com sucesso.");
       } else {
         await createCarro(dados);
 
-        alert("Carro criado");
+        setSucesso("Veículo criado com sucesso.");
+        setTimeout(() => {
+          setSucesso("");
+        }, 4000);
       }
 
       loadCarros();
@@ -105,7 +111,7 @@ function Carros() {
     } catch (error) {
       console.log(error);
 
-      alert(error.response?.data?.message || "Erro");
+      setErro(error.response?.data?.message || "Ocorreu um erro ao guardar o veículo.");
     }
   };
 
@@ -130,26 +136,24 @@ function Carros() {
     setImgUrl(carro.img_url);
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Tem a certeza?");
-
-    if (!confirmDelete) {
-      return;
-    }
-
+  const handleDelete = (id) => {
+    setCarroToDelete(id);
+    setShowDeleteModal(true);
+  };
+  const confirmDelete = async () => {
     try {
-      await deleteCarro(id);
+      await deleteCarro(carroToDelete);
 
-      alert("Carro apagado");
+      setSucesso("Veículo eliminado com sucesso.");
 
       loadCarros();
     } catch (error) {
-      console.log(error);
-
-      alert("Erro ao apagar");
+      setErro("Erro ao eliminar veículo.");
     }
-  };
 
+    setShowDeleteModal(false);
+    setCarroToDelete(null);
+  };
   const carrosPorEvento = {};
 
   carros.forEach((carro) => {
@@ -215,7 +219,23 @@ function Carros() {
           </div>
 
           {/* FORM */}
+          {erro && (
+            <div
+              className="alert alert-danger shadow-sm border-0 mb-4"
+              role="alert"
+            >
+              {erro}
+            </div>
+          )}
 
+          {sucesso && (
+            <div
+              className="alert alert-success shadow-sm border-0 mb-4"
+              role="alert"
+            >
+              {sucesso}
+            </div>
+          )}    
           {showForm && (
             <form
               onSubmit={handleSubmit}
@@ -361,7 +381,7 @@ function Carros() {
                   <img
                     src={
                       carro.img_url
-                        ? `http://localhost:3000${carro.img_url}`
+                        ? `${BASE_URL}${carro.img_url}`
                         : "https://placehold.co/600x400"
                     }
                     className="card-img-top"
@@ -563,7 +583,7 @@ function Carros() {
                         <img
                           src={
                             carro.img_url
-                              ? `http://localhost:3000${carro.img_url}`
+                              ? `${BASE_URL}${carro.img_url}`
                               : "https://placehold.co/600x400"
                           }
                           alt={carro.modelo}
@@ -672,7 +692,7 @@ function Carros() {
                         <img
                           src={
                             carro.img_url
-                              ? `http://localhost:3000${carro.img_url}`
+                              ? `${BASE_URL}${carro.img_url}`
                               : "https://placehold.co/600x400"
                           }
                           alt={carro.modelo}
@@ -716,6 +736,13 @@ function Carros() {
           ))}
         </div>
       )}
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        title="Eliminar veículo"
+        message="Tem a certeza que pretende eliminar este veículo? Esta ação não pode ser revertida."
+        onConfirm={confirmDelete}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

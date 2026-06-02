@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Alert } from "react-native";
 import {
   View,
   Text,
@@ -28,7 +27,9 @@ export default function PessoasScreen() {
   const [telemovel, setTelemovel] = useState("");
 
   const [dataNascimento, setDataNascimento] = useState("");
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     init();
   }, []);
@@ -73,11 +74,27 @@ export default function PessoasScreen() {
       }
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os dados.");
     }
   };
 
   const handleSubmit = async () => {
+    setErro("");
+    setSucesso("");
+    if (!nome || !email) {
+      setErro("Nome e email são obrigatórios.");
+      return;
+    }
+    if (!email.includes("@")) {
+      setErro("Introduza um email válido.");
+      return;
+    }
+    if (telemovel && telemovel.length < 9) {
+      setErro("Introduza um telemóvel válido.");
+      return;
+    }
     try {
+      setLoading(true);
       await updatePessoa(editingId, {
         nome,
         email,
@@ -85,11 +102,18 @@ export default function PessoasScreen() {
         data_nascimento: dataNascimento,
       });
 
-      alert("Dados atualizados");
+      setSucesso("Dados atualizados com sucesso.");
+
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
 
       loadPessoas(user);
     } catch (error) {
       console.log(error);
+      setErro(error.response?.data?.message || "Erro ao atualizar os dados.");
+    } finally {
+      setLoading(false);
     }
   };
   if (!user) {
@@ -221,6 +245,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={nome}
               onChangeText={setNome}
+              accessibilityLabel="Nome"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,
@@ -236,6 +261,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={email}
               onChangeText={setEmail}
+              accessibilityLabel="Email"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,
@@ -251,6 +277,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={telemovel}
               onChangeText={setTelemovel}
+              accessibilityLabel="Telemóvel"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,
@@ -266,6 +293,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={dataNascimento}
               onChangeText={setDataNascimento}
+              accessibilityLabel="Data nascimento"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,
@@ -294,7 +322,7 @@ export default function PessoasScreen() {
                   fontSize: 16,
                 }}
               >
-                Guardar Alterações
+                {loading ? "A guardar..." : "Guardar Alterações"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -302,7 +330,45 @@ export default function PessoasScreen() {
       )}
 
       {/* FORM ADMIN */}
+      {erro ? (
+        <View
+          style={{
+            backgroundColor: "#3a1616",
+            padding: 14,
+            borderRadius: 14,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              color: "#ff8a8a",
+              fontWeight: "600",
+            }}
+          >
+            {erro}
+          </Text>
+        </View>
+      ) : null}
 
+      {sucesso ? (
+        <View
+          style={{
+            backgroundColor: "#17361f",
+            padding: 14,
+            borderRadius: 14,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              color: "#7dff9b",
+              fontWeight: "600",
+            }}
+          >
+            {sucesso}
+          </Text>
+        </View>
+      ) : null}
       {user?.role === "admin" && editingId && (
         <View
           style={{
@@ -333,6 +399,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={nome}
               onChangeText={setNome}
+              accessibilityLabel="Nome"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,
@@ -348,6 +415,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={email}
               onChangeText={setEmail}
+              accessibilityLabel="Email"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,
@@ -363,6 +431,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={telemovel}
               onChangeText={setTelemovel}
+              accessibilityLabel="Telemóvel"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,
@@ -378,6 +447,7 @@ export default function PessoasScreen() {
               placeholderTextColor="#6b7280"
               value={dataNascimento}
               onChangeText={setDataNascimento}
+              accessibilityLabel="Data nascimento"
               style={{
                 backgroundColor: "#111827",
                 color: COLORS.text,

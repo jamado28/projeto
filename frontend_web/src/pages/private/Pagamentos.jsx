@@ -24,14 +24,16 @@ import {
 
 function Pagamentos() {
   const user = getUser();
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pagamentoToDelete, setPagamentoToDelete] = useState(null);
   const [pagamentos, setPagamentos] = useState([]);
 
   const [bilhetes, setBilhetes] = useState([]);
 
   const [iban, setIban] = useState("");
-
-  const [estado, setEstado] = useState(true);
 
   const [idBilhete, setIdBilhete] = useState("");
 
@@ -58,6 +60,8 @@ function Pagamentos() {
       setPagamentos(response.data);
     } catch (error) {
       console.log(error);
+
+      setErro("Não foi possível carregar os pagamentos.");
     }
   };
 
@@ -68,12 +72,22 @@ function Pagamentos() {
       setBilhetes(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os bilhetes.");
     }
   };
 
   const handleSubmit = async (e) => {
+    setErro("");
+    setSucesso("");
     e.preventDefault();
-
+    if (!iban || !idBilhete) {
+      setErro("Preencha todos os campos.");
+      return;
+    }
+    if (iban.length < 15) {
+      setErro("Introduza um IBAN válido.");
+      return;
+    }
     try {
       await createPagamento({
         iban,
@@ -81,7 +95,11 @@ function Pagamentos() {
         id_bilhete: idBilhete,
       });
 
-      alert("Pagamento criado");
+      setSucesso("Pagamento criado com sucesso.");
+
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
 
       loadPagamentos();
 
@@ -95,30 +113,31 @@ function Pagamentos() {
     } catch (error) {
       console.log(error);
 
-      alert(error.response?.data?.message || "Erro");
+      setErro(
+        error.response?.data?.message ||
+          "Ocorreu um erro ao criar o pagamento.",
+      );
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Tem a certeza?");
-
-    if (!confirmDelete) {
-      return;
-    }
-
+  const handleDelete = (id) => {
+    setPagamentoToDelete(id);
+    setShowDeleteModal(true);
+  };
+  const confirmDelete = async () => {
     try {
-      await deletePagamento(id);
+      await deletePagamento(pagamentoToDelete);
 
-      alert("Pagamento apagado");
+      setSucesso("Pagamento eliminado com sucesso.");
 
       loadPagamentos();
     } catch (error) {
-      console.log(error);
-
-      alert("Erro ao apagar");
+      setErro("Erro ao eliminar pagamento.");
     }
-  };
 
+    setShowDeleteModal(false);
+    setPagamentoToDelete(null);
+  };
   return (
     <div>
       {/* CLIENTE */}
@@ -154,7 +173,23 @@ function Pagamentos() {
           </div>
 
           {/* FORM */}
+          {erro && (
+            <div
+              className="alert alert-danger border-0 shadow-sm mb-4"
+              role="alert"
+            >
+              {erro}
+            </div>
+          )}
 
+          {sucesso && (
+            <div
+              className="alert alert-success border-0 shadow-sm mb-4"
+              role="alert"
+            >
+              {sucesso}
+            </div>
+          )}
           {showForm && (
             <form
               onSubmit={handleSubmit}
@@ -465,6 +500,13 @@ function Pagamentos() {
           </div>
         </div>
       )}
+      <ConfirmDeleteModal
+        show={showDeleteModal}
+        title="Eliminar pagamento"
+        message="Tem a certeza que pretende eliminar este pagamento? Esta ação não pode ser revertida."
+        onConfirm={confirmDelete}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

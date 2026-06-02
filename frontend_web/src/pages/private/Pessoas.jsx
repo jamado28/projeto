@@ -17,7 +17,8 @@ import {
 
 function Pessoas() {
   const user = getUser();
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [pessoas, setPessoas] = useState([]);
 
   const [editingId, setEditingId] = useState(null);
@@ -56,6 +57,7 @@ function Pessoas() {
       }
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os utilizadores.");
     }
   };
 
@@ -72,8 +74,21 @@ function Pessoas() {
   };
 
   const handleSubmit = async (e) => {
+    setErro("");
+    setSucesso("");
     e.preventDefault();
-
+    if (!nome || !email) {
+      setErro("Nome e email são obrigatórios.");
+      return;
+    }
+    if (!email.includes("@")) {
+      setErro("Introduza um email válido.");
+      return;
+    }
+    if (telemovel && telemovel.length < 9) {
+      setErro("Introduza um telemóvel válido.");
+      return;
+    }
     try {
       await updatePessoa(editingId, {
         nome,
@@ -82,7 +97,11 @@ function Pessoas() {
         data_nascimento: dataNascimento,
       });
 
-      alert("Pessoa atualizada");
+      setSucesso("Dados atualizados com sucesso.");
+
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
 
       loadPessoas();
 
@@ -98,7 +117,10 @@ function Pessoas() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao atualizar");
+      setErro(
+        error.response?.data?.message ||
+          "Ocorreu um erro ao atualizar os dados.",
+      );
     }
   };
 
@@ -125,7 +147,23 @@ function Pessoas() {
           </div>
 
           {/* FORM */}
+          {erro && (
+            <div
+              className="alert alert-danger border-0 shadow-sm mb-4"
+              role="alert"
+            >
+              {erro}
+            </div>
+          )}
 
+          {sucesso && (
+            <div
+              className="alert alert-success border-0 shadow-sm mb-4"
+              role="alert"
+            >
+              {sucesso}
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="row">
               {/* NOME */}
@@ -407,7 +445,11 @@ function Pessoas() {
 
                       <td>{pessoa.telemovel}</td>
 
-                      <td>{pessoa.data_nascimento}</td>
+                      <td>
+                        {new Date(pessoa.data_nascimento).toLocaleDateString(
+                          "pt-PT",
+                        )}
+                      </td>
 
                       <td>
                         <div className="d-flex justify-content-center">

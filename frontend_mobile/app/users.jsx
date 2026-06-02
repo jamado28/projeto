@@ -13,6 +13,9 @@ import { getUsers, updateUser, deleteUser } from "../services/authUtils";
 import { COLORS } from "../styles/colors";
 
 export default function UsersScreen() {
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
 
   const [editingId, setEditingId] = useState(null);
@@ -34,10 +37,13 @@ export default function UsersScreen() {
       setUsers(response.data);
     } catch (error) {
       console.log(error);
+      setErro("Não foi possível carregar os utilizadores.");
     }
   };
 
   const handleEdit = (user) => {
+    setErro("");
+    setSucesso("");
     setEditingId(user.id);
 
     setEmail(user.email);
@@ -46,16 +52,32 @@ export default function UsersScreen() {
 
     setPassword("");
   };
-
+  if (!email) {
+    setErro("O email é obrigatório.");
+    return;
+  }
+  if (!email.includes("@")) {
+    setErro("Introduza um email válido.");
+    return;
+  }
+  if (password && password.length < 6) {
+    setErro("A password deve ter pelo menos 6 caracteres.");
+    return;
+  }
   const handleSubmit = async () => {
     try {
+      setLoading(true);
       await updateUser(editingId, {
         email,
         password,
         role,
       });
 
-      alert("Utilizador atualizado");
+      setSucesso("Utilizador atualizado com sucesso.");
+
+      setTimeout(() => {
+        setSucesso("");
+      }, 4000);
 
       setEditingId(null);
 
@@ -69,7 +91,9 @@ export default function UsersScreen() {
     } catch (error) {
       console.log(error);
 
-      alert("Erro ao atualizar");
+      setErro(error.response?.data?.message || "Erro ao atualizar utilizador.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,13 +110,13 @@ export default function UsersScreen() {
           try {
             await deleteUser(id);
 
-            alert("Utilizador eliminado");
+            setSucesso("Utilizador eliminado com sucesso.");
 
             loadUsers();
           } catch (error) {
             console.log(error);
 
-            alert("Erro ao eliminar");
+            setErro("Erro ao eliminar utilizador.");
           }
         },
       },
@@ -139,7 +163,45 @@ export default function UsersScreen() {
       </View>
 
       {/* FORM */}
+      {erro ? (
+        <View
+          style={{
+            backgroundColor: "#3a1616",
+            padding: 14,
+            borderRadius: 14,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              color: "#ff8a8a",
+              fontWeight: "600",
+            }}
+          >
+            {erro}
+          </Text>
+        </View>
+      ) : null}
 
+      {sucesso ? (
+        <View
+          style={{
+            backgroundColor: "#17361f",
+            padding: 14,
+            borderRadius: 14,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              color: "#7dff9b",
+              fontWeight: "600",
+            }}
+          >
+            {sucesso}
+          </Text>
+        </View>
+      ) : null}
       {editingId && (
         <View
           style={{
@@ -166,6 +228,7 @@ export default function UsersScreen() {
             placeholderTextColor="#6b7280"
             value={email}
             onChangeText={setEmail}
+            accessibilityLabel="Email"
             style={{
               backgroundColor: "#111827",
               color: COLORS.text,
@@ -182,6 +245,7 @@ export default function UsersScreen() {
             secureTextEntry
             value={password}
             onChangeText={setPassword}
+            accessibilityLabel="Nova password"
             style={{
               backgroundColor: "#111827",
               color: COLORS.text,
@@ -197,6 +261,7 @@ export default function UsersScreen() {
             placeholderTextColor="#6b7280"
             value={role}
             onChangeText={setRole}
+            accessibilityLabel="Role"
             style={{
               backgroundColor: "#111827",
               color: COLORS.text,
@@ -209,6 +274,7 @@ export default function UsersScreen() {
 
           <TouchableOpacity
             onPress={handleSubmit}
+            accessibilityRole="button"
             style={{
               backgroundColor: COLORS.primary,
               paddingVertical: 18,
@@ -223,7 +289,7 @@ export default function UsersScreen() {
                 fontSize: 16,
               }}
             >
-              Atualizar Utilizador
+              {loading ? "A atualizar..." : "Atualizar Utilizador"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -312,6 +378,7 @@ export default function UsersScreen() {
             >
               <TouchableOpacity
                 onPress={() => handleEdit(user)}
+                accessibilityRole="button"
                 style={{
                   flex: 1,
                   backgroundColor: "#374151",
@@ -332,6 +399,7 @@ export default function UsersScreen() {
 
               <TouchableOpacity
                 onPress={() => handleDelete(user.id)}
+                accessibilityRole="button"
                 style={{
                   flex: 1,
                   backgroundColor: "#7f1d1d",

@@ -17,26 +17,50 @@ import { COLORS } from "../styles/colors";
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState("");
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
 
   const [role, setRole] = useState("cliente");
 
   const handleRegister = async () => {
+    setErro("");
+    setSucesso("");
+
+    if (!email || !password) {
+      setErro("Preencha todos os campos.");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      setErro("Introduza um email válido.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setErro("A password deve ter pelo menos 6 caracteres.");
+      return;
+    }
     try {
+      setLoading(true);
       await register({
         email,
         password,
         role,
       });
 
-      alert("Conta criada com sucesso");
+      setSucesso("Conta criada com sucesso.");
 
-      router.push("/login");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
     } catch (error) {
       console.log(error);
 
-      alert(error.response?.data?.message || "Erro ao criar conta");
+      setErro(error.response?.data?.message || "Erro ao criar conta.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,7 +98,45 @@ export default function RegisterScreen() {
       </Text>
 
       {/* EMAIL */}
+      {erro ? (
+        <View
+          style={{
+            backgroundColor: "#3a1616",
+            padding: 14,
+            borderRadius: 14,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              color: "#ff8a8a",
+              fontWeight: "600",
+            }}
+          >
+            {erro}
+          </Text>
+        </View>
+      ) : null}
 
+      {sucesso ? (
+        <View
+          style={{
+            backgroundColor: "#17361f",
+            padding: 14,
+            borderRadius: 14,
+            marginBottom: 20,
+          }}
+        >
+          <Text
+            style={{
+              color: "#7dff9b",
+              fontWeight: "600",
+            }}
+          >
+            {sucesso}
+          </Text>
+        </View>
+      ) : null}
       <TextInput
         placeholder="Email"
         placeholderTextColor={COLORS.muted}
@@ -191,7 +253,7 @@ export default function RegisterScreen() {
             fontSize: 16,
           }}
         >
-          Criar Conta
+          {loading ? "A criar..." : "Criar Conta"}
         </Text>
       </TouchableOpacity>
 

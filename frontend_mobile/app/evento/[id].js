@@ -9,26 +9,76 @@ import { useLocalSearchParams } from "expo-router";
 import { COLORS } from "../../styles/colors";
 
 import { getEventoById } from "../../services/eventService";
-
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
 
   const [evento, setEvento] = useState(null);
-
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState("");
+  const [mensagem, setMensagem] = useState("");
   useEffect(() => {
     loadEvento();
   }, []);
 
   const loadEvento = async () => {
     try {
+      setLoading(true);
+
       const response = await getEventoById(id);
 
       setEvento(response.data);
     } catch (error) {
       console.log(error);
+
+      setErro("Não foi possível carregar o evento.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: COLORS.background,
+        }}
+      >
+        <Text
+          style={{
+            color: COLORS.text,
+          }}
+        >
+          A carregar evento...
+        </Text>
+      </View>
+    );
+  }
+  if (erro) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: COLORS.background,
+          padding: 24,
+        }}
+      >
+        <Text
+          style={{
+            color: "#ff8a8a",
+            textAlign: "center",
+          }}
+        >
+          {erro}
+        </Text>
+      </View>
+    );
+  }
   if (!evento) {
     return (
       <View
@@ -44,7 +94,7 @@ export default function EventDetails() {
             color: COLORS.text,
           }}
         >
-          A carregar...
+          Evento não encontrado.
         </Text>
       </View>
     );
@@ -63,7 +113,13 @@ export default function EventDetails() {
     // apenas cliente
 
     if (user.role !== "cliente") {
-      alert("Apenas clientes podem comprar bilhetes.");
+      setMensagem("Apenas clientes podem comprar bilhetes.");
+
+      setTimeout(() => {
+        setMensagem("");
+      }, 4000);
+
+      return;
 
       return;
     }
@@ -92,7 +148,7 @@ export default function EventDetails() {
       <Image
         source={{
           uri: evento.imagem
-            ? `http://10.192.149.179:3000${evento.imagem}`
+            ? `${BASE_URL}${evento.imagem}`
             : "https://placehold.co/1200x700",
         }}
         style={{
@@ -163,7 +219,7 @@ export default function EventDetails() {
                 marginLeft: 8,
               }}
             >
-              {evento.data}
+              {new Date(evento.data).toLocaleDateString("pt-PT")}
             </Text>
           </View>
         </View>
@@ -262,9 +318,29 @@ export default function EventDetails() {
         </View>
 
         {/* BOTÃO */}
-
+        {mensagem ? (
+          <View
+            style={{
+              backgroundColor: "#3a1616",
+              padding: 14,
+              borderRadius: 14,
+              marginBottom: 20,
+            }}
+          >
+            <Text
+              style={{
+                color: "#ff8a8a",
+                fontWeight: "600",
+              }}
+            >
+              {mensagem}
+            </Text>
+          </View>
+        ) : null}
         <TouchableOpacity
           onPress={handleComprar}
+          accessibilityRole="button"
+          accessibilityLabel="Comprar bilhete"
           style={{
             backgroundColor: COLORS.primary,
             paddingVertical: 18,
