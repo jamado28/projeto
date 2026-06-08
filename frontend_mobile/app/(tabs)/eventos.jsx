@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { getEventos } from "../../services/eventService";
-
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 import { COLORS } from "../../styles/colors";
 
 export default function EventosScreen() {
@@ -122,7 +122,7 @@ export default function EventosScreen() {
             <Image
               source={{
                 uri: evento.imagem
-                  ? `http://10.192.149.179:3000${evento.imagem}`
+                  ? `${BASE_URL}${evento.imagem}`
                   : "https://placehold.co/300x300",
               }}
               style={{

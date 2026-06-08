@@ -162,6 +162,7 @@ export default function CarrosScreen() {
 
     fontSize: 16,
   };
+  console.log("BASE_URL =", BASE_URL);
   return (
     <ScrollView
       style={{

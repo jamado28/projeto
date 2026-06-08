@@ -6,7 +6,7 @@ export const getUser = () => {
   if (!token) {
     return null;
   }
-
+  
   try {
     return jwtDecode(token);
   } catch (error) {

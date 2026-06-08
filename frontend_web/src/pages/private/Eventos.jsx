@@ -26,7 +26,14 @@ import {
 function Eventos() {
   const { user, role, isAuthenticated } = useAuth();
 
-  const { eventos, setEventos, loading, erro, loadEventos } = useEventos();
+  const {
+    eventos,
+    setEventos,
+    loading,
+    erro,
+    setErro,
+    loadEventos,
+  } = useEventos();
 
   const [nome, setNome] = useState("");
 
@@ -117,6 +124,9 @@ function Eventos() {
 
         setSucesso("Evento atualizado com sucesso.");
       } else {
+        console.log("A criar evento...");
+        console.log(user);
+        console.log(editingId);
         await createEvento(dados);
 
         setSucesso("Evento criado com sucesso.");
@@ -148,6 +158,9 @@ function Eventos() {
       setShowForm(false);
     } catch (error) {
       console.log(error);
+      console.log("ERRO COMPLETO:", error);
+      console.log("RESPONSE:", error.response);
+      console.log("DATA:", error.response?.data);
 
       setErro(
         error.response?.data?.message || "Ocorreu um erro ao guardar o evento.",
@@ -469,6 +482,7 @@ function Eventos() {
               padding: "14px",
               fontWeight: "600",
             }}
+
           >
             {editingId ? "Atualizar evento" : "Criar evento"}
           </button>
@@ -586,36 +600,36 @@ function Eventos() {
                       {(user.role === "admin" ||
                         (user.role === "organizador" &&
                           evento.user_id === user.id)) && (
-                        <div className="d-flex gap-2 justify-content-center">
-                          <button
-                            aria-label={"Editar " + evento.nome}
-                            className="btn btn-sm"
-                            onClick={() => handleEdit(evento)}
-                            style={{
-                              backgroundColor: "#df9425",
-                              color: "#111",
-                              borderRadius: "10px",
-                              width: "42px",
-                              height: "42px",
-                            }}
-                          >
-                            <FaEdit />
-                          </button>
+                          <div className="d-flex gap-2 justify-content-center">
+                            <button
+                              aria-label={"Editar " + evento.nome}
+                              className="btn btn-sm"
+                              onClick={() => handleEdit(evento)}
+                              style={{
+                                backgroundColor: "#df9425",
+                                color: "#111",
+                                borderRadius: "10px",
+                                width: "42px",
+                                height: "42px",
+                              }}
+                            >
+                              <FaEdit />
+                            </button>
 
-                          <button
-                            aria-label={"Eliminar " + evento.nome}
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(evento.id_evento)}
-                            style={{
-                              borderRadius: "10px",
-                              width: "42px",
-                              height: "42px",
-                            }}
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </div>
-                      )}
+                            <button
+                              aria-label={"Eliminar " + evento.nome}
+                              className="btn btn-danger btn-sm"
+                              onClick={() => handleDelete(evento.id_evento)}
+                              style={{
+                                borderRadius: "10px",
+                                width: "42px",
+                                height: "42px",
+                              }}
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        )}
                     </td>
                   </tr>
                 ))

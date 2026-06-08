@@ -4,6 +4,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { getEventos } from "../../services/eventService";
 import { Ionicons } from "@expo/vector-icons";
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 export default function HomeScreen() {
   const [eventos, setEventos] = useState([]);
 
@@ -89,7 +90,7 @@ export default function HomeScreen() {
           <Image
             source={{
               uri: eventos[0]?.imagem
-                ? `http://10.192.149.179:3000${eventos[0].imagem}`
+                ? `${BASE_URL}${eventos[0].imagem}`
                 : "https://placehold.co/800x500",
             }}
             style={{
@@ -248,7 +249,7 @@ export default function HomeScreen() {
             <Image
               source={{
                 uri: evento.imagem
-                  ? `http://10.192.149.179:3000${evento.imagem}`
+                  ? `${BASE_URL}${evento.imagem}`
                   : "https://placehold.co/300x300",
               }}
               style={{

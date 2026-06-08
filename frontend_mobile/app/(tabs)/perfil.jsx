@@ -203,7 +203,7 @@ export default function PerfilScreen() {
 
         {user.role === "organizador" && (
           <>
-            <MenuButton title="Eventos" route="/eventos-admin" />
+            <MenuButton title="Eventos" route="/eventos_admin" />
 
             <MenuButton title="Carros" route="/carros" />
 

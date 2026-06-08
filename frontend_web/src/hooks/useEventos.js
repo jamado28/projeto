@@ -31,6 +31,7 @@ export function useEventos() {
     setEventos,
     loading,
     erro,
+    setErro,
     loadEventos,
   };
 }

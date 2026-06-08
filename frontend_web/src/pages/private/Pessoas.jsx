@@ -29,7 +29,15 @@ function Pessoas() {
   const [telemovel, setTelemovel] = useState("");
 
   const [dataNascimento, setDataNascimento] = useState("");
-
+  useEffect(() => {
+    if (pessoas.length > 0 && pessoas[0]) {
+      setNome(pessoas[0].nome || "");
+      setEmail(pessoas[0].email || "");
+      setTelemovel(pessoas[0].telemovel || "");
+      setDataNascimento(pessoas[0].data_nascimento || "");
+      setEditingId(pessoas[0].id_pessoa);
+    }
+  }, [pessoas]);
   const handleEdit = (pessoa) => {
     setEditingId(pessoa.id_pessoa);
 
@@ -69,7 +77,7 @@ function Pessoas() {
       return;
     }
     try {
-      await updatePessoa(editingId, {
+      await updatePessoa(pessoas[0].id_pessoa, {
         nome,
         email,
         telemovel,
@@ -93,9 +101,12 @@ function Pessoas() {
       setTelemovel("");
 
       setDataNascimento("");
+      console.log("Pessoa:", pessoas[0]);
+      console.log("User:", user);
     } catch (error) {
       console.log(error);
-
+console.log("Pessoa:", pessoas[0]);
+      console.log("User:", user);
       setErro(
         error.response?.data?.message ||
           "Ocorreu um erro ao atualizar os dados.",
